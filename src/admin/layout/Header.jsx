@@ -1,31 +1,139 @@
-import { Bars3Icon } from "@heroicons/react/24/solid";
+// FILE: src/components/Header.jsx
+
+import { Fragment } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { useNavigate, Link } from 'react-router-dom';
+import { Menu, Transition } from '@headlessui/react';
+import {
+  Bars3Icon,
+  BellIcon,
+  ArrowRightOnRectangleIcon,
+  UserCircleIcon,
+  ChevronDownIcon
+} from "@heroicons/react/24/solid";
+
+import { selectLogin, logoutAsync } from '../../features/adminSlice/auth/loginSlice'; // Path ko apne project ke anusaar theek karein
 
 const Header = ({ setIsSidebarOpen }) => {
-    return (
-        <header className="bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-20">
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex items-center justify-between h-16">
-                    {/* Hamburger Menu for mobile */}
-                    <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden text-slate-600">
-                        <Bars3Icon className="w-6 h-6" />
-                    </button>
-                    
-                    {/* This div is a spacer on mobile and hidden on desktop */}
-                    <div className="lg:hidden"></div>
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  
+  // Redux store se user ki jaankari nikalna
+  const { user, isAuthenticated } = useSelector(selectLogin);
 
-                    {/* Right side of header */}
-                    <div className="flex items-center gap-4">
-                        <span className="font-semibold text-slate-700">Admin User</span>
-                        <img 
-                            className="w-10 h-10 rounded-full" 
-                            src="https://ui-avatars.com/api/?name=Admin+User&background=random" 
-                            alt="Admin Avatar" 
-                        />
-                    </div>
+  const handleLogout = () => {
+    dispatch(logoutAsync());
+    navigate('/admin/login');
+  };
+
+  // User ke naam se ek fallback avatar URL banana
+  const getAvatarUrl = () => {
+    if (user?.avatar) {
+      return user.avatar;
+    }
+    if (user?.name) {
+      const formattedName = user.name.replace(/\s+/g, '+');
+      return `https://ui-avatars.com/api/?name=${formattedName}&background=0D8ABC&color=fff&font-size=0.5`;
+    }
+    return "https://ui-avatars.com/api/?name=?&background=random&color=fff";
+  };
+
+  return (
+    <header className="bg-white/90 backdrop-blur-lg shadow-sm sticky top-0 z-30">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="flex h-16 items-center justify-between">
+          {/* Hamburger Menu for mobile */}
+          <div className="flex items-center">
+            <button
+              onClick={() => setIsSidebarOpen(true)}
+              className="lg:hidden rounded-md p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+            >
+              <Bars3Icon className="h-6 w-6" />
+            </button>
+          </div>
+
+          {/* Right side of header */}
+          <div className="flex items-center gap-x-4">
+            <button
+              type="button"
+              className="rounded-full p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+            >
+              <span className="sr-only">View notifications</span>
+              <BellIcon className="h-6 w-6" aria-hidden="true" />
+            </button>
+            
+            {/* Vertical divider */}
+            <div className="hidden sm:block h-6 w-px bg-gray-200" aria-hidden="true" />
+
+            {/* Profile dropdown */}
+            {isAuthenticated && user ? (
+              <Menu as="div" className="relative">
+                <div>
+                  <Menu.Button className="flex items-center gap-x-2 rounded-full p-1.5 text-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+                    <span className="sr-only">Open user menu</span>
+                    <img
+                      className="h-9 w-9 rounded-full object-cover"
+                      src={getAvatarUrl()}
+                      alt={`${user.name}'s avatar`}
+                    />
+                    <span className="hidden lg:flex lg:items-center">
+                      <span className="font-semibold text-gray-800" aria-hidden="true">
+                        {user.name}
+                      </span>
+                      <ChevronDownIcon className="ml-2 h-5 w-5 text-gray-400" aria-hidden="true" />
+                    </span>
+                  </Menu.Button>
                 </div>
-            </div>
-        </header>
-    );
+                <Transition
+                  as={Fragment}
+                  enter="transition ease-out duration-100"
+                  enterFrom="transform opacity-0 scale-95"
+                  enterTo="transform opacity-100 scale-100"
+                  leave="transition ease-in duration-75"
+                  leaveFrom="transform opacity-100 scale-100"
+                  leaveTo="transform opacity-0 scale-95"
+                >
+                  <Menu.Items className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                    <div className="border-b border-gray-100 px-4 py-3">
+                      <p className="text-sm font-semibold text-gray-800">{user.name}</p>
+                      <p className="truncate text-sm text-gray-500">{user.email}</p>
+                    </div>
+                    <Menu.Item>
+                      {({ active }) => (
+                        <Link
+                          to="/admin/profile" // Aap is route ko apne app me bana sakte hain
+                          className={`${active ? 'bg-gray-100' : ''} group flex w-full items-center px-4 py-2 text-sm text-gray-700`}
+                        >
+                          <UserCircleIcon className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" />
+                          Your Profile
+                        </Link>
+                      )}
+                    </Menu.Item>
+                    <Menu.Item>
+                      {({ active }) => (
+                        <button
+                          onClick={handleLogout}
+                          className={`${active ? 'bg-gray-100' : ''} group flex w-full items-center px-4 py-2 text-sm text-gray-700`}
+                        >
+                          <ArrowRightOnRectangleIcon className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" />
+                          Logout
+                        </button>
+                      )}
+                    </Menu.Item>
+                  </Menu.Items>
+                </Transition>
+              </Menu>
+            ) : (
+              // Agar user logged in nahi hai to Login button dikha sakte hain
+              <Link to="/adminlogin" className="text-sm font-semibold text-gray-700 hover:text-red-600">
+                Sign In
+              </Link>
+            )}
+          </div>
+        </div>
+      </div>
+    </header>
+  );
 };
 
 export default Header;

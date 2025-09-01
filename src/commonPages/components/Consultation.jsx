@@ -1,23 +1,63 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
+import { useDispatch, useSelector } from "react-redux"
+import { 
+  createInquiryAsync, 
+  selectManageInquiries,
+  clearSuccess 
+} from "../../features/adminSlice/ManageInquiries/ManageInquiriesSlice" // Make sure this path is correct
 import {
   UserIcon,
   EnvelopeIcon,
-  BuildingOffice2Icon,
+  DocumentTextIcon, // Changed from BuildingOffice2Icon
   ChatBubbleBottomCenterTextIcon,
   PhoneIcon,
+  BuildingOffice2Icon
 } from "@heroicons/react/24/outline"
 import { useNavigate } from "react-router-dom"
 
-
 const Consultation = () => {
-  const [submitted, setSubmitted] = useState(false)
   const navigate = useNavigate()
+  const dispatch = useDispatch()
+  
+  // Get state from Redux store
+  const { loading, error, success } = useSelector(selectManageInquiries)
+
+  // Local state for the form inputs
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    subject: "", // Changed from 'company'
+    message: "",
+    company: ""
+    
+  })
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value })
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    // In a real app, you would handle form submission here (e.g., API call)
-    setSubmitted(true)
+    
+    const inquiryData = {
+      name: formData.name,
+      email: formData.email,
+      subject: formData.subject,
+      message: formData.message,
+      phone: formData.phone,
+      company: formData.company
+    }
+    
+    dispatch(createInquiryAsync(inquiryData))
   }
+
+  // Cleanup success/error state on component unmount
+  useEffect(() => {
+    return () => {
+      dispatch(clearSuccess())
+    }
+  }, [dispatch])
 
   return (
     <section className="relative min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-8 bg-gradient-to-br from-red-50 via-white to-blue-50 overflow-hidden">
@@ -53,7 +93,6 @@ const Consultation = () => {
             </ul>
             <div className="mt-12 pt-8 border-t border-slate-200">
                <p className="text-sm font-semibold text-gray-500">TRUSTED BY INDIA'S LEADING BRANDS</p>
-               {/* Replace with actual client logos if available */}
                <div className="flex items-center space-x-6 mt-4 opacity-50">
                   <p className="font-bold text-lg">Brand A</p>
                   <p className="font-bold text-lg">Brand B</p>
@@ -64,7 +103,7 @@ const Consultation = () => {
 
           {/* --- Right Side: The Form --- */}
           <div className="p-8 sm:p-12">
-            {!submitted ? (
+            {!success ? (
               <>
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">
                   Get Your Free Consultation
@@ -73,47 +112,50 @@ const Consultation = () => {
                   Fill the form and we'll connect with you shortly.
                 </p>
                 <form onSubmit={handleSubmit} className="space-y-5">
-                  {/* Custom Input Fields with Icons */}
                   <div className="relative">
                     <UserIcon className="w-6 h-6 text-gray-400 absolute top-1/2 left-4 -translate-y-1/2" />
-                    <input type="text" placeholder="Your Name" className="w-full border border-slate-300 rounded-lg p-4 pl-12 focus:ring-2 focus:ring-red-500 outline-none transition-all" required />
+                    <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Your Name" className="w-full border border-slate-300 rounded-lg p-4 pl-12 focus:ring-2 focus:ring-red-500 outline-none transition-all" required />
                   </div>
                   <div className="relative">
                     <EnvelopeIcon className="w-6 h-6 text-gray-400 absolute top-1/2 left-4 -translate-y-1/2" />
-                    <input type="email" placeholder="Your Email" className="w-full border border-slate-300 rounded-lg p-4 pl-12 focus:ring-2 focus:ring-red-500 outline-none transition-all" required />
+                    <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Your Email" className="w-full border border-slate-300 rounded-lg p-4 pl-12 focus:ring-2 focus:ring-red-500 outline-none transition-all" required />
                   </div>
                    <div className="relative">
                     <PhoneIcon className="w-6 h-6 text-gray-400 absolute top-1/2 left-4 -translate-y-1/2" />
-                    <input type="tel" placeholder="Phone Number" className="w-full border border-slate-300 rounded-lg p-4 pl-12 focus:ring-2 focus:ring-red-500 outline-none transition-all" required />
+                    <input type="tel" name="phone" value={formData.phone} onChange={handleChange} placeholder="Phone Number" className="w-full border border-slate-300 rounded-lg p-4 pl-12 focus:ring-2 focus:ring-red-500 outline-none transition-all" required />
+                  </div>
+                   <div className="relative">
+                    <BuildingOffice2Icon className="w-6 h-6 text-gray-400 absolute top-1/2 left-4 -translate-y-1/2" />
+                    <input type="text" placeholder="Company / Organization" name="company" value={formData.company} onChange={handleChange} className="w-full border border-slate-300 rounded-lg p-4 pl-12 focus:ring-2 focus:ring-red-500 outline-none transition-all" />
                   </div>
                   <div className="relative">
-                    <BuildingOffice2Icon className="w-6 h-6 text-gray-400 absolute top-1/2 left-4 -translate-y-1/2" />
-                    <input type="text" placeholder="Company / Organization" className="w-full border border-slate-300 rounded-lg p-4 pl-12 focus:ring-2 focus:ring-red-500 outline-none transition-all" />
+                    <DocumentTextIcon className="w-6 h-6 text-gray-400 absolute top-1/2 left-4 -translate-y-1/2" />
+                    <input type="text" name="subject" value={formData.subject} onChange={handleChange} placeholder="Subject of Inquiry" className="w-full border border-slate-300 rounded-lg p-4 pl-12 focus:ring-2 focus:ring-red-500 outline-none transition-all" required/>
                   </div>
                   <div className="relative">
                      <ChatBubbleBottomCenterTextIcon className="w-6 h-6 text-gray-400 absolute top-5 left-4" />
-                     <textarea placeholder="Tell us about your project..." rows="4" className="w-full border border-slate-300 rounded-lg p-4 pl-12 focus:ring-2 focus:ring-red-500 outline-none transition-all" required></textarea>
+                     <textarea name="message" value={formData.message} onChange={handleChange} placeholder="Tell us about your project..." rows="4" className="w-full border border-slate-300 rounded-lg p-4 pl-12 focus:ring-2 focus:ring-red-500 outline-none transition-all" required></textarea>
                   </div>
                   
-                  <button type="submit" className="w-full bg-gradient-to-r from-red-600 to-pink-500 text-white py-4 rounded-lg font-semibold text-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                    Request My Consultation
+                  <button type="submit" disabled={loading} className="w-full bg-gradient-to-r from-red-600 to-pink-500 text-white py-4 rounded-lg font-semibold text-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+                    {loading ? "Sending..." : "Request My Consultation"}
                   </button>
+
+                  {error && <p className="text-sm text-red-600 text-center mt-2">{error}</p>}
                 </form>
               </>
             ) : (
-              // --- Enhanced "Thank You" Message ---
               <div className="text-center flex flex-col items-center justify-center h-full min-h-[400px]">
                 <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mb-6">
                   <svg className="w-16 h-16 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
                 </div>
                 <h2 className="text-3xl font-bold text-gray-900 mb-3">Thank You!</h2>
                 <p className="text-gray-600 mb-8 max-w-sm">
-                  Your request has been sent successfully. Our team will get back to you within 24 hours.
+                  {success}
                 </p>
-                <p to="/" className="bg-slate-200 text-slate-800 font-semibold px-6 py-3 rounded-lg hover:bg-slate-300 transition-colors"
-                onClick={() => navigate("/")}>
+                <button onClick={() => navigate("/")} className="bg-slate-200 text-slate-800 font-semibold px-6 py-3 rounded-lg hover:bg-slate-300 transition-colors">
                     Back to Home
-                </p>
+                </button>
               </div>
             )}
           </div>

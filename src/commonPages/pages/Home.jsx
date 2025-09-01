@@ -1,71 +1,75 @@
+// ✅ FILE: src/pages/Home.js (Updated with Redux)
 "use client"
 
-import { useNavigate, Link } from "react-router-dom"
-import { motion } from "framer-motion"
-import { CheckBadgeIcon, ShieldCheckIcon, GlobeAltIcon, TrophyIcon } from "@heroicons/react/24/solid"
-import { services } from "../data/services" // Ensure this path is correct
-import { projects } from "../data/projects" // Ensure this path is correct
+import { useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { useDispatch, useSelector } from "react-redux"; // 1. Import Redux hooks
 
-// Import child components if they exist, otherwise their logic is integrated here
-// For this example, we integrate their logic directly.
-import HeroSection from "../components/HeroSection"
-import TestimonialsSection from "../components/TestimonialsSection"
-import WhyChooseSection from "../components/WhyChooseSection"
+// 2. Import Redux actions and selectors for BOTH services and projects
+import { fetchManageServicesAsync, selectManageServices } from "../../features/adminSlice/ManageServices/ManageServicesSlice"; // Adjust path
+import { fetchProjectsAsync, selectManageProjects } from "../../features/adminSlice/ManageProjects/ManageProjectsSlice"; // Adjust path
 
-// Data for integrated sections
-const whyChooseReasons = [
-  { title: "Direct Tender Rights", icon: CheckBadgeIcon, description: "Eliminating middlemen for competitive pricing." },
-  { title: "100% Gov. Compliance", icon: ShieldCheckIcon, description: "Ensuring hassle-free campaign execution." },
-  { title: "PAN India Team", icon: GlobeAltIcon, description: "Seamless monitoring and execution nationwide." },
-  { title: "15+ Years Experience", icon: TrophyIcon, description: "Deep industry understanding and expertise." },
-];
-const featuredServices = services.slice(0, 3);
-const featuredProjects = projects.slice(0, 2);
+// Child components
+import HeroSection from "../components/HeroSection";
+import TestimonialsSection from "../components/TestimonialsSection";
+import WhyChooseSection from "../components/WhyChooseSection";
+
+const SERVER_URL = "http://localhost:3000";
 
 const Home = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
+  // --- 3. CONNECT TO REDUX STORE for both slices ---
+  const { data: services, loading: servicesLoading, error: servicesError } = useSelector(selectManageServices);
+  const { data: projects, loading: projectsLoading, error: projectsError } = useSelector(selectManageProjects);
+
+  // --- 4. FETCH DATA on component mount ---
+  useEffect(() => {
+    // Fetch only if the data isn't already in the store
+    if (services.length === 0) {
+      dispatch(fetchManageServicesAsync());
+    }
+    if (projects.length === 0) {
+      dispatch(fetchProjectsAsync());
+    }
+  }, [dispatch, services.length, projects.length]);
+
+  // --- 5. CREATE FEATURED LISTS from Redux data ---
+  const featuredServices = services.slice(0, 3);
+  const featuredProjects = projects.slice(0, 2);
+  
   // Animation Variants for sections
   const sectionVariants = {
     hidden: { opacity: 0, y: 50 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: "easeOut" } }
+  };
+
+  // --- 6. HANDLE LOADING AND ERROR STATES ---
+  // You can create a more sophisticated skeleton loader here if desired
+  if ((servicesLoading && services.length === 0) || (projectsLoading && projects.length === 0)) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <h2 className="text-2xl font-bold text-slate-700">Loading Content...</h2>
+      </div>
+    );
+  }
+
+  if (servicesError || projectsError) {
+    return (
+      <div className="flex items-center justify-center h-screen text-center text-red-600">
+        <div>
+            <h2 className="text-2xl font-bold">Oops! Something went wrong.</h2>
+            <p>{servicesError || projectsError}</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    // --- 1. UNIFIED BACKGROUND ---
     <div className="bg-gradient-to-br from-red-50 via-white to-blue-50">
-      
       <HeroSection />
-
-      {/* --- THE VAIDEHI EDGE (Why Choose Us, Refined) --- */}
-      {/* <motion.section 
-        className="py-24" 
-        initial="hidden" 
-        whileInView="visible" 
-        viewport={{ once: true, amount: 0.3 }} 
-        variants={sectionVariants}
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
-                <span className="text-sm font-bold text-red-600 tracking-wider uppercase">The Vaidehi Edge</span>
-                <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 mt-2">Why Partner With Us?</h2>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                {whyChooseReasons.map(reason => {
-                    const Icon = reason.icon;
-                    return (
-                        <div key={reason.title} className="bg-white/70 backdrop-blur-xl p-6 rounded-2xl shadow-lg border border-white/50 text-center transform hover:-translate-y-2 transition-transform duration-300">
-                            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                               <Icon className="w-8 h-8 text-red-600"/>
-                            </div>
-                            <h3 className="font-bold text-lg text-slate-800">{reason.title}</h3>
-                            <p className="text-sm text-slate-500 mt-1">{reason.description}</p>
-                        </div>
-                    )
-                })}
-            </div>
-        </div>
-      </motion.section> */}
       <WhyChooseSection/>
 
       {/* --- OUR SOLUTIONS (Services) --- */}
@@ -83,8 +87,11 @@ const Home = () => {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 ">
                 {featuredServices.map(service => (
-                    <Link key={service.slug} to={`/services/${service.slug}`} className="group bg-white rounded-2xl shadow-lg overflow-hidden block transform hover:-translate-y-2 transition-all duration-300">
-                        <div className="relative h-56"><img src={service.details.coverImage} alt={service.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"/></div>
+                    // ✅ FIX: Use _id for key and construct full image URL
+                    <Link key={service._id} to={`/services/${service.slug}`} className="group bg-white rounded-2xl shadow-lg overflow-hidden block transform hover:-translate-y-2 transition-all duration-300">
+                        <div className="relative h-56">
+                          <img src={`${SERVER_URL}${service.details.coverImage}`} alt={service.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"/>
+                        </div>
                         <div className="p-6">
                             <h3 className="text-xl font-bold text-slate-800 mb-2">{service.title}</h3>
                             <p className="text-slate-600 text-sm line-clamp-2 mb-4">{service.description}</p>
@@ -97,7 +104,7 @@ const Home = () => {
          </div>
       </motion.section>
       
-      {/* --- IMPACT SHOWCASE (Projects + Integrated Testimonial) --- */}
+      {/* --- IMPACT SHOWCASE (Projects) --- */}
       <motion.section 
         className="py-4" 
         initial="hidden" 
@@ -112,9 +119,10 @@ const Home = () => {
             </div>
             <div className="space-y-10">
                 {featuredProjects.map((project, index) => (
-                    <div key={project.slug} className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+                    // ✅ FIX: Use _id for key and construct full image URL
+                    <div key={project._id} className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
                         <div className={`group relative rounded-xl overflow-hidden ${index % 2 === 0 ? 'md:order-1' : 'md:order-2'}`}>
-                            <img src={project.image} alt={project.title} className="w-full h-80 object-cover transform group-hover:scale-105 transition-transform duration-500"/>
+                            <img src={`${SERVER_URL}${project.image}`} alt={project.title} className="w-full h-80 object-cover transform group-hover:scale-105 transition-transform duration-500"/>
                         </div>
                         <div className={`${index % 2 === 0 ? 'md:order-2' : 'md:order-1'}`}>
                             <span className="inline-block bg-red-100 text-red-700 text-sm font-semibold px-4 py-1.5 rounded-full mb-4">📍 {project.location}</span>
@@ -126,10 +134,7 @@ const Home = () => {
                 ))}
 
             </div>
-            {/* Integrated Testimonial */}
-            
              <div className="text-center bg-red-50 p-6 rounded-2xl mt-12"><Link to="/projects" className="font-semibold text-red-600 hover:text-red-800 transition">View All Projects →</Link></div>
-         
         </div>
       </motion.section>
       <TestimonialsSection/>
@@ -150,7 +155,6 @@ const Home = () => {
             </div>
         </div>
       </motion.section>
-
     </div>
   )
 }

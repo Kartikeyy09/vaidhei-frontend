@@ -1,18 +1,10 @@
-// src/admin/pages/ManageTestimonials.jsx
-
 import { useState, useEffect } from "react";
 import { PlusIcon, PencilIcon, TrashIcon, StarIcon } from "@heroicons/react/24/solid";
 import { StarIcon as StarIconOutline } from "@heroicons/react/24/outline";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchTestimonialsAsync, selectManageTestimonials, addTestimonialAsync, updateTestimonialAsync, deleteTestimonialAsync } from "../../features/adminSlice/ManageTestimonials/ManageTestimonialsSlice";
 import TestimonialEditor from "../components/Testimonials/TestimonialEditor";
 import ConfirmDeleteModal from "../components/ConfirmDeleteModal";
-
-
-// --- MOCK DATA (This will come from your backend API) ---
-const initialTestimonialsData = [
-    { id: 1, authorName: "Rohan Sharma", authorTitle: "Project Manager, ABC Corp", quote: "Vaidehi Enterprises delivered our project ahead of schedule and with exceptional quality. Their professionalism is unmatched.", rating: 5, status: "Published", avatarUrl: "https://..."},
-    { id: 2, authorName: "Priya Desai", authorTitle: "Director, BuildWell Infra", quote: "Navigating the tender process was seamless with their expert team. Highly recommended for any large-scale public project.", rating: 5, status: "Published", avatarUrl: "https://..."},
-    { id: 3, authorName: "Amit Patel", authorTitle: "Municipal Engineer", quote: "A reliable and trustworthy partner for all municipal infrastructure needs.", rating: 4, status: "Draft", avatarUrl: "https://..."},
-];
 
 // Reusable component for visual star ratings
 const StarRating = ({ rating }) => (
@@ -33,12 +25,14 @@ const StatusBadge = ({ status }) => (
 );
 
 const ManageTestimonials = () => {
-    const [testimonials, setTestimonials] = useState([]);
     const [isEditorOpen, setIsEditorOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [selectedTestimonial, setSelectedTestimonial] = useState(null);
 
-    useEffect(() => { setTestimonials(initialTestimonialsData); }, []);
+    const dispatch = useDispatch();
+    const { data: testimonials, loading, error } = useSelector(selectManageTestimonials);
+
+    useEffect(() => { dispatch(fetchTestimonialsAsync()); }, [dispatch]);
 
     const handleAddNew = () => { setSelectedTestimonial(null); setIsEditorOpen(true); };
     const handleEdit = (testimonial) => { setSelectedTestimonial(testimonial); setIsEditorOpen(true); };
@@ -46,24 +40,30 @@ const ManageTestimonials = () => {
 
     const confirmDelete = () => {
         if (selectedTestimonial) {
-            setTestimonials(testimonials.filter(t => t.id !== selectedTestimonial.id));
-            setIsDeleteModalOpen(false);
-            setSelectedTestimonial(null);
+            dispatch(deleteTestimonialAsync(selectedTestimonial._id))
+                .unwrap()
+                .then(() => {
+                    setIsDeleteModalOpen(false);
+                    setSelectedTestimonial(null);
+                })
+                .catch(err => console.error("Failed to delete testimonial:", err));
         }
     };
 
     const handleSave = (testimonialData) => {
-        if (selectedTestimonial) {
-            setTestimonials(testimonials.map(t => t.id === selectedTestimonial.id ? { ...t, ...testimonialData } : t));
-        } else {
-            setTestimonials([...testimonials, { ...testimonialData, id: Date.now() }]);
-        }
-        setIsEditorOpen(false);
+        const action = selectedTestimonial
+            ? updateTestimonialAsync({ id: selectedTestimonial._id, updatedData: testimonialData })
+            : addTestimonialAsync(testimonialData);
+        dispatch(action)
+            .unwrap()
+            .then(() => setIsEditorOpen(false))
+            .catch(err => console.error("Failed to save testimonial:", err));
     };
 
     return (
         <div>
-            <div className="flex justify-between items-center mb-8">
+            {/* ... (Header section is unchanged) ... */}
+             <div className="flex justify-between items-center mb-8">
                 <div>
                     <h1 className="text-3xl font-bold text-slate-800">Manage Testimonials</h1>
                     <p className="text-slate-500 mt-1">Curate and display client feedback.</p>
@@ -74,30 +74,42 @@ const ManageTestimonials = () => {
                 </button>
             </div>
 
+
+            {error && <p className="text-center text-red-600 bg-red-100 p-4 rounded-lg mb-4">Error: {error}</p>}
+
             <div className="bg-white rounded-xl shadow-md overflow-x-auto">
                 <table className="w-full text-left">
                     <thead className="bg-slate-50 border-b border-slate-200">
                         <tr>
                             <th className="p-4 text-sm font-semibold text-slate-600">Author</th>
-                            <th className="p-4 text-sm font-semibold text-slate-600 hidden lg:table-cell">Quote Snippet</th>
+                            <th className="p-4 text-sm font-semibold text-slate-600 hidden lg:table-cell">Content Snippet</th>
                             <th className="p-4 text-sm font-semibold text-slate-600">Rating</th>
                             <th className="p-4 text-sm font-semibold text-slate-600">Status</th>
                             <th className="p-4 text-sm font-semibold text-slate-600">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {testimonials.map(testimonial => (
-                            <tr key={testimonial.id} className="border-b border-slate-200 hover:bg-slate-50">
+                        {loading && testimonials.length === 0 ? (
+                            <tr><td colSpan="5" className="text-center p-8 text-gray-500">Loading testimonials...</td></tr>
+                        ) : testimonials.map(testimonial => (
+                            <tr key={testimonial._id} className="border-b border-slate-200 hover:bg-slate-50">
                                 <td className="p-4">
                                     <div className="flex items-center gap-4">
-                                        <img src={testimonial.avatarUrl || `https://ui-avatars.com/api/?name=${testimonial.authorName}`} alt={testimonial.authorName} className="w-10 h-10 object-cover rounded-full" />
+                                        {/* बदला हुआ: avatarUrl -> avatar, authorName -> name */}
+                                        <img 
+                                            src={testimonial.avatar || `https://ui-avatars.com/api/?name=${testimonial.name}`} 
+                                            alt={testimonial.name} 
+                                            className="w-10 h-10 object-cover rounded-full bg-gray-200" 
+                                        />
                                         <div>
-                                            <p className="font-semibold text-slate-800">{testimonial.authorName}</p>
-                                            <p className="text-xs text-slate-500">{testimonial.authorTitle}</p>
+                                            {/* बदला हुआ: authorName -> name, authorTitle -> position, company */}
+                                            <p className="font-semibold text-slate-800">{testimonial.name}</p>
+                                            <p className="text-xs text-slate-500">{`${testimonial.position}, ${testimonial.company}`}</p>
                                         </div>
                                     </div>
                                 </td>
-                                <td className="p-4 text-slate-600 hidden lg:table-cell italic">"{testimonial.quote.slice(0, 70)}..."</td>
+                                {/* बदला हुआ: quote -> content */}
+                                <td className="p-4 text-slate-600 hidden lg:table-cell italic">"{testimonial.content.slice(0, 70)}..."</td>
                                 <td className="p-4"><StarRating rating={testimonial.rating} /></td>
                                 <td className="p-4"><StatusBadge status={testimonial.status} /></td>
                                 <td className="p-4">
@@ -112,8 +124,9 @@ const ManageTestimonials = () => {
                 </table>
             </div>
             
-            <TestimonialEditor isOpen={isEditorOpen} onClose={() => setIsEditorOpen(false)} onSave={handleSave} testimonial={selectedTestimonial} />
-            <ConfirmDeleteModal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} onConfirm={confirmDelete} itemName={`testimonial from ${selectedTestimonial?.authorName}`} />
+            <TestimonialEditor isOpen={isEditorOpen} onClose={() => setIsEditorOpen(false)} onSave={handleSave} testimonial={selectedTestimonial} isSaving={loading} />
+            {/* बदला हुआ: authorName -> name */}
+            <ConfirmDeleteModal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} onConfirm={confirmDelete} itemName={`testimonial from ${selectedTestimonial?.name}`} isDeleting={loading} />
         </div>
     );
 };

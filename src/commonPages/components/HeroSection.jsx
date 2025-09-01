@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { UsersIcon, MapIcon, SparklesIcon } from "@heroicons/react/24/solid"
 import Lottie from "lottie-react"
-import railwayAnimation from "../data/railwayAnimation.json" // Make sure this path is correct
+import railwayAnimation from "../../data/railwayAnimation.json" // Make sure this path is correct
 
 const HeroSection = () => {
   const [isVisible, setIsVisible] = useState(false)

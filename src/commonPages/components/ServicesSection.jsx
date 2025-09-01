@@ -1,14 +1,44 @@
+// FILE: src/components/ServicesSection.js (or similar path)
 "use client"
 
-import { Link } from "react-router-dom"
-// --- YEH CHANGE HAI: Framer Motion ko hata diya gaya hai ---
-// import { motion } from "framer-motion" 
-import { services } from "../data/services"
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link } from "react-router-dom";
+import { fetchManageServicesAsync, selectManageServices } from '../../features/adminSlice/ManageServices/ManageServicesSlice'; // Assuming this relative path is correct
 
 const ServicesSection = () => {
-  // --- YEH CHANGE HAI: Animation variants ki ab zaroorat nahi ---
-  // const containerVariants = { ... }
-  // const cardVariants = { ... }
+  const dispatch = useDispatch();
+  // Select state from the Redux store
+  const { data: services, loading, error } = useSelector(selectManageServices);
+
+  // Fetch data when the component mounts
+  useEffect(() => {
+    // Dispatch the thunk to fetch services from the API
+    dispatch(fetchManageServicesAsync());
+  }, [dispatch]);
+
+  // Handle loading state
+  if (loading) {
+    return (
+      <section id="services" className="py-10 bg-slate-50">
+        <div className="text-center">
+          <h2 className="text-3xl font-bold text-slate-800">Loading Our Services...</h2>
+        </div>
+      </section>
+    );
+  }
+
+  // Handle error state
+  if (error) {
+    return (
+      <section id="services" className="py-10 bg-slate-50">
+        <div className="text-center text-red-600">
+          <h2 className="text-3xl font-bold">Oops! Something went wrong.</h2>
+          <p>Could not fetch services: {error}</p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="services" className="py-10 bg-slate-50">
@@ -22,15 +52,13 @@ const ServicesSection = () => {
           </p>
         </div>
 
-        {/* --- YEH CHANGE HAI: motion.div ko simple div se replace kiya gaya hai --- */}
-        <div 
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
-        >
-          {services.map((service, index) => {
-            const Icon = service.icon;
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          {/* Map over the services data from the Redux store */}
+          {services.map((service) => {
+            // NOTE: The Icon property is no longer used, so it's removed.
             return (
-              // --- YEH CHANGE HAI: motion.div ko simple div se replace kiya gaya hai ---
-              <div key={index}>
+              // Use a unique and stable key like `_id` from the database
+              <div key={service._id}> 
                 <Link
                   to={`/services/${service.slug}`}
                   className="group bg-white rounded-2xl shadow-lg overflow-hidden block h-full flex flex-col
@@ -40,13 +68,10 @@ const ServicesSection = () => {
                   {/* Image Section */}
                   <div className="relative h-56">
                     <img 
-                      src={service.details.coverImage} 
+                      src= {`http://localhost:3000${service.details.coverImage}`}
                       alt={service.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
-                    {/* <div className="absolute top-4 right-4 w-14 h-14 bg-red-600 rounded-full flex items-center justify-center shadow-md">
-                       <Icon className="w-8 h-8 text-white" />
-                    </div> */}
                   </div>
 
                   {/* Content Section */}
@@ -69,10 +94,9 @@ const ServicesSection = () => {
             )
           })}
         </div>
-
       </div>
     </section>
   )
 }
 
-export default ServicesSection
+export default ServicesSection;

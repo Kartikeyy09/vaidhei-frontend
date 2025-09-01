@@ -1,20 +1,31 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+
+// Import Layouts
 import WebsiteLayout from "./WebsiteLayout";
-import Home from "./pages/Home";
-import AboutSection from "./components/AboutSection";
-import ServicesSection from "./components/ServicesSection";
-import ServiceDetailPage from "./pages/ServiceDetailPage";
-import ProjectsSection from "./components/ProjectsSection";
-import ProjectDetailPage from "./pages/ProjectDetailPage";
-import TendersSection from "./components/TendersSection";
-import ContactSection from "./components/ContactSection";
-import GetQuotePage from "./components/GetQuotePage";
-import JourneySection from "./components/JourneySection";
 import AdminLayout from "./admin/layout/AdminLayout";
+
+// Import the Guard Component
+import ProtectedRoute from "./components/ProtectedRoute";
+ // ⚠️ Adjust this path if necessary
+
+// Import Website Pages
+import Home from "./commonPages/pages/Home";
+import AboutSection from "./commonPages/components/AboutSection";
+import ServicesSection from "./commonPages/components/ServicesSection";
+import ServiceDetailPage from "./commonPages/pages/ServiceDetailPage";
+import ProjectsSection from "./commonPages/components/ProjectsSection";
+import ProjectDetailPage from "./commonPages/pages/ProjectDetailPage";
+import TendersSection from "./commonPages/components/TendersSection";
+import ContactSection from "./commonPages/components/ContactSection";
+import GetQuotePage from "./commonPages/components/GetQuotePage";
+import JourneySection from "./commonPages/components/JourneySection";
+import Consultation from "./commonPages/components/Consultation";
+import GallerySection from "./commonPages/components/GallerySection";
+
+// Import Admin Pages
+import AdminLoginPage from "./admin/pages/AdminLoginPage";
 import DashboardHome from "./admin/pages/Dashboard";
 import ManageJourney from "./admin/pages/ManageJourney";
-import Consultation from "./components/Consultation";
-import GallerySection from "./components/GallerySection";
 import ManageServices from "./admin/pages/ManageServices";
 import ManageProjects from "./admin/pages/ManageProjects";
 import ManageGallery from "./admin/pages/ManageGallery";
@@ -22,9 +33,12 @@ import ManageTenders from "./admin/pages/ManageTenders";
 import ManageTestimonials from "./admin/pages/ManageTestimonials";
 import ManageInquiries from "./admin/pages/ManageInquiries";
 import SettingsPage from "./admin/pages/SettingsPage";
-import AdminLoginPage from "./admin/pages/AdminLoginPage";
+import NotFoundPage from "./commonPages/pages/NotFoundPage";
+
+
 
 const router = createBrowserRouter([
+  // --- Group 1: Public Website Routes ---
   {
     path: "/",
     element: <WebsiteLayout />,
@@ -40,64 +54,42 @@ const router = createBrowserRouter([
       { path: "get-quote", element: <GetQuotePage /> },
       { path: "journey", element: <JourneySection /> },
       { path: "consultation", element: <Consultation /> },
-      {
-        path : "gallery",
-        element : <GallerySection/>
-      }
+      { path: "gallery", element: <GallerySection /> }
     ],
   },
+  
+  // --- Group 2: Public Admin Route (Login Page) ---
   {
-    path: "/admin",
-    element: <AdminLayout />,
+    path: "/admin/login",
+    element: <AdminLoginPage />,
+  },
+
+  // --- Group 3: Protected Admin Routes ---
+  {
+    element: <ProtectedRoute />, // This is the guard for all its children
     children: [
-      { 
-        index: true, 
-        element: <DashboardHome /> 
-
-      },
-      { 
-        path: "journey", 
-        element: <ManageJourney /> 
-
-      },
       {
-        path: "services", // <-- ADD THIS NEW ROUTE
-        element: <ManageServices />,
+        path: "/admin",
+        element: <AdminLayout />,
+        children: [
+          { index: true, element: <DashboardHome /> },
+          { path: "journey", element: <ManageJourney /> },
+          { path: "services", element: <ManageServices /> },
+          { path: "projects", element: <ManageProjects /> },
+          { path: "gallery", element: <ManageGallery /> },
+          { path: "tenders", element: <ManageTenders /> },
+          { path: "testimonials", element: <ManageTestimonials /> },
+          { path: "inquiries", element: <ManageInquiries /> },
+          { path: "settings", element: <SettingsPage /> }
+        ],
       },
-       {
-        path: "projects", // <-- ADD THIS NEW ROUTE
-        element: <ManageProjects/>,
-      },
-       {
-        path: "gallery", // <-- ADD THIS NEW ROUTE
-        element: <ManageGallery />,
-      },
-       {
-        path: "tenders", // <-- ADD THIS NEW ROUTE
-        element: <ManageTenders />,
-      },
-        {
-        path: "testimonials", // <-- ADD THIS NEW ROUTE
-        element: <ManageTestimonials />,
-      },
-      {
-        path: "inquiries", // <-- ADD THIS NEW ROUTE
-        element: <ManageInquiries />,
-      },
-      {
-        path: "settings", // <-- ADD THIS NEW ROUTE
-        element: <SettingsPage />,
-      }
     ],
   },
-   {
-    // --- Group 3: Standalone Routes (like Login) ---
-    path: "/adminlogin", // <-- ADD THIS NEW TOP-LEVEL ROUTE
-    element: <AdminLoginPage/>,
-  },
+  
+  // --- Group 4: Catch-all 404 Route ---
   {
     path: "*",
-    element: <h1>404: Page Not Found</h1>,
+    element: <NotFoundPage/>,
   },
 ]);
 

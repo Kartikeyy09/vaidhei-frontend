@@ -1,17 +1,11 @@
-// src/admin/pages/ManageTenders.jsx
+// ✅ FILE: src/admin/pages/ManageTenders.jsx
 
 import { useState, useEffect } from "react";
-import { PlusIcon, PencilIcon, TrashIcon, ClipboardDocumentListIcon, ArrowTopRightOnSquareIcon } from "@heroicons/react/24/solid";
+import { PlusIcon, PencilIcon, TrashIcon, ArrowTopRightOnSquareIcon } from "@heroicons/react/24/solid"; // Assuming this is a reusable component
+import { useDispatch, useSelector } from "react-redux";
+import { fetchTendersAsync, selectManageTenders, addTenderAsync, updateTenderAsync, deleteTenderAsync } from "../../features/adminSlice/ManageTenders/ManageTendersSlice";
 import TenderEditor from "../components/tenders/TenderEditor";
 import ConfirmDeleteModal from "../components/ConfirmDeleteModal";
-
-
-// --- MOCK DATA (This will come from your backend API) ---
-const initialTendersData = [
-    { id: 1, tenderId: "IR-2023-08-451", title: "Northern Railway Track Renewal", client: "Indian Railways", dueDate: "2023-11-15", status: "Active", documentUrl: "#"},
-    { id: 2, tenderId: "MNC-2023-09-012", title: "Mumbai Municipal Waste Management", client: "Mumbai Nagar Nigam", dueDate: "2023-10-30", status: "Awarded", documentUrl: "#"},
-    { id: 3, tenderId: "DDA-2023-07-205", title: "DDA Park Landscaping", client: "Delhi Development Authority", dueDate: "2023-09-01", status: "Closed", documentUrl: "#"},
-];
 
 // Reusable component for status badges
 const StatusBadge = ({ status }) => {
@@ -27,18 +21,21 @@ const StatusBadge = ({ status }) => {
 
 // Function to format dates nicely
 const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
     return new Date(dateString).toLocaleDateString('en-US', {
         year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC'
     });
 };
 
 const ManageTenders = () => {
-    const [tenders, setTenders] = useState([]);
     const [isEditorOpen, setIsEditorOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [selectedTender, setSelectedTender] = useState(null);
 
-    useEffect(() => { setTenders(initialTendersData); }, []);
+    const dispatch = useDispatch();
+    const { data: tenders, loading, error } = useSelector(selectManageTenders);
+
+    useEffect(() => { dispatch(fetchTendersAsync()); }, [dispatch]);
 
     const handleAddNew = () => { setSelectedTender(null); setIsEditorOpen(true); };
     const handleEdit = (tender) => { setSelectedTender(tender); setIsEditorOpen(true); };
@@ -46,19 +43,24 @@ const ManageTenders = () => {
 
     const confirmDelete = () => {
         if (selectedTender) {
-            setTenders(tenders.filter(t => t.id !== selectedTender.id));
-            setIsDeleteModalOpen(false);
-            setSelectedTender(null);
+            dispatch(deleteTenderAsync(selectedTender._id))
+                .unwrap()
+                .then(() => {
+                    setIsDeleteModalOpen(false);
+                    setSelectedTender(null);
+                })
+                .catch(err => console.error("Failed to delete tender:", err));
         }
     };
 
     const handleSave = (tenderData) => {
-        if (selectedTender) {
-            setTenders(tenders.map(t => t.id === selectedTender.id ? { ...t, ...tenderData } : t));
-        } else {
-            setTenders([...tenders, { ...tenderData, id: Date.now() }]);
-        }
-        setIsEditorOpen(false);
+        const action = selectedTender
+            ? updateTenderAsync({ id: selectedTender._id, updatedData: tenderData })
+            : addTenderAsync(tenderData);
+        dispatch(action)
+            .unwrap()
+            .then(() => setIsEditorOpen(false))
+            .catch(err => console.error("Failed to save tender:", err));
     };
 
     return (
@@ -74,6 +76,8 @@ const ManageTenders = () => {
                 </button>
             </div>
 
+            {error && <p className="text-center text-red-600 bg-red-100 p-4 rounded-lg mb-4">Error: {error}</p>}
+
             <div className="bg-white rounded-xl shadow-md overflow-x-auto">
                 <table className="w-full text-left">
                     <thead className="bg-slate-50 border-b border-slate-200">
@@ -86,8 +90,10 @@ const ManageTenders = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {tenders.map(tender => (
-                            <tr key={tender.id} className="border-b border-slate-200 hover:bg-slate-50">
+                        {loading && tenders.length === 0 ? (
+                            <tr><td colSpan="5" className="text-center p-8 text-gray-500">Loading tenders...</td></tr>
+                        ) : tenders.map(tender => (
+                            <tr key={tender._id} className="border-b border-slate-200 hover:bg-slate-50">
                                 <td className="p-4">
                                     <p className="font-semibold text-slate-800">{tender.title}</p>
                                     <p className="text-xs text-slate-500 font-mono">{tender.tenderId}</p>
@@ -97,9 +103,11 @@ const ManageTenders = () => {
                                 <td className="p-4"><StatusBadge status={tender.status} /></td>
                                 <td className="p-4">
                                     <div className="flex items-center gap-1">
-                                        <a href={tender.documentUrl} target="_blank" rel="noopener noreferrer" className="p-2 text-slate-500 hover:text-gray-800 rounded-full hover:bg-gray-100" title="View Document">
-                                            <ArrowTopRightOnSquareIcon className="w-5 h-5" />
-                                        </a>
+                                        {tender.documentUrl && (
+                                            <a href={`http://localhost:3000${tender.documentUrl}`} target="_blank" rel="noopener noreferrer" className="p-2 text-slate-500 hover:text-gray-800 rounded-full hover:bg-gray-100" title="View Document">
+                                                <ArrowTopRightOnSquareIcon className="w-5 h-5" />
+                                            </a>
+                                        )}
                                         <button onClick={() => handleEdit(tender)} className="p-2 text-slate-500 hover:text-blue-600 rounded-full hover:bg-blue-100" title="Edit">
                                             <PencilIcon className="w-5 h-5" />
                                         </button>
@@ -114,8 +122,8 @@ const ManageTenders = () => {
                 </table>
             </div>
             
-            <TenderEditor isOpen={isEditorOpen} onClose={() => setIsEditorOpen(false)} onSave={handleSave} tender={selectedTender} />
-            <ConfirmDeleteModal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} onConfirm={confirmDelete} itemName={selectedTender?.title} />
+            <TenderEditor isOpen={isEditorOpen} onClose={() => setIsEditorOpen(false)} onSave={handleSave} tender={selectedTender} isSaving={loading} />
+            <ConfirmDeleteModal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} onConfirm={confirmDelete} itemName={selectedTender?.title} isDeleting={loading} />
         </div>
     );
 };

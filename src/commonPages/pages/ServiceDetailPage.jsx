@@ -1,13 +1,50 @@
+// FILE: src/pages/ServiceDetailPage.js (or similar path)
+
 "use client"
 
-import { useParams, Link } from "react-router-dom"
-import { services } from "../data/services" // Apne data ko import karein
-import { CheckCircleIcon } from "@heroicons/react/24/solid"
+import { useEffect } from 'react';
+import { useParams, Link } from "react-router-dom";
+import { useDispatch, useSelector } from 'react-redux'; // ✅ 1. Import Redux hooks
+import { fetchManageServicesAsync, selectManageServices } from '../../features/adminSlice/ManageServices/ManageServicesSlice'; // ✅ 2. Import Redux actions and selectors
+import { CheckCircleIcon } from "@heroicons/react/24/solid";
 
 const ServiceDetailPage = () => {
-  const { slug } = useParams() // URL se 'slug' ko nikaalein
-  const service = services.find((s) => s.slug === slug) // Sahi service ko dhoondein
+  const { slug } = useParams(); // Get slug from URL
+  const dispatch = useDispatch();
 
+  // ✅ 3. Get all services, loading, and error state from the Redux store
+  const { data: services, loading, error } = useSelector(selectManageServices);
+
+  // ✅ 4. Find the specific service from the Redux store data using the slug
+  const service = services.find((s) => s.slug === slug);
+
+  // ✅ 5. Handle the case where a user lands here directly. If services are not loaded, fetch them.
+  useEffect(() => {
+    if (services.length === 0) {
+      dispatch(fetchManageServicesAsync());
+    }
+  }, [dispatch, services.length]);
+
+  // ✅ 6. Add a loading state while fetching data
+  if (loading) {
+    return (
+      <div className="text-center py-24">
+        <h1 className="text-4xl font-bold mb-4">Loading Service...</h1>
+      </div>
+    );
+  }
+
+  // Handle error state
+  if (error) {
+    return (
+      <div className="text-center py-24 text-red-600">
+        <h2 className="text-3xl font-bold">Oops! Something went wrong.</h2>
+        <p>Could not fetch service details: {error}</p>
+      </div>
+    );
+  }
+  
+  // ✅ 7. The "Not Found" check now runs AFTER loading is complete.
   if (!service) {
     return (
       <div className="text-center py-24">
@@ -17,7 +54,7 @@ const ServiceDetailPage = () => {
           ← Back to All Services
         </Link>
       </div>
-    )
+    );
   }
 
   const { title, details } = service;
@@ -26,7 +63,12 @@ const ServiceDetailPage = () => {
     <div className="bg-white">
       {/* Hero Section */}
       <div className="relative h-[40vh] bg-slate-800">
-        <img src={details.coverImage} alt={title} className="w-full h-full object-cover opacity-30" />
+        {/* ✅ 8. Correct the image path to include the server URL */}
+        <img 
+          src={`http://localhost:3000${details.coverImage}`} 
+          alt={title} 
+          className="w-full h-full object-cover opacity-30" 
+        />
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white p-4">
           <span className="bg-red-600 text-white text-sm font-semibold px-4 py-1.5 rounded-full mb-4">
             Our Services
@@ -70,7 +112,7 @@ const ServiceDetailPage = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default ServiceDetailPage
+export default ServiceDetailPage;

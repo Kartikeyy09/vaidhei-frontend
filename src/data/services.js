@@ -179,3 +179,48 @@ export const services = [
     }
   }
 ];
+
+  const testimonials = [
+    {
+      name: "Rajesh Kumar",
+      position: "Marketing Director",
+      company: "Coca-Cola India",
+      content:
+        "Yaidehi Enterprises delivered exceptional results for our railway advertising campaign. Their professional approach and compliance with railway regulations made the entire process seamless.",
+      rating: 5,
+      color: "orange-500",
+      image: "https://randomuser.me/api/portraits/men/32.jpg",
+    },
+    {
+      name: "Priya Sharma",
+      position: "Brand Manager",
+      company: "Samsung Electronics",
+      content:
+        "Outstanding service and execution! The train wrapping campaign exceeded our expectations and provided excellent brand visibility across multiple routes.",
+      rating: 5,
+      color: "pink-600",
+      image: "https://randomuser.me/api/portraits/women/44.jpg",
+    },
+    {
+      name: "Amit Patel",
+      position: "Advertising Head",
+      company: "Flipkart",
+      content:
+        "Their expertise in railway tenders and strategic placement of our advertisements resulted in significant brand recall and customer engagement.",
+      rating: 5,
+      color: "amber-500",
+      image: "https://randomuser.me/api/portraits/men/65.jpg",
+    },
+    {
+      name: "Sunita Reddy",
+      position: "Marketing Manager",
+      company: "Tata Motors",
+      content:
+        "Professional team with deep understanding of railway advertising. They handled our digital display campaign with utmost precision and delivered great ROI.",
+      rating: 5,
+      color: "indigo-600",
+      image: "https://randomuser.me/api/portraits/women/68.jpg",
+    },
+  ];
+  
+  export { services, testimonials };

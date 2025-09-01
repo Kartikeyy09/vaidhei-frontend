@@ -1,18 +1,11 @@
-// src/admin/pages/ManageInquiries.jsx
+// ✅ FILE: src/admin/pages/ManageInquiries.jsx
 
 import { useState, useEffect } from "react";
-import { TrashIcon, EnvelopeIcon } from "@heroicons/react/24/solid";
+import { TrashIcon } from "@heroicons/react/24/solid";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchInquiriesAsync, selectManageInquiries, fetchInquiryByIdAsync, deleteInquiryAsync, clearSelectedInquiry } from "../../features/adminSlice/ManageInquiries/ManageInquiriesSlice";
 import InquiryViewer from "../components/contactInquiry/InquiryViewer";
 import ConfirmDeleteModal from "../components/ConfirmDeleteModal";
-
-
-// --- MOCK DATA (This will come from your backend API) ---
-const initialInquiriesData = [
-    { id: 1, name: "Rohan Sharma", email: "rohan.s@example.com", subject: "Quote for Railway Tender", message: "Hello, we are interested in submitting a bid for the upcoming Northern Railway tender. Could you please provide us with more details about your bidding assistance services?", receivedAt: "2023-10-26T10:30:00Z", status: "New"},
-    { id: 2, name: "Priya Desai", email: "priya.d@buildwell.com", subject: "Partnership Opportunity", message: "We are a leading construction firm and would like to explore a potential partnership with Vaidehi Enterprises for upcoming municipal projects in the Mumbai region.", receivedAt: "2023-10-26T09:15:00Z", status: "New"},
-    { id: 3, name: "Amit Patel", email: "amit.patel@gov.in", subject: "Service Question", message: "Can you clarify the scope of your end-to-end project management services? We are looking for a comprehensive solution.", receivedAt: "2023-10-25T14:00:00Z", status: "Read"},
-    { id: 4, name: "Sunita Rao", email: "sunita.rao@consultants.com", subject: "Previous Project Follow-up", message: "Following up on our discussion regarding the Delhi Metro Phase 4 project. Please let me know when you are available for a call.", receivedAt: "2023-10-24T11:45:00Z", status: "Read"},
-];
 
 const StatusBadge = ({ status }) => (
     <span className={`inline-flex items-center gap-1.5 px-2 py-1 text-xs font-semibold rounded-full ${status === 'New' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}`}>
@@ -21,33 +14,49 @@ const StatusBadge = ({ status }) => (
     </span>
 );
 
-const formatDate = (dateString) => new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(dateString));
+const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    return new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(dateString));
+};
 
 const ManageInquiries = () => {
-    const [inquiries, setInquiries] = useState([]);
-    const [isViewerOpen, setIsViewerOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-    const [selectedInquiry, setSelectedInquiry] = useState(null);
+    const [inquiryToDelete, setInquiryToDelete] = useState(null);
 
-    useEffect(() => { setInquiries(initialInquiriesData); }, []);
+    const dispatch = useDispatch();
+    const { data: inquiries, selectedInquiry, loading, error } = useSelector(selectManageInquiries);
+    
+    // Viewer is open if there is a selected inquiry in the Redux state
+    const isViewerOpen = !!selectedInquiry;
+
+    useEffect(() => {
+        dispatch(fetchInquiriesAsync());
+    }, [dispatch]);
 
     const handleView = (inquiry) => {
-        setSelectedInquiry(inquiry);
-        setIsViewerOpen(true);
-        // Mark as read when viewed
-        setInquiries(inquiries.map(i => i.id === inquiry.id ? { ...i, status: 'Read' } : i));
+        // Fetch full details, which also marks it as 'Read' on the backend and updates the state
+        dispatch(fetchInquiryByIdAsync(inquiry._id));
+    };
+
+    const handleCloseViewer = () => {
+        // Clear the selected inquiry from the Redux state to close the viewer
+        dispatch(clearSelectedInquiry());
     };
 
     const handleDeleteClick = (inquiry) => {
-        setSelectedInquiry(inquiry);
+        setInquiryToDelete(inquiry);
         setIsDeleteModalOpen(true);
     };
 
     const confirmDelete = () => {
-        if (selectedInquiry) {
-            setInquiries(inquiries.filter(i => i.id !== selectedInquiry.id));
-            setIsDeleteModalOpen(false);
-            setSelectedInquiry(null);
+        if (inquiryToDelete) {
+            dispatch(deleteInquiryAsync(inquiryToDelete._id))
+                .unwrap()
+                .then(() => {
+                    setIsDeleteModalOpen(false);
+                    setInquiryToDelete(null);
+                })
+                .catch(err => console.error("Failed to delete inquiry:", err));
         }
     };
 
@@ -58,11 +67,14 @@ const ManageInquiries = () => {
                 <p className="text-slate-500 mt-1">Review and respond to messages from your website.</p>
             </div>
 
+            {error && <p className="text-center text-red-600 bg-red-100 p-4 rounded-lg mb-4">Error: {error}</p>}
+
             <div className="bg-white rounded-xl shadow-md overflow-x-auto">
                 <table className="w-full text-left">
                     <thead className="bg-slate-50 border-b border-slate-200">
                         <tr>
                             <th className="p-4 text-sm font-semibold text-slate-600">From</th>
+                            <th className="p-4 text-sm font-semibold text-slate-600">Company</th>
                             <th className="p-4 text-sm font-semibold text-slate-600">Subject</th>
                             <th className="p-4 text-sm font-semibold text-slate-600 hidden md:table-cell">Received</th>
                             <th className="p-4 text-sm font-semibold text-slate-600">Status</th>
@@ -70,17 +82,29 @@ const ManageInquiries = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {inquiries.map(inquiry => (
-                            <tr key={inquiry.id} className="border-b border-slate-200 hover:bg-slate-50 cursor-pointer" onClick={() => handleView(inquiry)}>
+                        {loading && inquiries.length === 0 ? (
+                            <tr><td colSpan="5" className="text-center p-8 text-gray-500">Loading inquiries...</td></tr>
+                        ) : inquiries.map(inquiry => (
+                            <tr key={inquiry._id} className="border-b border-slate-200 hover:bg-slate-50 cursor-pointer" onClick={() => handleView(inquiry)}>
                                 <td className="p-4">
-                                    <p className="font-semibold text-slate-800">{inquiry.name}</p>
+                                    <p className={`font-semibold text-slate-800 ${inquiry.status === 'New' ? 'font-bold' : ''}`}>{inquiry.name}</p>
                                     <p className="text-xs text-slate-500">{inquiry.email}</p>
                                 </td>
-                                <td className="p-4 text-slate-600">{inquiry.subject}</td>
-                                <td className="p-4 text-slate-500 hidden md:table-cell">{formatDate(inquiry.receivedAt)}</td>
-                                <td className="p-4"><StatusBadge status={inquiry.status} /></td>
                                 <td className="p-4">
-                                    <button onClick={(e) => { e.stopPropagation(); handleDeleteClick(inquiry); }} className="p-2 text-slate-500 hover:text-red-600 rounded-full hover:bg-red-100">
+                                    <p className={`font-semibold text-slate-800 ${inquiry.status === 'New' ? 'font-bold' : ''}`}>{inquiry.company}</p>
+                                    {/* <p className="text-xs text-slate-500">{inquiry.phone}</p> */}
+                                </td>
+                                <td className="p-4 text-slate-600">
+                                    <span className={inquiry.status === 'New' ? 'font-bold text-slate-700' : ''}>{inquiry.subject}</span>
+                                </td>
+                                <td className="p-4 text-slate-500 hidden md:table-cell">{formatDate(inquiry.createdAt)}</td>
+                                <td className="p-4"><StatusBadge status={inquiry.status} /></td>
+                                <td className="p-4 text-right">
+                                    <button 
+                                        onClick={(e) => { e.stopPropagation(); handleDeleteClick(inquiry); }} 
+                                        className="p-2 text-slate-400 hover:text-red-600 rounded-full hover:bg-red-100"
+                                        title="Delete Inquiry"
+                                    >
                                         <TrashIcon className="w-5 h-5" />
                                     </button>
                                 </td>
@@ -90,8 +114,8 @@ const ManageInquiries = () => {
                 </table>
             </div>
             
-            <InquiryViewer isOpen={isViewerOpen} onClose={() => setIsViewerOpen(false)} inquiry={selectedInquiry} setInquiries={setInquiries} />
-            <ConfirmDeleteModal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} onConfirm={confirmDelete} itemName={`inquiry from ${selectedInquiry?.name}`} />
+            <InquiryViewer isOpen={isViewerOpen} onClose={handleCloseViewer} inquiry={selectedInquiry} isDeleting={loading} />
+            <ConfirmDeleteModal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} onConfirm={confirmDelete} itemName={`inquiry from ${inquiryToDelete?.name}`} isDeleting={loading} />
         </div>
     );
 };

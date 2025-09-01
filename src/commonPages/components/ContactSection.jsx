@@ -1,18 +1,35 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useDispatch, useSelector } from "react-redux"
+import { 
+  createInquiryAsync, 
+  selectManageInquiries,
+  clearSuccess 
+} from "../../features/adminSlice/ManageInquiries/ManageInquiriesSlice" // Make sure this path is correct
 import { 
   UserIcon, 
   EnvelopeIcon, 
   PhoneIcon, 
   ChatBubbleBottomCenterTextIcon,
   MapPinIcon,
-  ClockIcon
+  ClockIcon,
+  DocumentTextIcon, // Icon for the new subject field
+BuildingOffice2Icon
 } from "@heroicons/react/24/outline"
 
 const ContactSection = () => {
-  const [submitted, setSubmitted] = useState(false)
-  const [formData, setFormData] = useState({ name: "", email: "", phone: "", requirement: "" })
+  const dispatch = useDispatch()
+  const { loading, error, success } = useSelector(selectManageInquiries)
+
+  const [formData, setFormData] = useState({ 
+    name: "", 
+    email: "", 
+    phone: "", 
+    subject: "", // New state for subject
+    message: "" ,
+    company: ""
+  })
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
@@ -20,10 +37,24 @@ const ContactSection = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    console.log("Form submitted:", formData)
-    setSubmitted(true)
-    // In a real app, you would send the data to an API here.
+
+    const inquiryData = {
+      name: formData.name,
+      email: formData.email,
+      message: formData.message,
+      phone: formData.phone,
+      subject: formData.subject, // Get subject from form state
+      company: formData.company
+    };
+    
+    dispatch(createInquiryAsync(inquiryData))
   }
+  
+  useEffect(() => {
+    return () => {
+      dispatch(clearSuccess())
+    }
+  }, [dispatch])
 
   return (
     <section id="contact" className="py-10 bg-slate-50">
@@ -37,14 +68,12 @@ const ContactSection = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
           
-          {/* --- Left Side: The Form Card --- */}
           <div className="bg-white p-8 sm:p-10 rounded-2xl shadow-lg border border-slate-200/50">
-            {!submitted ? (
+            {!success ? (
               <form onSubmit={handleSubmit} className="space-y-6">
                 <h3 className="text-2xl font-bold text-slate-900 mb-1">Send us a Message</h3>
                 <p className="text-slate-500 mb-6">We'll respond within 2 business hours.</p>
 
-                {/* --- Modern Inputs with Icons --- */}
                 <div className="relative">
                   <UserIcon className="w-5 h-5 text-gray-400 absolute top-3.5 left-4" />
                   <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Full Name" required className="w-full border border-slate-300 rounded-lg p-3 pl-11 focus:ring-2 focus:ring-red-500 outline-none" />
@@ -58,33 +87,40 @@ const ContactSection = () => {
                   <input type="tel" name="phone" value={formData.phone} onChange={handleChange} placeholder="Phone Number" required className="w-full border border-slate-300 rounded-lg p-3 pl-11 focus:ring-2 focus:ring-red-500 outline-none" />
                 </div>
                 <div className="relative">
+                  <BuildingOffice2Icon className="w-5 h-5 text-gray-400 absolute top-3.5 left-4" />
+                  <input type="text" placeholder="Company / Organization" name="company" value={formData.company} onChange={handleChange} className="w-full border border-slate-300 rounded-lg p-3 pl-11 focus:ring-2 focus:ring-red-500 outline-none " />
+                </div>
+                {/* New Input Field for Subject */}
+                <div className="relative">
+                  <DocumentTextIcon className="w-5 h-5 text-gray-400 absolute top-3.5 left-4" />
+                  <input type="text" name="subject" value={formData.subject} onChange={handleChange} placeholder="Subject" required className="w-full border border-slate-300 rounded-lg p-3 pl-11 focus:ring-2 focus:ring-red-500 outline-none" />
+                </div>
+                <div className="relative">
                   <ChatBubbleBottomCenterTextIcon className="w-5 h-5 text-gray-400 absolute top-3.5 left-4" />
-                  <textarea name="requirement" value={formData.requirement} onChange={handleChange} placeholder="Describe your advertising requirements..." rows="4" required className="w-full border border-slate-300 rounded-lg p-3 pl-11 focus:ring-2 focus:ring-red-500 outline-none"></textarea>
+                  <textarea name="message" value={formData.message} onChange={handleChange} placeholder="Describe your message..." rows="4" required className="w-full border border-slate-300 rounded-lg p-3 pl-11 focus:ring-2 focus:ring-red-500 outline-none"></textarea>
                 </div>
                 
-                <button type="submit" className="w-full bg-gradient-to-r from-red-600 to-pink-500 text-white py-3.5 rounded-lg font-semibold text-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 shadow-lg">
-                  Send Inquiry
+                <button type="submit" disabled={loading} className="w-full bg-gradient-to-r from-red-600 to-pink-500 text-white py-3.5 rounded-lg font-semibold text-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
+                  {loading ? "Sending..." : "Send Inquiry"}
                 </button>
+
+                {error && <p className="text-sm text-red-600 text-center mt-2">{error}</p>}
+
               </form>
             ) : (
-              // --- Inline Success Message ---
               <div className="text-center flex flex-col items-center justify-center min-h-[400px]">
                 <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mb-6">
                   <svg className="w-16 h-16 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
                 </div>
                 <h2 className="text-3xl font-bold text-gray-900 mb-3">Thank You!</h2>
-                <p className="text-gray-600 max-w-sm">
-                  Your message has been sent. Our team will get in touch with you shortly!
-                </p>
+                <p className="text-gray-600 max-w-sm">{success}</p>
               </div>
             )}
           </div>
-
-          {/* --- Right Side: Contact Details --- */}
+          
           <div className="space-y-8">
             <h3 className="text-2xl font-bold text-slate-900">Contact Information</h3>
             <div className="space-y-6">
-              {/* Address */}
               <div className="flex items-start">
                 <div className="flex-shrink-0 w-12 h-12 bg-red-100 text-red-600 rounded-lg flex items-center justify-center">
                   <MapPinIcon className="w-6 h-6"/>
@@ -94,7 +130,6 @@ const ContactSection = () => {
                   <p className="text-slate-600">123 Business District, Railway Plaza<br/>New Delhi - 110001, India</p>
                 </div>
               </div>
-              {/* Phone */}
               <div className="flex items-start">
                 <div className="flex-shrink-0 w-12 h-12 bg-red-100 text-red-600 rounded-lg flex items-center justify-center">
                   <PhoneIcon className="w-6 h-6"/>
@@ -104,7 +139,6 @@ const ContactSection = () => {
                   <a href="tel:+919876543210" className="text-slate-600 hover:text-red-600 transition-colors">+91 98765 43210</a>
                 </div>
               </div>
-              {/* Email */}
               <div className="flex items-start">
                 <div className="flex-shrink-0 w-12 h-12 bg-red-100 text-red-600 rounded-lg flex items-center justify-center">
                   <EnvelopeIcon className="w-6 h-6"/>
@@ -115,7 +149,6 @@ const ContactSection = () => {
                 </div>
               </div>
             </div>
-            {/* Business Hours */}
             <div className="bg-white p-6 rounded-xl border border-slate-200/50">
               <div className="flex items-center mb-4">
                  <ClockIcon className="w-6 h-6 text-red-600 mr-3"/>
@@ -130,7 +163,6 @@ const ContactSection = () => {
           </div>
         </div>
 
-        {/* --- Real Interactive Map --- */}
         <div className="mt-20">
             <h3 className="text-2xl font-bold text-slate-900 text-center mb-8">Visit Our Office</h3>
             <div className="rounded-xl overflow-hidden shadow-lg border border-slate-200/50">

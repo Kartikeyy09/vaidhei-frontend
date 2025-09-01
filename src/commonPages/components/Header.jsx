@@ -2,6 +2,12 @@
 
 import { useState, useEffect } from "react"
 import { NavLink } from "react-router-dom" 
+import { useDispatch, useSelector } from "react-redux" // Redux hooks
+import { 
+  createInquiryAsync, 
+  selectManageInquiries,
+  clearSuccess 
+} from "../../features/adminSlice/ManageInquiries/ManageInquiriesSlice" // Make sure this path is correct
 import { 
   XMarkIcon, 
   Bars3Icon, 
@@ -20,13 +26,23 @@ import {
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [submitted, setSubmitted] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
 
+  // Redux state integration
+  const dispatch = useDispatch()
+  const { loading, error, success } = useSelector(selectManageInquiries)
+
+  // Local state for the modal form
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    company: "",
+    message: ""
+  })
+
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10)
-    }
+    const handleScroll = () => setIsScrolled(window.scrollY > 10)
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
@@ -48,15 +64,30 @@ const Header = () => {
     { name: "Contact", path: "/contact", icon: PhoneIcon },
   ]
 
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value })
+  }
+
   const openModal = () => {
     setIsMenuOpen(false);
-    setSubmitted(false);
+    // Reset form and Redux state every time modal opens
+    setFormData({ name: "", email: "", phone: "", company: "", message: "" });
+    dispatch(clearSuccess());
     setIsModalOpen(true);
+  }
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    dispatch(clearSuccess()); // Clear success/error state on close
   }
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    setSubmitted(true);
+    const inquiryData = {
+      ...formData,
+      subject: "Quote Request from Header" // Add a default subject
+    };
+    dispatch(createInquiryAsync(inquiryData));
   }
 
   return (
@@ -106,6 +137,7 @@ const Header = () => {
         </div>
       </header>
       
+      {/* Mobile Menu */}
       <div className={`fixed inset-0 z-50 md:hidden transition-opacity duration-300 ${isMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
         <div className="absolute inset-0 bg-black/40" onClick={() => setIsMenuOpen(false)}></div>
         <div className={`absolute top-0 right-0 h-full w-72 bg-white shadow-xl transform transition-transform duration-300 ease-in-out ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
@@ -137,13 +169,14 @@ const Header = () => {
         </div>
       </div>
 
+      {/* "Get Quote" Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-60 backdrop-blur-sm">
           <div className="relative max-w-4xl w-full bg-white rounded-2xl shadow-2xl overflow-hidden transform transition-all duration-300 ease-in-out scale-95 opacity-0 animate-fade-in-scale">
-            <button onClick={() => setIsModalOpen(false)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 z-10">
+            <button onClick={closeModal} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 z-10">
               <XMarkIcon className="w-7 h-7" />
             </button>
-            {!submitted ? (
+            {!success ? (
               <div className="grid grid-cols-1 md:grid-cols-2">
                 <div className="p-8 bg-slate-50 hidden md:flex flex-col justify-center">
                   <h2 className="text-2xl font-bold text-gray-900 mb-4">What Your Quote Includes:</h2>
@@ -160,25 +193,28 @@ const Header = () => {
                   <form onSubmit={handleFormSubmit} className="space-y-4">
                     <div className="relative">
                       <UserIcon className="w-5 h-5 text-gray-400 absolute top-3.5 left-4" />
-                      <input type="text" placeholder="Your Name" className="w-full border border-slate-300 rounded-lg p-3 pl-11 focus:ring-2 focus:ring-red-500 outline-none" required />
+                      <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Your Name" className="w-full border border-slate-300 rounded-lg p-3 pl-11 focus:ring-2 focus:ring-red-500 outline-none" required />
                     </div>
                     <div className="relative">
                       <EnvelopeIcon className="w-5 h-5 text-gray-400 absolute top-3.5 left-4" />
-                      <input type="email" placeholder="Email" className="w-full border border-slate-300 rounded-lg p-3 pl-11 focus:ring-2 focus:ring-red-500 outline-none" required />
+                      <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Email" className="w-full border border-slate-300 rounded-lg p-3 pl-11 focus:ring-2 focus:ring-red-500 outline-none" required />
                     </div>
                     <div className="relative">
                       <PhoneIcon className="w-5 h-5 text-gray-400 absolute top-3.5 left-4" />
-                      <input type="tel" placeholder="Phone Number" className="w-full border border-slate-300 rounded-lg p-3 pl-11 focus:ring-2 focus:ring-red-500 outline-none" required />
+                      <input type="tel" name="phone" value={formData.phone} onChange={handleChange} placeholder="Phone Number" className="w-full border border-slate-300 rounded-lg p-3 pl-11 focus:ring-2 focus:ring-red-500 outline-none" required />
                     </div>
                      <div className="relative">
                       <BuildingOffice2Icon className="w-5 h-5 text-gray-400 absolute top-3.5 left-4" />
-                      <input type="text" placeholder="Company / Organization (Optional)" className="w-full border border-slate-300 rounded-lg p-3 pl-11 focus:ring-2 focus:ring-red-500 outline-none" />
+                      <input type="text" name="company" value={formData.company} onChange={handleChange} placeholder="Company / Organization (Optional)" className="w-full border border-slate-300 rounded-lg p-3 pl-11 focus:ring-2 focus:ring-red-500 outline-none" />
                     </div>
                     <div className="relative">
                       <ChatBubbleBottomCenterTextIcon className="w-5 h-5 text-gray-400 absolute top-3.5 left-4" />
-                      <textarea placeholder="Your requirements..." rows="3" className="w-full border border-slate-300 rounded-lg p-3 pl-11 focus:ring-2 focus:ring-red-500 outline-none"></textarea>
+                      <textarea name="message" value={formData.message} onChange={handleChange} placeholder="Your requirements..." rows="3" className="w-full border border-slate-300 rounded-lg p-3 pl-11 focus:ring-2 focus:ring-red-500 outline-none"></textarea>
                     </div>
-                    <button type="submit" className="w-full bg-gradient-to-r from-red-600 to-pink-500 text-white py-3 rounded-lg font-semibold text-lg hover:-translate-y-0.5 transition-transform duration-300">Submit Request</button>
+                    <button type="submit" disabled={loading} className="w-full bg-gradient-to-r from-red-600 to-pink-500 text-white py-3 rounded-lg font-semibold text-lg hover:-translate-y-0.5 transition-transform duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+                      {loading ? "Submitting..." : "Submit Request"}
+                    </button>
+                    {error && <p className="text-sm text-red-600 text-center">{error}</p>}
                   </form>
                 </div>
               </div>
@@ -188,7 +224,7 @@ const Header = () => {
                     <svg className="w-12 h-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
                   </div>
                   <h2 className="text-2xl font-bold text-gray-900 mb-2">Quote Request Sent!</h2>
-                  <p className="text-gray-600">Our team will get back to you shortly. Thank you for your interest!</p>
+                  <p className="text-gray-600">{success}</p>
                 </div>
             )}
           </div>

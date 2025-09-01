@@ -21,7 +21,7 @@ const WhyChooseSection = () => {
   ]
 
   return (
-    <section className="py-24 relative bg-slate-50 overflow-hidden">
+    <section className="py-10 relative bg-slate-50 overflow-hidden">
       <div className="absolute -top-40 -left-40 w-96 h-96 bg-red-100 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob"></div>
       <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob animation-delay-2000"></div>
 
@@ -49,7 +49,7 @@ const WhyChooseSection = () => {
           })}
         </div>
 
-        <div className="mt-24 bg-gradient-to-r from-red-600 to-pink-500 text-white p-12 rounded-3xl text-center shadow-xl">
+        <div className="mt-10 bg-gradient-to-r from-red-600 to-pink-500 text-white p-12 rounded-3xl text-center shadow-xl">
           <h3 className="text-3xl md:text-4xl font-bold mb-4">Ready to Start Your Campaign?</h3>
           <p className="text-lg md:text-xl mb-8 opacity-90">Join 500+ satisfied clients who trust us.</p>
           
