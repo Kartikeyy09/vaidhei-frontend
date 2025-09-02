@@ -18,12 +18,20 @@ import {
 
 const AboutSection = () => {
   return (
-    <section id="about" className="py-10 bg-gray-50">
+    <section id="about" className="py-5 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-24 gap-y-16 items-start">
           
+          
           {/* --- Left Side: Image + Key Achievements --- */}
-          <div className="lg:sticky lg:top-24">
+          <div className=" top-0 lg:sticky lg:top-24">
+            <div className="flex items-center text-sm text-slate-500  pb-5 md:hidden ">
+                    <Link to="/" className="hover:text-red-600">Home</Link>
+                    <ChevronRightIcon className="w-4 h-4 mx-1" />
+                    <Link to="/about" className="hover:text-red-600">About</Link>
+                    <ChevronRightIcon className="w-4 h-4 mx-1" />
+                    {/* <span className="font-medium text-slate-700">{title}</span> */}
+                </div>
             {/* Engaging Image */}
             <div className="relative">
               <img 
@@ -31,7 +39,7 @@ const AboutSection = () => {
                 alt="Vaidehi Enterprises team collaborating on a major infrastructure project"
                 className="rounded-2xl shadow-2xl w-full h-auto"
               />
-              <div className="absolute -bottom-8 -right-8 bg-gradient-to-r from-red-600 to-pink-500 text-white p-6 rounded-xl shadow-lg w-64 transform transition-transform hover:scale-105">
+              <div className="absolute -bottom-12  md:-bottom-8 right-16  md:-right-12  bg-gradient-to-r from-red-600 to-pink-500 text-white p-6 rounded-xl shadow-lg w-64   transform transition-transform hover:scale-105">
                 <div className="text-4xl font-extrabold">15+</div>
                 <div className="text-lg font-semibold">Years of Expertise</div>
                 <p className="text-sm opacity-90 mt-1">in Public Sector Projects</p>
@@ -115,7 +123,7 @@ const AboutSection = () => {
               {/* Primary CTA */}
               <Link 
                 to="/journey"
-                className="group inline-flex items-center justify-center bg-gradient-to-r from-red-600 to-pink-500 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:shadow-xl transition-all duration-300 shadow-lg transform hover:-translate-y-1"
+                className="group inline-flex items-center justify-center bg-gradient-to-r from-red-600 to-pink-500 text-white  sm:py-3 px-8 md:py-4 rounded-lg font-semibold text-lg hover:shadow-xl transition-all duration-300 shadow-lg transform hover:-translate-y-1"
               >
                 Explore Our Journey
                 <ArrowRightIcon className="w-6 h-6 ml-3 transition-transform duration-300 group-hover:translate-x-1" />

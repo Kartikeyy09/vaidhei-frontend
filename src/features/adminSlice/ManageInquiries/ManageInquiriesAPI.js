@@ -1,6 +1,7 @@
-// ✅ FILE: src/admin/components/adminSlices/ManageInquiries/ManageInquiriesAPI.js
+// ✅ FILE: src/admin/components/adminSlices/ManageInquiries/ManageInquiriesAPI.
+import {INQUIRY_URL} from '../../../authURL/URL';
 
-const API_URL = "http://localhost:3000/api/inquiries";
+const API_URL = `${INQUIRY_URL}`;
 
 const getAuthToken = () => localStorage.getItem('token');
 

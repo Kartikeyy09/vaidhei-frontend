@@ -23,7 +23,7 @@ const Header = ({ setIsSidebarOpen }) => {
 
   const handleLogout = () => {
     dispatch(logoutAsync());
-    navigate('/admin/login');
+    navigate('/admin-login');
   };
 
   // User ke naam se ek fallback avatar URL banana

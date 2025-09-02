@@ -1,6 +1,7 @@
 // ✅ FILE: src/admin/components/adminSlices/Dashboard/DashboardAPI.js
+import { DASHBOARD_URL} from '../../../authURL/URL';
 
-const API_URL = "http://localhost:3000/api/dashboard/stats";
+const API_URL = `${DASHBOARD_URL}`;;
 
 const getAuthToken = () => localStorage.getItem('token');
 

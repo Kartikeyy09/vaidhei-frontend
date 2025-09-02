@@ -1,6 +1,8 @@
 // ✅ FILE: src/admin/components/adminSlices/ManageProjects/ManageProjectsAPI.js (Updated)
+import {PROJECT_URL} from '../../../authURL/URL';
 
-const API_URL = "http://localhost:3000/api/projects";
+
+const API_URL = `${PROJECT_URL}`;
 
 // Helper function to get the token from localStorage
 const getAuthToken = () => {

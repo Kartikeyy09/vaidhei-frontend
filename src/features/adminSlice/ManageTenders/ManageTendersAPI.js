@@ -1,6 +1,8 @@
-// ✅ FILE: src/admin/components/adminSlices/ManageTenders/ManageTendersAPI.js
+import {TENDER_URL} from '../../../authURL/URL';
 
-const API_URL = "http://localhost:3000/api/tenders";
+
+
+const API_URL = `${TENDER_URL}`;
 
 const getAuthToken = () => localStorage.getItem('token');
 

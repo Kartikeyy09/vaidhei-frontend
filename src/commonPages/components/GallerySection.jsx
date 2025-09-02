@@ -6,17 +6,19 @@ import {
   fetchGalleryAsync,
   selectManageGallery,
 } from "../../features/adminSlice/ManageGallery/ManageGallerySlice";
-
+import { Link } from "react-router-dom";
 import {
   XMarkIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
+
   PlayCircleIcon,
+  PhotoIcon, // ✅ Added for the empty state
 } from "@heroicons/react/24/outline";
 
 const ITEMS_PER_PAGE = 8;
 
-// ✅ Helper to convert YouTube URL → Embed URL
+// Helper to convert YouTube URL → Embed URL
 const getYoutubeEmbedUrl = (url) => {
   if (!url) return "";
   let videoId;
@@ -42,17 +44,10 @@ const GallerySection = () => {
   const [selectedMediaIndex, setSelectedMediaIndex] = useState(null);
   const [visibleItemsCount, setVisibleItemsCount] = useState(ITEMS_PER_PAGE);
 
-  // ✅ Fetch gallery from backend
+  // Fetch gallery from backend
   useEffect(() => {
     dispatch(fetchGalleryAsync());
   }, [dispatch]);
-
-  const filteredItems =
-    activeTab === "all"
-      ? galleryItems
-      : galleryItems.filter((item) => item.category === activeTab);
-
-  const visibleItems = filteredItems.slice(0, visibleItemsCount);
 
   const categories = [
     { id: "all", name: "All Projects" },
@@ -60,7 +55,17 @@ const GallerySection = () => {
     { id: "municipal", name: "Municipal" },
     { id: "government", name: "Government" },
     { id: "transport", name: "Transport" },
+    { id: "Highways", name: "Highways" },
+    { id: "others", name: "Others" },
   ];
+  
+  const filteredItems =
+    activeTab === "all"
+      ? galleryItems
+      : galleryItems.filter((item) => item.category === activeTab);
+
+  const visibleItems = filteredItems.slice(0, visibleItemsCount);
+
 
   const openModal = (index) => setSelectedMediaIndex(index);
   const closeModal = () => setSelectedMediaIndex(null);
@@ -97,8 +102,15 @@ const GallerySection = () => {
     selectedMediaIndex !== null ? filteredItems[selectedMediaIndex] : null;
 
   return (
-    <section id="gallery" className="py-10 bg-slate-50">
+    <section id="gallery" className="py-5 bg-slate-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center text-sm text-slate-500 px-2  pb-5 md:hidden ">
+           <Link to="/" className="hover:text-red-600">Home</Link>
+          <ChevronRightIcon className="w-4 h-4 mx-1" />
+          <Link to="/gallery" className="hover:text-red-600">gallery</Link>
+          <ChevronRightIcon className="w-4 h-4 mx-1" />
+       {/* <span className="font-medium text-slate-700">{project.title}</span> */}
+      </div>
         {/* Header */}
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 mb-4">
@@ -133,63 +145,82 @@ const GallerySection = () => {
           </div>
         </div>
 
-        {/* Gallery Grid */}
+        {/* ✅ Gallery Grid - Updated with Empty State */}
         {loading ? (
           <p className="text-center">Loading...</p>
         ) : error ? (
           <p className="text-center text-red-500">{error}</p>
+        ) : filteredItems.length === 0 ? (
+          <div className="text-center py-20 px-6 bg-slate-100 rounded-xl border-2 border-dashed border-slate-200">
+            <PhotoIcon className="mx-auto h-16 w-16 text-slate-400" />
+            <h3 className="mt-4 text-xl font-semibold text-slate-700">
+              No Projects Found
+            </h3>
+            <p className="mt-2 text-base text-slate-500">
+              There are currently no projects available in the "
+              {categories.find((c) => c.id === activeTab)?.name}" category.
+            </p>
+            <p className="mt-1 text-base text-slate-500">
+              Please check back later or select another category.
+            </p>
+          </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-            {visibleItems.map((item, index) => (
-              <div
-                key={item._id}
-                className="group relative rounded-xl overflow-hidden cursor-pointer ring-1 ring-slate-200/50 hover:ring-red-500 transition-all duration-300 aspect-[4/5]"
-                onClick={() => openModal(index)}
-              >
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent z-10" />
+          // ✅ Wrapped grid and button in a fragment
+          <>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+              {visibleItems.map((item, index) => (
+                <div
+                  key={item._id}
+                  className="group relative rounded-xl overflow-hidden cursor-pointer ring-1 ring-slate-200/50 hover:ring-red-500 transition-all duration-300 aspect-[4/5]"
+                  onClick={() => openModal(index)}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent z-10" />
 
-                {item.type === "video" ? (
-                  <div className="relative w-full h-full flex items-center justify-center bg-black">
-                    <iframe
-                      className="w-full h-full object-cover"
-                      src={getYoutubeEmbedUrl(item.videoUrl)}
-                      title={item.title}
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    ></iframe>
-                    <PlayCircleIcon className="absolute w-16 h-16 text-white/70 group-hover:text-red-500 transition-colors" />
+                  {item.type === "video" ? (
+                    <div className="relative w-full h-full flex items-center justify-center bg-black">
+                      <iframe
+                        className="w-full h-full object-cover"
+                        src={getYoutubeEmbedUrl(item.videoUrl)}
+                        title={item.title}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      ></iframe>
+                      <PlayCircleIcon className="absolute w-16 h-16 text-white/70 group-hover:text-red-500 transition-colors pointer-events-none" />
+                    </div>
+                  ) : (
+                    <img
+                      src={`http://localhost:3000${item.imageUrl}`}
+                      alt={item.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  )}
+
+                  <div className="absolute inset-0 flex flex-col justify-end p-3 sm:p-4 z-20 text-white">
+                    <h3 className="font-bold text-sm sm:text-lg">
+                      {item.title}
+                    </h3>
+                    <p className="text-xs sm:text-sm opacity-80">
+                      {item.category}
+                    </p>
                   </div>
-                ) : (
-                  <img
-                    src={`http://localhost:3000${item.imageUrl}`}
-                    alt={item.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                )}
-
-                <div className="absolute inset-0 flex flex-col justify-end p-3 sm:p-4 z-20 text-white">
-                  <h3 className="font-bold text-sm sm:text-lg">{item.title}</h3>
-                  <p className="text-xs sm:text-sm opacity-80">
-                    {item.category}
-                  </p>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
+              ))}
+            </div>
 
-        {/* Load More Button */}
-        {visibleItemsCount < filteredItems.length && (
-          <div className="text-center mt-12">
-            <button
-              onClick={() =>
-                setVisibleItemsCount((prev) => prev + ITEMS_PER_PAGE)
-              }
-              className="bg-white text-red-600 font-semibold px-8 py-3 rounded-lg border border-red-200 hover:bg-red-50 transition-all duration-300 shadow-sm hover:shadow-lg transform hover:scale-105"
-            >
-              Load More Projects
-            </button>
-          </div>
+            {/* Load More Button */}
+            {visibleItemsCount < filteredItems.length && (
+              <div className="text-center mt-12">
+                <button
+                  onClick={() =>
+                    setVisibleItemsCount((prev) => prev + ITEMS_PER_PAGE)
+                  }
+                  className="bg-white text-red-600 font-semibold px-8 py-3 rounded-lg border border-red-200 hover:bg-red-50 transition-all duration-300 shadow-sm hover:shadow-lg transform hover:scale-105"
+                >
+                  Load More Projects
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
 

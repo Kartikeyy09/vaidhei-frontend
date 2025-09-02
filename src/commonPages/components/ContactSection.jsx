@@ -7,6 +7,7 @@ import {
   selectManageInquiries,
   clearSuccess 
 } from "../../features/adminSlice/ManageInquiries/ManageInquiriesSlice" // Make sure this path is correct
+import { Link } from "react-router-dom"
 import { 
   UserIcon, 
   EnvelopeIcon, 
@@ -15,7 +16,8 @@ import {
   MapPinIcon,
   ClockIcon,
   DocumentTextIcon, // Icon for the new subject field
-BuildingOffice2Icon
+BuildingOffice2Icon,
+ChevronRightIcon
 } from "@heroicons/react/24/outline"
 
 const ContactSection = () => {
@@ -57,8 +59,15 @@ const ContactSection = () => {
   }, [dispatch])
 
   return (
-    <section id="contact" className="py-10 bg-slate-50">
+    <section id="contact" className="py-5 bg-slate-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+         <div className="flex items-center text-sm text-slate-500 px-2  pb-5 md:hidden ">
+                   <Link to="/" className="hover:text-red-600">Home</Link>
+                  <ChevronRightIcon className="w-4 h-4 mx-1" />
+                  <Link to="/contact" className="hover:text-red-600">Contact</Link>
+                  <ChevronRightIcon className="w-4 h-4 mx-1" />
+               {/* <span className="font-medium text-slate-700">{project.title}</span> */}
+              </div>
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-4">Let's Start a Conversation</h2>
           <p className="text-lg md:text-xl text-slate-600 max-w-3xl mx-auto">

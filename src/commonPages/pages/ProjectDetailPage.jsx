@@ -5,6 +5,7 @@
 import { useEffect } from 'react';
 import { useParams, Link } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
+import { ChevronRightIcon } from "@heroicons/react/24/solid";
 import { fetchProjectsAsync, selectManageProjects } from '../../features/adminSlice/ManageProjects/ManageProjectsSlice'; // Adjust import path
 
 const ProjectDetailPage = () => {
@@ -49,9 +50,17 @@ const ProjectDetailPage = () => {
 
   return (
     <div className="bg-white">
+      <div className="flex items-center text-sm text-slate-500 px-2  pb-5 md:hidden ">
+       <Link to="/" className="hover:text-red-600">Home</Link>
+       <ChevronRightIcon className="w-4 h-4 mx-1" />
+       <Link to="/projects" className="hover:text-red-600">Projects</Link>
+       <ChevronRightIcon className="w-4 h-4 mx-1" />
+       <span className="font-medium text-slate-700">{project.title}</span>
+   </div>
       {/* Hero Section */}
       <div className="relative h-[50vh] bg-black">
         {/* ✅ FIX: Use 'coverImage' for the hero banner */}
+         
         <img 
           src={`${serverUrl}${project.coverImage}`} 
           alt={project.title} 

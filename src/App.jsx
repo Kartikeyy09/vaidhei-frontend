@@ -17,7 +17,7 @@ import ProjectsSection from "./commonPages/components/ProjectsSection";
 import ProjectDetailPage from "./commonPages/pages/ProjectDetailPage";
 import TendersSection from "./commonPages/components/TendersSection";
 import ContactSection from "./commonPages/components/ContactSection";
-import GetQuotePage from "./commonPages/components/GetQuotePage";
+// import GetQuotePage from "./commonPages/components/GetQuotePage";
 import JourneySection from "./commonPages/components/JourneySection";
 import Consultation from "./commonPages/components/Consultation";
 import GallerySection from "./commonPages/components/GallerySection";
@@ -34,6 +34,8 @@ import ManageTestimonials from "./admin/pages/ManageTestimonials";
 import ManageInquiries from "./admin/pages/ManageInquiries";
 import SettingsPage from "./admin/pages/SettingsPage";
 import NotFoundPage from "./commonPages/pages/NotFoundPage";
+import PrivacyPolicyPage from "./commonPages/pages/PrivacyPolicyPage";
+import AdminProfilePage from "./admin/pages/AdminProfilePage";
 
 
 
@@ -51,16 +53,21 @@ const router = createBrowserRouter([
       { path: "projects/:slug", element: <ProjectDetailPage /> },
       { path: "tenders", element: <TendersSection /> },
       { path: "contact", element: <ContactSection /> },
-      { path: "get-quote", element: <GetQuotePage /> },
+      // { path: "get-quote", element: <GetQuotePage /> },
       { path: "journey", element: <JourneySection /> },
       { path: "consultation", element: <Consultation /> },
-      { path: "gallery", element: <GallerySection /> }
+      { path: "gallery", element: <GallerySection /> },
+      {
+        path : "privacy-policy",
+        element : <PrivacyPolicyPage/>
+      }
+      
     ],
   },
   
   // --- Group 2: Public Admin Route (Login Page) ---
   {
-    path: "/admin/login",
+    path: "/admin-login",
     element: <AdminLoginPage />,
   },
 
@@ -80,7 +87,8 @@ const router = createBrowserRouter([
           { path: "tenders", element: <ManageTenders /> },
           { path: "testimonials", element: <ManageTestimonials /> },
           { path: "inquiries", element: <ManageInquiries /> },
-          { path: "settings", element: <SettingsPage /> }
+          { path: "settings", element: <SettingsPage /> },
+          {path : "profile", element : <AdminProfilePage />}
         ],
       },
     ],

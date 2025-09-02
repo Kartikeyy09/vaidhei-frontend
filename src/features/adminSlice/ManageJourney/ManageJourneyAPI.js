@@ -1,6 +1,6 @@
 // ✅ FILE: src/admin/components/adminSlices/ManageJourney/ManageJourneyAPI.js
-
-const API_URL = "http://localhost:3000/api/journey";
+import {JOURNEY_URL} from '../../../authURL/URL';
+const API_URL = `${JOURNEY_URL}`;
 
 const getAuthToken = () => localStorage.getItem('token');
 

@@ -1,21 +1,35 @@
-// FILE: src/admin/components/adminSlices/auth/loginSlice.js (Updated)
+// FILE: src/admin/components/adminSlices/auth/loginSlice.js
 
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-// ✅ IMPORT the logout API function as well
-import { adminLoginAPI, logoutAPI } from './loginAPI'; 
+import { adminLoginAPI, logoutAPI, updateProfileAPI } from './loginAPI'; 
 
-const user = JSON.parse(localStorage.getItem('user'));
+// --- Initial State Setup ---
+// Safely parse user data from localStorage
+let user = null;
+try {
+  const storedUser = localStorage.getItem('user');
+  if (storedUser) {
+    user = JSON.parse(storedUser);
+  }
+} catch (error) {
+  console.error("Could not parse user data from localStorage:", error);
+  user = null; // Reset on error
+}
+
 const token = localStorage.getItem('token');
 
 const initialState = {
   user: user || null,
   token: token || null,
-  isAuthenticated: !!user,
+  isAuthenticated: !!(user && token),
   loading: false,
   error: null,
 };
 
-// Login Thunk (No changes here)
+
+// --- Async Thunks ---
+
+// 🔹 Login Thunk
 export const adminLoginAsync = createAsyncThunk(
   'admin/login',
   async (credentials, { rejectWithValue }) => {
@@ -30,36 +44,53 @@ export const adminLoginAsync = createAsyncThunk(
   }
 );
 
-// ✅ ADD THE LOGOUT ASYNC THUNK
+// 🔹 Logout Thunk
 export const logoutAsync = createAsyncThunk(
-  'admin/logout', // Action ka unique naam
+  'admin/logout',
   async (_, { rejectWithValue }) => {
     try {
-      await logoutAPI(); // Logout API ko call karo
-      // Client-side se user data saaf karo
-      localStorage.removeItem('user');
-      localStorage.removeItem('token');
+      await logoutAPI();
     } catch (error) {
-      // Agar API fail bhi ho jaye, tab bhi client-side se logout kar do
+      console.error("Logout API call failed, proceeding with client-side logout:", error);
+    } finally {
+      // Always clear localStorage, even if API fails
       localStorage.removeItem('user');
       localStorage.removeItem('token');
+    }
+  }
+);
+
+// 🔹 Update Profile Thunk
+export const updateProfileAsync = createAsyncThunk(
+  'admin/updateProfile',
+  async (profileFormData, { rejectWithValue }) => {
+    try {
+      const data = await updateProfileAPI(profileFormData);
+      // Update localStorage with the new user data from the response
+      localStorage.setItem('user', JSON.stringify(data.user));
+      return data.user; // Return only the user object to the reducer
+    } catch (error) {
       return rejectWithValue(error.message);
     }
   }
 );
 
+
+// --- The Slice Definition ---
+
 export const loginSlice = createSlice({
-  name: 'login', 
+  name: 'login',
   initialState,
   reducers: {
+    // Action to manually clear errors from the UI
     resetLoginState: (state) => {
-        state.loading = false;
-        state.error = null;
-    }
+      state.loading = false;
+      state.error = null;
+    },
   },
   extraReducers: (builder) => {
     builder
-      // Login cases (No change)
+      // 🔹 Login
       .addCase(adminLoginAsync.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -73,34 +104,39 @@ export const loginSlice = createSlice({
       .addCase(adminLoginAsync.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+        state.isAuthenticated = false;
         state.user = null;
         state.token = null;
-        state.isAuthenticated = false;
       })
 
-      // ✅ ADD LOGOUT CASES
-      .addCase(logoutAsync.pending, (state) => {
-        state.loading = true; // Optional: show a spinner on logout
-      })
+      // 🔹 Logout
       .addCase(logoutAsync.fulfilled, (state) => {
-        // State ko puri tarah se reset kar do
         state.user = null;
         state.token = null;
         state.isAuthenticated = false;
         state.loading = false;
         state.error = null;
       })
-      .addCase(logoutAsync.rejected, (state, action) => {
-        // Agar logout fail bhi ho, tab bhi client par logout kar do
-        state.user = null;
-        state.token = null;
-        state.isAuthenticated = false;
+
+      // 🔹 Update Profile
+      .addCase(updateProfileAsync.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateProfileAsync.fulfilled, (state, action) => {
         state.loading = false;
-        state.error = action.payload; // Error message ko store kar sakte hain
+        // Update the user in the Redux state with the new data
+        state.user = action.payload;
+      })
+      .addCase(updateProfileAsync.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });
 
+
+// --- Exports ---
 export const { resetLoginState } = loginSlice.actions;
 export const selectLogin = (state) => state.login;
 export default loginSlice.reducer;

@@ -1,6 +1,7 @@
 // ✅ FILE: src/admin/components/adminSlices/ManageGallery/ManageGalleryAPI.js
+import {GALLERY_URL} from '../../../authURL/URL';
 
-const API_URL = "http://localhost:3000/api/gallery";
+const API_URL = `${GALLERY_URL}`;
 
 const getAuthToken = () => localStorage.getItem('token');
 

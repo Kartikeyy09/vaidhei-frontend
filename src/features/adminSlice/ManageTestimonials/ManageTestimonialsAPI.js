@@ -1,6 +1,7 @@
-// ✅ FILE: src/admin/components/adminSlices/ManageTestimonials/ManageTestimonialsAPI.js
+import {TESTIMONIAL_URL} from '../../../authURL/URL';
 
-const API_URL = "http://localhost:3000/api/testimonials";
+
+const API_URL = `${TESTIMONIAL_URL}`;
 
 const getAuthToken = () => localStorage.getItem('token');
 

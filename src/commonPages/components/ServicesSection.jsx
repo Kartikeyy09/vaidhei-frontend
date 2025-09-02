@@ -4,6 +4,7 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from "react-router-dom";
+import { ChevronRightIcon} from "@heroicons/react/24/solid";
 import { fetchManageServicesAsync, selectManageServices } from '../../features/adminSlice/ManageServices/ManageServicesSlice'; // Assuming this relative path is correct
 
 const ServicesSection = () => {
@@ -41,8 +42,15 @@ const ServicesSection = () => {
   }
 
   return (
-    <section id="services" className="py-10 bg-slate-50">
+    <section id="services" className="py-5   bg-slate-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center text-sm text-slate-500  pb-5 md:hidden ">
+                    <Link to="/" className="hover:text-red-600">Home</Link>
+                    <ChevronRightIcon className="w-4 h-4 mx-1" />
+                    <Link to="/services" className="hover:text-red-600">Services</Link>
+                    <ChevronRightIcon className="w-4 h-4 mx-1" />
+                    {/* <span className="font-medium text-slate-700">{title}</span> */}
+                </div>
         <div className="text-center mb-20">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 mb-4">
             Our Spectrum of Services

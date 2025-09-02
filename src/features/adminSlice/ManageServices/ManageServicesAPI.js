@@ -1,7 +1,8 @@
-// FILE: src/admin/components/adminSlices/ManageServices/ManageServicesAPI.js
+import {SERVICE_URL} from "../../../authURL/URL"
 
-// const API_URL = "https://vaidhei-backend.onrender.com/api/services";
-const API_URL = "http://localhost:3000/api/services";
+
+
+const API_URL = `${SERVICE_URL}`;
 
 // Helper function to get the token from localStorage
 const getAuthToken = () => {

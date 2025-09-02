@@ -5,9 +5,12 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from "react-router-dom";
+import {ChevronRightIcon}from "@heroicons/react/24/solid";
+import {useNavigate} from "react-router-dom";
 import { fetchProjectsAsync, selectManageProjects } from '../../features/adminSlice/ManageProjects/ManageProjectsSlice'; // Adjust the import path as needed
 
 const ProjectsSection = () => {
+  const navigate = useNavigate();
   const [showAllProjects, setShowAllProjects] = useState(false);
   const dispatch = useDispatch();
   const { data: projects, loading, error } = useSelector(selectManageProjects);
@@ -41,8 +44,15 @@ const ProjectsSection = () => {
   }
 
   return (
-    <section id="projects" className="py-10 bg-slate-50">
+    <section id="projects" className="py-5 bg-slate-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center text-sm text-slate-500  pb-5 md:hidden ">
+                    <Link to="/" className="hover:text-red-600">Home</Link>
+                    <ChevronRightIcon className="w-4 h-4 mx-1" />
+                    <Link to="/projects" className="hover:text-red-600">Projects</Link>
+                    <ChevronRightIcon className="w-4 h-4 mx-1" />
+                    {/* <span className="font-medium text-slate-700">{title}</span> */}
+                </div>
         <div className="text-center mb-20">
           <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-4">
             Featured Case Studies
@@ -57,6 +67,7 @@ const ProjectsSection = () => {
             <div
               key={project._id}
               className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center transition-all duration-500 ease-in-out animate-fade-in"
+              onClick={() => navigate(`/projects/${project.slug}`)}
             >
               {/* Image Section - This correctly uses `project.image` for the thumbnail */}
               <div

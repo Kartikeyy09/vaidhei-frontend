@@ -1,10 +1,30 @@
 "use client"
 
+import { useEffect } from 'react'; // ✅ Import useEffect
+import { useDispatch, useSelector } from 'react-redux'; // ✅ Import Redux hooks
 import { Link } from "react-router-dom"
 import { FaFacebookF, FaTwitter, FaLinkedinIn, FaInstagram } from "react-icons/fa"
-import { MapPinIcon, PhoneIcon, EnvelopeIcon } from "@heroicons/react/24/solid"
+import { MapPinIcon, PhoneIcon, EnvelopeIcon, ArrowRightIcon } from "@heroicons/react/24/solid"
+// ✅ Import Redux actions and selectors
+import { fetchManageServicesAsync, selectManageServices } from '../../features/adminSlice/ManageServices/ManageServicesSlice';
+
 
 const Footer = () => {
+  // ✅ Get data from Redux store
+  const dispatch = useDispatch();
+  const { data: services } = useSelector(selectManageServices);
+
+  // ✅ Fetch services when the component mounts
+  useEffect(() => {
+    // Only fetch if the services array is empty
+    if (services.length === 0) {
+      dispatch(fetchManageServicesAsync());
+    }
+  }, [dispatch, services.length]);
+
+  // ✅ Create a limited list of featured services (e.g., the first 5)
+  const featuredServices = services.slice(0, 5);
+
   return (
     <footer className="relative bg-slate-900 text-white overflow-hidden">
       {/* Subtle background glow effects */}
@@ -44,15 +64,29 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Column 3: Our Services */}
+          {/* ✅ Column 3: Featured Services (Dynamic) */}
           <div>
-            <h3 className="text-lg font-bold mb-6 text-white">Our Expertise</h3>
+            <h3 className="text-lg font-bold mb-6 text-white">Featured Services</h3>
             <ul className="space-y-3">
-              <li><Link to="/services/railway-tenders" className="text-slate-300 hover:text-red-400 transition-colors text-sm">Railway Tenders</Link></li>
-              <li><Link to="/services/municipal-tenders" className="text-slate-300 hover:text-red-400 transition-colors text-sm">Municipal Tenders</Link></li>
-              <li><Link to="/services/transport-ads" className="text-slate-300 hover:text-red-400 transition-colors text-sm">Transport Advertising</Link></li>
-              <li><Link to="/services/digital-media" className="text-slate-300 hover:text-red-400 transition-colors text-sm">Digital Media</Link></li>
-              <li><Link to="/services/government-projects" className="text-slate-300 hover:text-red-400 transition-colors text-sm">Government Projects</Link></li>
+              {featuredServices.map(service => (
+                <li key={service._id}>
+                  <Link 
+                    to={`/services/${service.slug}`} 
+                    className="text-slate-300 hover:text-red-400 transition-colors text-sm"
+                  >
+                    {service.title}
+                  </Link>
+                </li>
+              ))}
+              {/* ✅ Add a "View All" link if there are services */}
+              {services.length > 0 && (
+                <li className="pt-2">
+                    <Link to="/services" className="group text-red-400 hover:text-red-300 font-semibold inline-flex items-center text-sm">
+                        View All Services
+                        <ArrowRightIcon className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" />
+                    </Link>
+                </li>
+              )}
             </ul>
           </div>
 
@@ -74,7 +108,6 @@ const Footer = () => {
               </li>
             </ul>
           </div>
-
         </div>
 
         <div className="border-t border-slate-700/50 pt-8">
@@ -82,7 +115,6 @@ const Footer = () => {
             <p className="text-slate-400 text-xs text-center md:text-left mb-4 md:mb-0">
               © {new Date().getFullYear()} Vaidehi Enterprises. All Rights Reserved. | <Link to="/privacy-policy" className="hover:text-red-400 transition">Privacy Policy</Link>
             </p>
-            
           </div>
         </div>
       </div>
@@ -90,4 +122,4 @@ const Footer = () => {
   )
 }
 
-export default Footer
+export default Footer;

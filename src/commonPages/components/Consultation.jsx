@@ -11,9 +11,11 @@ import {
   DocumentTextIcon, // Changed from BuildingOffice2Icon
   ChatBubbleBottomCenterTextIcon,
   PhoneIcon,
-  BuildingOffice2Icon
+  BuildingOffice2Icon,
+  ChevronRightIcon
 } from "@heroicons/react/24/outline"
 import { useNavigate } from "react-router-dom"
+import { Link } from "react-router-dom"
 
 const Consultation = () => {
   const navigate = useNavigate()
@@ -105,6 +107,13 @@ const Consultation = () => {
           <div className="p-8 sm:p-12">
             {!success ? (
               <>
+              <div className="flex items-center text-sm text-slate-500  pb-5 md:hidden ">
+                  <Link to="/" className="hover:text-red-600">Home</Link>
+                  <ChevronRightIcon className="w-4 h-4 mx-1" />
+                  <Link to="/consultation" className="hover:text-red-600">Consultation</Link>
+                  <ChevronRightIcon className="w-4 h-4 mx-1" />
+                  {/* <span className="font-medium text-slate-700">{title}</span> */}
+              </div>
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">
                   Get Your Free Consultation
                 </h1>
