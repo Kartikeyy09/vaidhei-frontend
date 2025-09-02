@@ -62,11 +62,11 @@ const AdminProfilePage = () => {
                 {user.banner && <img src={`${SERVER_URL}${user.banner}`} alt="User Banner" className="w-full h-full object-cover" />}
               </div>
               <div className="p-6">
-                <div className="relative flex items-end -mt-20">
+                <div className="relative flex items-end -mt-20 bg-white rounded-lg shadow-md p-4">
                     <div className="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center text-3xl font-bold text-red-600 ring-4 ring-white overflow-hidden">
                         {user.avatar ? <img src={`${SERVER_URL}${user.avatar}`} alt="User Avatar" className="w-full h-full object-cover" /> : <span>{getInitials(user.name)}</span>}
                     </div>
-                    <div className="ml-4">
+                    <div className="ml-4 mb-5 ">
                         <h2 className="text-2xl font-bold text-slate-900">{user.name}</h2>
                         <p className="text-slate-500">{user.email}</p>
                     </div>
@@ -109,6 +109,7 @@ const AdminProfilePage = () => {
       <EditProfileModal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} user={user} />
     </>
   );
+  
 };
 
 // ✅ FIX: The full implementation for the helper components is provided below.

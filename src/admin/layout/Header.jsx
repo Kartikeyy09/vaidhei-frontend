@@ -12,13 +12,16 @@ import {
   ChevronDownIcon
 } from "@heroicons/react/24/solid";
 
-import { selectLogin, logoutAsync } from '../../features/adminSlice/auth/loginSlice'; // Path ko apne project ke anusaar theek karein
+// Aapke project structure ke anusaar import path
+import { selectLogin, logoutAsync } from '../../features/adminSlice/auth/loginSlice'; 
+
+// Server ka URL yahan define kiya gaya hai
+const SERVER_URL = 'http://localhost:3000';
 
 const Header = ({ setIsSidebarOpen }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   
-  // Redux store se user ki jaankari nikalna
   const { user, isAuthenticated } = useSelector(selectLogin);
 
   const handleLogout = () => {
@@ -26,15 +29,18 @@ const Header = ({ setIsSidebarOpen }) => {
     navigate('/admin-login');
   };
 
-  // User ke naam se ek fallback avatar URL banana
+  // --- UPDATE: Purana simple function, bas server URL add kiya gaya hai ---
   const getAvatarUrl = () => {
+    // Agar user ka avatar hai, to uske aage server URL jod do
     if (user?.avatar) {
-      return user.avatar;
+      return `${SERVER_URL}${user.avatar}`;
     }
+    // Agar avatar nahi hai, to naam se image banao (original logic)
     if (user?.name) {
       const formattedName = user.name.replace(/\s+/g, '+');
       return `https://ui-avatars.com/api/?name=${formattedName}&background=0D8ABC&color=fff&font-size=0.5`;
     }
+    // Default fallback
     return "https://ui-avatars.com/api/?name=?&background=random&color=fff";
   };
 
@@ -62,7 +68,6 @@ const Header = ({ setIsSidebarOpen }) => {
               <BellIcon className="h-6 w-6" aria-hidden="true" />
             </button>
             
-            {/* Vertical divider */}
             <div className="hidden sm:block h-6 w-px bg-gray-200" aria-hidden="true" />
 
             {/* Profile dropdown */}
@@ -101,7 +106,7 @@ const Header = ({ setIsSidebarOpen }) => {
                     <Menu.Item>
                       {({ active }) => (
                         <Link
-                          to="/admin/profile" // Aap is route ko apne app me bana sakte hain
+                          to="/admin/profile"
                           className={`${active ? 'bg-gray-100' : ''} group flex w-full items-center px-4 py-2 text-sm text-gray-700`}
                         >
                           <UserCircleIcon className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" />
@@ -124,8 +129,7 @@ const Header = ({ setIsSidebarOpen }) => {
                 </Transition>
               </Menu>
             ) : (
-              // Agar user logged in nahi hai to Login button dikha sakte hain
-              <Link to="/adminlogin" className="text-sm font-semibold text-gray-700 hover:text-red-600">
+              <Link to="/admin-login" className="text-sm font-semibold text-gray-700 hover:text-red-600">
                 Sign In
               </Link>
             )}
