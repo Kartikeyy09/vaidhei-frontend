@@ -1,10 +1,12 @@
+// ✅ FILE: AdminLoginPage.jsx (UPDATED)
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { EnvelopeIcon, KeyIcon, ArrowPathIcon, EyeIcon, EyeSlashIcon } from "@heroicons/react/24/solid";
+import { ArrowPathIcon, EyeIcon, EyeSlashIcon } from "@heroicons/react/24/solid";
 import { adminLoginAsync } from "../../features/adminSlice/auth/loginSlice";
 
-// FloatingLabelInput component
+// FloatingLabelInput component (No changes here)
 const FloatingLabelInput = ({ id, label, type, value, onChange, hasError }) => (
   <div className="relative">
     <input
@@ -34,13 +36,16 @@ const AdminLoginPage = () => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { loading, error, token } = useSelector((state) => state.login);
+
+  // ✅ CORRECTED: State ka path ab `state.auth` hai, aapke store.js ke anusaar.
+  // Pehle yahan `state.admin.auth` likha tha jo galat tha.
+  const { loading, error } = useSelector((state) => state.auth);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const resultAction = await dispatch(adminLoginAsync({ email, password }));
     if (adminLoginAsync.fulfilled.match(resultAction)) {
-      navigate("/admin"); // Redirect on successful login
+      navigate("/admin"); // Login successful hone par redirect karein
     }
   };
 
@@ -62,7 +67,6 @@ const AdminLoginPage = () => {
               label="Email Address"
               hasError={!!error}
             />
-
             <div className="relative">
               <FloatingLabelInput
                 id="password"

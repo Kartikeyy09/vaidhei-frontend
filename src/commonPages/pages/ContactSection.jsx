@@ -136,7 +136,8 @@ const ContactSection = () => {
                 </div>
                 <div className="ml-4">
                   <h4 className="font-semibold text-slate-900">Our Office</h4>
-                  <p className="text-slate-600">123 Business District, Railway Plaza<br/>New Delhi - 110001, India</p>
+                  <p className="text-slate-600">House number 345, Sector H - Ayodhya Nagar,<br/>bhopal - 462041, India
+                  </p>
                 </div>
               </div>
               <div className="flex items-start">
@@ -145,7 +146,7 @@ const ContactSection = () => {
                 </div>
                 <div className="ml-4">
                   <h4 className="font-semibold text-slate-900">Phone</h4>
-                  <a href="tel:+919876543210" className="text-slate-600 hover:text-red-600 transition-colors">+91 98765 43210</a>
+                  <a href="tel:+919876543210" className="text-slate-600 hover:text-red-600 transition-colors">+91 79746 91046</a>
                 </div>
               </div>
               <div className="flex items-start">
@@ -154,7 +155,7 @@ const ContactSection = () => {
                 </div>
                 <div className="ml-4">
                   <h4 className="font-semibold text-slate-900">Email</h4>
-                  <a href="mailto:info@yaidehienterprises.com" className="text-slate-600 hover:text-red-600 transition-colors">info@yaidehienterprises.com</a>
+                  <a href="mailto:info@yaidehienterprises.com" className="text-slate-600 hover:text-red-600 transition-colors">vaidehienterprises2027@gmail.com</a>
                 </div>
               </div>
             </div>
@@ -176,13 +177,14 @@ const ContactSection = () => {
             <h3 className="text-2xl font-bold text-slate-900 text-center mb-8">Visit Our Office</h3>
             <div className="rounded-xl overflow-hidden shadow-lg border border-slate-200/50">
                 <iframe 
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3501.990470591539!2d77.2177332752933!3d28.63004387566589!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390cfd37b741d015%3A0xf6bee375962e240!2sConnaught%20Place!5e0!3m2!1sen!2sin!4v1691500000000!5m2!1sen!2sin" 
-                    width="100%" 
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3316.595769384855!2d77.46366477548378!3d23.28098930997163!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x397c69f34cdcc0a1%3A0xbca14daafba898dd!2s345!5e1!3m2!1sen!2sin!4v1756900596837!5m2!1sen!2sin" 
+                    width="100%            " 
                     height="450" 
-                    style={{ border: 0 }}
+                    style={{ border: 0 }} // ✅ YAHI SABSE BADA BADLAV HAI
                     allowFullScreen="" 
-                    loading="lazy" 
-                    referrerPolicy="no-referrer-when-downgrade">
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade" // ✅ Isko camelCase mein likhna best practice hai
+                >
                 </iframe>
             </div>
         </div>

@@ -96,15 +96,15 @@ const Footer = () => {
             <ul className="space-y-4">
               <li className="flex items-start space-x-3">
                 <MapPinIcon className="w-5 h-5 text-red-400 mt-1 flex-shrink-0"/>
-                <span className="text-slate-300 text-sm">123 Business District, Railway Plaza, New Delhi - 110001</span>
+                <span className="text-slate-300 text-sm">House number 345, Sector H - Ayodhya Nagar, bhopal - 462041 India</span>
               </li>
               <li className="flex items-start space-x-3">
                 <PhoneIcon className="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0"/>
-                <a href="tel:+919876543210" className="text-slate-300 hover:text-red-400 transition-colors text-sm">+91 98765 43210</a>
+                <a href="tel:+919876543210" className="text-slate-300 hover:text-red-400 transition-colors text-sm">+91 79746 91046</a>
               </li>
                <li className="flex items-start space-x-3">
                 <EnvelopeIcon className="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0"/>
-                <a href="mailto:info@vaidehienterprises.com" className="text-slate-300 hover:text-red-400 transition-colors text-sm">info@vaidehienterprises.com</a>
+                <a href="mailto:info@vaidehienterprises.com" className="text-slate-300 hover:text-red-400 transition-colors text-sm">vaidehienterprises2027.gmail.com</a>
               </li>
             </ul>
           </div>

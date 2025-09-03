@@ -1,37 +1,40 @@
-// FILE: src/admin/components/adminSlices/auth/loginSlice.js
+// ✅ FILE: src/features/adminSlice/auth/loginSlice.js (COMPLETE - ONLY AUTH LOGIC)
 
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { adminLoginAPI, logoutAPI, updateProfileAPI } from './loginAPI'; 
+import { adminLoginAPI, logoutAPI } from './loginAPI';
+// ❌ CRITICAL CHANGE: Profile-related thunks yahan se hata diye gaye hain.
+// import { getProfileAsync, updateProfileAsync } from '../profile/profileSlice'; 
 
 // --- Initial State Setup ---
-// Safely parse user data from localStorage
+// Safely parse user data from localStorage for session persistence.
 let user = null;
 try {
   const storedUser = localStorage.getItem('user');
   if (storedUser) {
     user = JSON.parse(storedUser);
   }
-} catch (error) {
-  console.error("Could not parse user data from localStorage:", error);
-  user = null; // Reset on error
+} catch (error){
+  // console.error("Could not parse user data from localStorage:", error);
+  user = null; // Reset on parsing error
 }
 
 const token = localStorage.getItem('token');
 
+// The initial state of this 'auth' slice.
 const initialState = {
   user: user || null,
   token: token || null,
   isAuthenticated: !!(user && token),
-  loading: false,
+  loading: false, // This loading state is ONLY for the login/logout process.
   error: null,
 };
 
 
-// --- Async Thunks ---
+// --- Async Thunks (Authentication Only) ---
 
-// 🔹 Login Thunk
+// Handles the user login process.
 export const adminLoginAsync = createAsyncThunk(
-  'admin/login',
+  'auth/login',
   async (credentials, { rejectWithValue }) => {
     try {
       const data = await adminLoginAPI(credentials);
@@ -44,33 +47,18 @@ export const adminLoginAsync = createAsyncThunk(
   }
 );
 
-// 🔹 Logout Thunk
+// Handles the user logout process.
 export const logoutAsync = createAsyncThunk(
-  'admin/logout',
+  'auth/logout',
   async (_, { rejectWithValue }) => {
     try {
       await logoutAPI();
     } catch (error) {
       console.error("Logout API call failed, proceeding with client-side logout:", error);
     } finally {
-      // Always clear localStorage, even if API fails
+      // Always clear localStorage, even if the API call fails.
       localStorage.removeItem('user');
       localStorage.removeItem('token');
-    }
-  }
-);
-
-// 🔹 Update Profile Thunk
-export const updateProfileAsync = createAsyncThunk(
-  'admin/updateProfile',
-  async (profileFormData, { rejectWithValue }) => {
-    try {
-      const data = await updateProfileAPI(profileFormData);
-      // Update localStorage with the new user data from the response
-      localStorage.setItem('user', JSON.stringify(data.user));
-      return data.user; // Return only the user object to the reducer
-    } catch (error) {
-      return rejectWithValue(error.message);
     }
   }
 );
@@ -79,18 +67,19 @@ export const updateProfileAsync = createAsyncThunk(
 // --- The Slice Definition ---
 
 export const loginSlice = createSlice({
-  name: 'login',
+  name: 'auth',
   initialState,
   reducers: {
-    // Action to manually clear errors from the UI
+    // Synchronous action to clear login-specific errors from the UI.
     resetLoginState: (state) => {
       state.loading = false;
       state.error = null;
     },
   },
+  // This section now ONLY handles authentication thunks.
   extraReducers: (builder) => {
     builder
-      // 🔹 Login
+      // --- Login Reducers ---
       .addCase(adminLoginAsync.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -108,35 +97,23 @@ export const loginSlice = createSlice({
         state.user = null;
         state.token = null;
       })
-
-      // 🔹 Logout
+      // --- Logout Reducer ---
       .addCase(logoutAsync.fulfilled, (state) => {
         state.user = null;
         state.token = null;
         state.isAuthenticated = false;
         state.loading = false;
         state.error = null;
-      })
-
-      // 🔹 Update Profile
-      .addCase(updateProfileAsync.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(updateProfileAsync.fulfilled, (state, action) => {
-        state.loading = false;
-        // Update the user in the Redux state with the new data
-        state.user = action.payload;
-      })
-      .addCase(updateProfileAsync.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
       });
+      
+      // ❌ CRITICAL CHANGE: Profile-related listeners yahan se hata diye gaye hain.
   },
 });
 
-
 // --- Exports ---
 export const { resetLoginState } = loginSlice.actions;
-export const selectLogin = (state) => state.login;
+
+// Selector to get the auth state. The slice name in the store must be 'auth'.
+export const selectLogin = (state) => state.auth;
+
 export default loginSlice.reducer;

@@ -20,7 +20,9 @@ import {
   InformationCircleIcon,
   BriefcaseIcon,
   FolderIcon,
-  PhotoIcon
+  PhotoIcon,
+  DocumentTextIcon
+
 } from "@heroicons/react/24/outline"
 
 const Header = () => {
@@ -60,6 +62,7 @@ const Header = () => {
     { name: "About", path: "/about", icon: InformationCircleIcon },
     { name: "Services", path: "/services", icon: BriefcaseIcon },
     { name: "Projects", path: "/projects", icon: FolderIcon },
+    { name: "Tenders", path: "/tenders", icon: DocumentTextIcon },
     { name: "Gallery", path: "/gallery", icon: PhotoIcon },
     { name: "Contact", path: "/contact", icon: PhoneIcon },
   ]
@@ -71,7 +74,7 @@ const Header = () => {
   const openModal = () => {
     setIsMenuOpen(false);
     // Reset form and Redux state every time modal opens
-    setFormData({ name: "", email: "", phone: "", company: "", message: "" });
+    setFormData({ name: "", email: "", phone: "", company: "", message: "" , subject: "" });
     dispatch(clearSuccess());
     setIsModalOpen(true);
   }
@@ -85,7 +88,7 @@ const Header = () => {
     e.preventDefault();
     const inquiryData = {
       ...formData,
-      subject: "Quote Request from Header" // Add a default subject
+       // Add a default subject
     };
     dispatch(createInquiryAsync(inquiryData));
   }
@@ -207,6 +210,10 @@ const Header = () => {
                       <BuildingOffice2Icon className="w-5 h-5 text-gray-400 absolute top-3.5 left-4" />
                       <input type="text" name="company" value={formData.company} onChange={handleChange} placeholder="Company / Organization (Optional)" className="w-full border border-slate-300 rounded-lg p-3 pl-11 focus:ring-2 focus:ring-red-500 outline-none" />
                     </div>
+                     <div className="relative">
+                        <DocumentTextIcon className="w-5 h-5 text-gray-400 absolute top-1/2 left-4 -translate-y-1/2" />
+                        <input type="text" name="subject" value={formData.subject} onChange={handleChange} placeholder="Subject of Inquiry" className="w-full border border-slate-300 rounded-lg p-4 pl-12 focus:ring-2 focus:ring-red-500 outline-none " required/>
+                      </div>
                     <div className="relative">
                       <ChatBubbleBottomCenterTextIcon className="w-5 h-5 text-gray-400 absolute top-3.5 left-4" />
                       <textarea name="message" value={formData.message} onChange={handleChange} placeholder="Your requirements..." rows="3" className="w-full border border-slate-300 rounded-lg p-3 pl-11 focus:ring-2 focus:ring-red-500 outline-none"></textarea>

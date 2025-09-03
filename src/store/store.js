@@ -9,11 +9,14 @@ import manageTestimonialsReducer from "../features/adminSlice/ManageTestimonials
 import manageInquiriesReducer from "../features/adminSlice/ManageInquiries/ManageInquiriesSlice";
 import dashboardReducer from "../features/adminSlice/Dashboard/DashboardSlice";
 import settingsReducer from "../features/adminSlice/Settings/SettingsSlice";
+import profileReducer from "../features/adminSlice/profile/profileSlice";
+// import adminReducer from "../features/adminSlice/auth/adminReducer";
 
 export const store = configureStore({
   reducer: {
      manageServices: manageServicesReducer,
-    login: loginReducer, // admin login slice
+    auth: loginReducer, // admin login slice
+    // admin: adminReducer,
     manageProjects: manageProjectsReducer,
     manageGallery: manageGalleryReducer,
     manageJourney: manageJourneyReducer,
@@ -22,5 +25,6 @@ export const store = configureStore({
     manageInquiries: manageInquiriesReducer,
     dashboard: dashboardReducer,
     settings: settingsReducer,
+    profile: profileReducer,
   },
 });

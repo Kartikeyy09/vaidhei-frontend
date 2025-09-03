@@ -5,6 +5,8 @@ export const BASE_URL = "http://localhost:3000/";
 // ---------------- login ----------------
 export const ADMIN_LOGIN_URL = `${BASE_URL}api/auth`;
 
+export const PROFILE_API_URL = `${BASE_URL}api/profile`;
+
 export const SERVICE_URL = `${BASE_URL}api/services`;
 
 export const PROJECT_URL = `${BASE_URL}api/projects`;

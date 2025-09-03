@@ -222,5 +222,43 @@ export const services = [
       image: "https://randomuser.me/api/portraits/women/68.jpg",
     },
   ];
+    const tenderTypes = [
+    {
+      title: "Railway Platform Digital Advertising",
+      description: "LED screens and digital displays on railway platforms",
+      features: ["High-resolution displays", "Dynamic content management", "Prime location placement"],
+      sector: "Railway",
+    },
+    {
+      title: "Railway Waiting Room Operations",
+      description: "Advertising rights for waiting halls and lounges",
+      features: ["Captive audience", "Extended exposure time", "Multiple format options"],
+      sector: "Railway",
+    },
+    {
+      title: "Municipal Corporation (Nagarnigam) Advertising",
+      description: "Bus stops, public spaces, and municipal property advertising",
+      features: ["High footfall locations", "Community reach", "Local brand visibility"],
+      sector: "Municipal",
+    },
+    {
+      title: "Nagar Palika Council Advertising",
+      description: "Town council properties, markets, and public area advertising",
+      features: ["Targeted local audience", "Cost-effective rates", "Community engagement"],
+      sector: "Municipal",
+    },
+    {
+      title: "Government Building Advertising",
+      description: "Advertising rights for government offices and public buildings",
+      features: ["Professional audience", "High credibility", "Extended exposure"],
+      sector: "Government",
+    },
+    {
+      title: "Public Transport Advertising",
+      description: "Bus wrapping, metro stations, and transport hub advertising",
+      features: ["Mobile advertising", "Daily commuter reach", "Route-specific targeting"],
+      sector: "Transport",
+    },
+  ]
   
   export { services, testimonials };

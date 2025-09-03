@@ -6,7 +6,8 @@ import {
     XMarkIcon, 
     CalendarDaysIcon, 
     TrashIcon,
-    EnvelopeIcon
+    EnvelopeIcon,
+    PhoneIcon
 } from '@heroicons/react/24/solid';
 import { useDispatch } from 'react-redux';
 import { deleteInquiryAsync } from '../../../features/adminSlice/ManageInquiries/ManageInquiriesSlice';
@@ -73,6 +74,7 @@ const InquiryViewer = ({ isOpen, onClose, inquiry, isDeleting }) => {
                                                         <div>
                                                             <p className="font-bold text-slate-800">{inquiry.name}</p>
                                                             <a href={`mailto:${inquiry.email}`} className="text-blue-600 hover:underline">{inquiry.email}</a>
+                                                           <p> <a href={`tel:${inquiry.phone}`}  className="text-sm text-slate-600 hover:text-blue-600 hover:underline">{inquiry.phone}</a></p>
                                                         </div>
                                                     </div>
                                                     <div className="flex items-center gap-3 pt-3 border-t">
@@ -81,6 +83,7 @@ const InquiryViewer = ({ isOpen, onClose, inquiry, isDeleting }) => {
                                                     </div>
                                                 </div>
                                             </div>
+                                            
                                             <div>
                                                  <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">Message</h3>
                                                  <div className="mt-3 bg-slate-50 border border-gray-200 rounded-lg p-4">
@@ -91,15 +94,32 @@ const InquiryViewer = ({ isOpen, onClose, inquiry, isDeleting }) => {
                                         
                                         {/* Action Footer */}
                                         <div className="flex flex-shrink-0 justify-between items-center border-t border-gray-200 p-4">
-                                            <button onClick={handleDelete} className="flex items-center gap-2 px-3 py-2 text-sm font-semibold text-red-600 rounded-md hover:bg-red-50" disabled={isDeleting}>
-                                                <TrashIcon className="w-4 h-4" /> {isDeleting ? 'Deleting...' : 'Delete'}
-                                            </button>
-                                            <div className="flex gap-4">
-                                                <a href={`mailto:${inquiry.email}?subject=Re: ${inquiry.subject}`} className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-red-600 rounded-md hover:bg-red-700">
-                                                    <EnvelopeIcon className="w-5 h-5"/> Reply
-                                                </a>
-                                            </div>
-                                        </div>
+    {/* Delete Button (left side) */}
+    <button onClick={handleDelete} className="flex items-center gap-2 px-3 py-2 text-sm font-semibold text-red-600 rounded-md hover:bg-red-50" disabled={isDeleting}>
+        <TrashIcon className="w-4 h-4" /> {isDeleting ? 'Deleting...' : 'Delete'}
+    </button>
+    
+    {/* Action Buttons (right side) */}
+    <div className="flex gap-4">
+        
+        {/* --- CALL BUTTON (NEW) --- */}
+        {/* Phone number hone par hi ye button dikhega */}
+        {inquiry.phone && (
+          <a 
+            href={`tel:${inquiry.phone}`} 
+            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-green-600 rounded-md hover:bg-green-700"
+          >
+              <PhoneIcon className="w-5 h-5"/> Call
+          </a>
+        )}
+
+        {/* Reply Button */}
+        <a href={`mailto:${inquiry.email}?subject=Re: ${inquiry.subject}`} className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-red-600 rounded-md hover:bg-red-700">
+            <EnvelopeIcon className="w-5 h-5"/> Reply
+        </a>
+
+    </div>
+</div>
                                     </div>
                                 </Dialog.Panel>
                             </Transition.Child>

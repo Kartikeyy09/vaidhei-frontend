@@ -10,17 +10,17 @@ import ProtectedRoute from "./components/ProtectedRoute";
 
 // Import Website Pages
 import Home from "./commonPages/pages/Home";
-import AboutSection from "./commonPages/components/AboutSection";
-import ServicesSection from "./commonPages/components/ServicesSection";
+import AboutSection from "./commonPages/pages/AboutSection";
+import ServicesSection from "./commonPages/pages/ServicesSection";
 import ServiceDetailPage from "./commonPages/pages/ServiceDetailPage";
-import ProjectsSection from "./commonPages/components/ProjectsSection";
+import ProjectsSection from "./commonPages/pages/ProjectsSection";
 import ProjectDetailPage from "./commonPages/pages/ProjectDetailPage";
-import TendersSection from "./commonPages/components/TendersSection";
-import ContactSection from "./commonPages/components/ContactSection";
+import TendersSection from "./commonPages/pages/TendersSection";
+import ContactSection from "./commonPages/pages/ContactSection";
 // import GetQuotePage from "./commonPages/components/GetQuotePage";
-import JourneySection from "./commonPages/components/JourneySection";
+import JourneySection from "./commonPages/pages/JourneySection";
 import Consultation from "./commonPages/components/Consultation";
-import GallerySection from "./commonPages/components/GallerySection";
+import GallerySection from "./commonPages/pages/GallerySection";
 
 // Import Admin Pages
 import AdminLoginPage from "./admin/pages/AdminLoginPage";

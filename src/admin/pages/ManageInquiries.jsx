@@ -74,6 +74,7 @@ const ManageInquiries = () => {
                     <thead className="bg-slate-50 border-b border-slate-200">
                         <tr>
                             <th className="p-4 text-sm font-semibold text-slate-600">From</th>
+                            <th className="p-4 text-sm font-semibold text-slate-600">Number</th>
                             <th className="p-4 text-sm font-semibold text-slate-600">Company</th>
                             <th className="p-4 text-sm font-semibold text-slate-600">Subject</th>
                             <th className="p-4 text-sm font-semibold text-slate-600 hidden md:table-cell">Received</th>
@@ -89,6 +90,10 @@ const ManageInquiries = () => {
                                 <td className="p-4">
                                     <p className={`font-semibold text-slate-800 ${inquiry.status === 'New' ? 'font-bold' : ''}`}>{inquiry.name}</p>
                                     <p className="text-xs text-slate-500">{inquiry.email}</p>
+                                </td>
+                                 <td className="p-4">
+                                    {/* <p className={`font-semibold text-slate-800 ${inquiry.status === 'New' ? 'font-bold' : ''}`}>{inquiry.company}</p> */}
+                                    <p className="text-xs text-slate-500">{inquiry.phone}</p>
                                 </td>
                                 <td className="p-4">
                                     <p className={`font-semibold text-slate-800 ${inquiry.status === 'New' ? 'font-bold' : ''}`}>{inquiry.company}</p>

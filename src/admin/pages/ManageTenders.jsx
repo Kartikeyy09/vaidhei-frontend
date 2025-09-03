@@ -1,11 +1,12 @@
-// ✅ FILE: src/admin/pages/ManageTenders.jsx
+// ✅ FILE: src/admin/pages/ManageTenders.jsx (COMPLETE AND FINAL)
 
 import { useState, useEffect } from "react";
-import { PlusIcon, PencilIcon, TrashIcon, ArrowTopRightOnSquareIcon } from "@heroicons/react/24/solid"; // Assuming this is a reusable component
+import { PlusIcon, PencilIcon, TrashIcon, ArrowTopRightOnSquareIcon } from "@heroicons/react/24/solid";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchTendersAsync, selectManageTenders, addTenderAsync, updateTenderAsync, deleteTenderAsync } from "../../features/adminSlice/ManageTenders/ManageTendersSlice";
 import TenderEditor from "../components/tenders/TenderEditor";
 import ConfirmDeleteModal from "../components/ConfirmDeleteModal";
+import toast from "react-hot-toast";
 
 // Reusable component for status badges
 const StatusBadge = ({ status }) => {
@@ -46,10 +47,11 @@ const ManageTenders = () => {
             dispatch(deleteTenderAsync(selectedTender._id))
                 .unwrap()
                 .then(() => {
+                    toast.success("Tender deleted successfully!");
                     setIsDeleteModalOpen(false);
                     setSelectedTender(null);
                 })
-                .catch(err => console.error("Failed to delete tender:", err));
+                .catch(err => toast.error(err || "Failed to delete tender."));
         }
     };
 
@@ -57,10 +59,14 @@ const ManageTenders = () => {
         const action = selectedTender
             ? updateTenderAsync({ id: selectedTender._id, updatedData: tenderData })
             : addTenderAsync(tenderData);
+            
         dispatch(action)
             .unwrap()
-            .then(() => setIsEditorOpen(false))
-            .catch(err => console.error("Failed to save tender:", err));
+            .then(() => {
+                toast.success(`Tender ${selectedTender ? 'updated' : 'added'} successfully!`);
+                setIsEditorOpen(false);
+            })
+            .catch(err => toast.error(err || "Failed to save tender."));
     };
 
     return (
@@ -84,6 +90,7 @@ const ManageTenders = () => {
                         <tr>
                             <th className="p-4 text-sm font-semibold text-slate-600">Tender Title</th>
                             <th className="p-4 text-sm font-semibold text-slate-600 hidden md:table-cell">Client</th>
+                            <th className="p-4 text-sm font-semibold text-slate-600 hidden lg:table-cell">Sector</th>
                             <th className="p-4 text-sm font-semibold text-slate-600 hidden lg:table-cell">Due Date</th>
                             <th className="p-4 text-sm font-semibold text-slate-600">Status</th>
                             <th className="p-4 text-sm font-semibold text-slate-600">Actions</th>
@@ -91,7 +98,9 @@ const ManageTenders = () => {
                     </thead>
                     <tbody>
                         {loading && tenders.length === 0 ? (
-                            <tr><td colSpan="5" className="text-center p-8 text-gray-500">Loading tenders...</td></tr>
+                            <tr><td colSpan="6" className="text-center p-8 text-gray-500">Loading tenders...</td></tr>
+                        ) : tenders.length === 0 ? (
+                            <tr><td colSpan="6" className="text-center p-8 text-gray-500">No tenders found. Add one to get started!</td></tr>
                         ) : tenders.map(tender => (
                             <tr key={tender._id} className="border-b border-slate-200 hover:bg-slate-50">
                                 <td className="p-4">
@@ -99,6 +108,7 @@ const ManageTenders = () => {
                                     <p className="text-xs text-slate-500 font-mono">{tender.tenderId}</p>
                                 </td>
                                 <td className="p-4 text-slate-600 hidden md:table-cell">{tender.client}</td>
+                                <td className="p-4 text-slate-600 hidden lg:table-cell">{tender.sector}</td>
                                 <td className="p-4 text-slate-600 hidden lg:table-cell">{formatDate(tender.dueDate)}</td>
                                 <td className="p-4"><StatusBadge status={tender.status} /></td>
                                 <td className="p-4">
