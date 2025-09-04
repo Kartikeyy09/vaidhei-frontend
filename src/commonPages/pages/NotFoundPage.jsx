@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { HomeIcon, ArrowUturnLeftIcon } from '@heroicons/react/24/outline';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
 import Lottie from "lottie-react"
-import NotFound from '../../data/Questioning.json'
+import NotFound from '../../lotify-icone/Questioning.json'
 
 const NotFoundPage = () => {
   const navigate = useNavigate();
