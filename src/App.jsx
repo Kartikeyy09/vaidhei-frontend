@@ -36,6 +36,7 @@ import SettingsPage from "./admin/pages/SettingsPage";
 import NotFoundPage from "./commonPages/pages/NotFoundPage";
 import PrivacyPolicyPage from "./commonPages/pages/PrivacyPolicyPage";
 import AdminProfilePage from "./admin/pages/AdminProfilePage";
+import AnalyticsPage from "./admin/pages/AnalyticsPage";
 
 
 
@@ -88,7 +89,11 @@ const router = createBrowserRouter([
           { path: "testimonials", element: <ManageTestimonials /> },
           { path: "inquiries", element: <ManageInquiries /> },
           { path: "settings", element: <SettingsPage /> },
-          {path : "profile", element : <AdminProfilePage />}
+          {path : "profile", element : <AdminProfilePage />},
+          {
+            path : "analytics",
+            element : <AnalyticsPage/>
+          }
         ],
       },
     ],

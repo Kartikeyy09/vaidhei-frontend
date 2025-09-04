@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import StatsCard from "../components/StatsCard";
-import AnalyticsChart from "../components/Dashboard/AnalyticsChart";
+import AnalyticsChart from "../components/dashboard/AnalyticsChart";
 import {
     MapIcon,
     CheckCircleIcon,

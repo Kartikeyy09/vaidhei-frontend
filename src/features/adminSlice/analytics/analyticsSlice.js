@@ -4,49 +4,36 @@ import { fetchInquiriesForAnalyticsAPI } from './analyticsAPI';
 const COLORS = {
   increase: '#22c55e', // green-500
   decrease: '#ef4444', // red-500
-  neutral: '#94a3b8',  // slate-400
+  neutral: '#94a3b8', // slate-400
 };
 
-/**
- * ⭐ ADVANCED HELPER FUNCTION ⭐
- * Guarantees a 7-day data array for the chart, filling in days with zero inquiries.
- */
+// The helper function to transform data is correct and needs no changes.
 const transformInquiriesForFullWeek = (inquiries = []) => {
   if (!inquiries) return [];
-
-  // 1. Count inquiries for each day from the raw data
   const countsByDate = new Map();
   inquiries.forEach(inquiry => {
     const dateStr = inquiry.createdAt || inquiry.date;
     if (!dateStr) return;
     const date = new Date(dateStr);
-    const formattedDate = date.toISOString().split('T')[0]; // YYYY-MM-DD
+    const formattedDate = date.toISOString().split('T')[0];
     countsByDate.set(formattedDate, (countsByDate.get(formattedDate) || 0) + 1);
   });
-
-  // 2. Generate the last 7 days, regardless of whether they had inquiries
   const last7Days = [];
   for (let i = 6; i >= 0; i--) {
     const d = new Date();
     d.setDate(d.getDate() - i);
-    last7Days.push(d.toISOString().split('T')[0]); // YYYY-MM-DD
+    last7Days.push(d.toISOString().split('T')[0]);
   }
-
-  // 3. Create the final chart data array
-  let previousDayCount = -1; // Use -1 to handle the first day as neutral
+  let previousDayCount = -1;
   const chartData = last7Days.map(dateStr => {
     const currentDayCount = countsByDate.get(dateStr) || 0;
     let color = COLORS.neutral;
-
     if (previousDayCount !== -1) {
       if (currentDayCount > previousDayCount) color = COLORS.increase;
       if (currentDayCount < previousDayCount) color = COLORS.decrease;
     }
-    
     previousDayCount = currentDayCount;
-    
-    const displayName = new Date(dateStr + 'T12:00:00Z').toLocaleDateString('en-US', { weekday: 'short' }); // "Mon", "Tue"
-
+    const displayName = new Date(dateStr + 'T12:00:00Z').toLocaleDateString('en-US', { weekday: 'short' });
     return {
       name: displayName,
       fullDate: new Date(dateStr + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
@@ -54,13 +41,13 @@ const transformInquiriesForFullWeek = (inquiries = []) => {
       color: color,
     };
   });
-
   return chartData;
 };
 
-
+// ⭐ FIX #1: Add `rawInquiries` to the initial state.
 const initialState = {
   chartData: [],
+  rawInquiries: [], // This was missing! Initialize it as an empty array.
   status: 'idle',
   error: null,
 };
@@ -88,6 +75,8 @@ const analyticsSlice = createSlice({
       })
       .addCase(fetchAnalyticsDataAsync.fulfilled, (state, action) => {
         state.status = 'succeeded';
+        // ⭐ FIX #2: Store the raw inquiry data from the payload.
+        state.rawInquiries = action.payload || []; // The `|| []` is a safety check.
         state.chartData = transformInquiriesForFullWeek(action.payload);
       })
       .addCase(fetchAnalyticsDataAsync.rejected, (state, action) => {
@@ -98,4 +87,4 @@ const analyticsSlice = createSlice({
 });
 
 export const selectAnalytics = (state) => state.analytics;
-export default analyticsSlice.reducer;
+export default analyticsSlice.reducer;  
