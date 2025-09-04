@@ -15,7 +15,7 @@ import HeroSection from "../components/HeroSection";
 import TestimonialsSection from "./TestimonialsSection";
 import WhyChooseSection from "../components/WhyChooseSection";
 
-const SERVER_URL = "http://localhost:3000";
+const SERVER_URL = "https://vaidhei-backend.onrender.com";
 
 const Home = () => {
   const navigate = useNavigate();

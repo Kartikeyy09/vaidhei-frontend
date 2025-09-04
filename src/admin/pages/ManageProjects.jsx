@@ -38,6 +38,8 @@ const ManageProjects = () => {
     const handleAddNew = () => { setSelectedProject(null); setIsEditorOpen(true); };
     const handleEdit = (project) => { setSelectedProject(project); setIsEditorOpen(true); };
     const handleDeleteClick = (project) => { setSelectedProject(project); setIsDeleteModalOpen(true); };
+
+    const SERVER_URL = "https://vaidhei-backend.onrender.com";
     
     const confirmDelete = () => {
         if (selectedProject) {
@@ -92,7 +94,7 @@ const ManageProjects = () => {
                                 <td className="p-4">
                                     <div className="flex items-center gap-4">
                                         {/* ✅ UPDATED: Using `project.image` for the card thumbnail */}
-                                        <img src={`http://localhost:3000${project.image}`} alt={project.title} className="w-16 h-12 object-cover rounded-md flex-shrink-0 bg-gray-100" />
+                                        <img src={`${SERVER_URL}/${project.image}`} alt={project.title} className="w-16 h-12 object-cover rounded-md flex-shrink-0 bg-gray-100" />
                                         <div>
                                             <p className="font-semibold text-slate-800">{project.title}</p>
                                             <p className="text-xs text-slate-500">/{project.slug}</p>

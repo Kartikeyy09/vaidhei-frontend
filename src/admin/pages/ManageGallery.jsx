@@ -39,6 +39,8 @@ const ManageGallery = () => {
     const handleAddNew = () => { setSelectedItem(null); setIsEditorOpen(true); };
     const handleEdit = (item) => { setSelectedItem(item); setIsEditorOpen(true); };
     const handleDeleteClick = (item) => { setSelectedItem(item); setIsDeleteModalOpen(true); };
+
+    const SERVER_URL = "https://vaidhei-backend.onrender.com";
     
     const confirmDelete = () => {
         if (selectedItem) {
@@ -87,7 +89,7 @@ const ManageGallery = () => {
                                     </div>
                                 </div>
                             ) : (
-                                <img src={`http://localhost:3000${item.imageUrl}`} alt={item.title} className="w-full h-48 object-cover" />
+                                <img src={`${SERVER_URL}${item.imageUrl}`} alt={item.title} className="w-full h-48 object-cover" />
                             )}
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                             <div className="absolute bottom-0 left-0 p-4">

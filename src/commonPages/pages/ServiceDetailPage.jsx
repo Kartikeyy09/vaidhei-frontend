@@ -16,6 +16,8 @@ const ServiceDetailPage = () => {
   const { slug } = useParams();
   const dispatch = useDispatch();
   const { data: services, loading, error } = useSelector(selectManageServices);
+
+  const SERVER_URL = "https://vaidhei-backend.onrender.com";
   
   // Find the service AFTER checking for loading state.
   const service = services.find((s) => s.slug === slug);
@@ -80,7 +82,7 @@ const ServiceDetailPage = () => {
       {/* Hero Section */}
       <div className="relative h-[40vh] md:h-[50vh] bg-slate-900">
         <img 
-          src={`http://localhost:3000${details.coverImage}`} 
+          src={`${SERVER_URL}${details.coverImage}`} 
           alt={title} 
           className="w-full h-full object-cover opacity-25" 
         />

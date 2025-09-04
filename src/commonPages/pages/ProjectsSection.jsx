@@ -15,6 +15,8 @@ const ProjectsSection = () => {
   const dispatch = useDispatch();
   const { data: projects, loading, error } = useSelector(selectManageProjects);
 
+  const SERVER_URL = "https://vaidhei-backend.onrender.com";
+
   useEffect(() => {
     // ✅ OPTIMIZATION: Fetch data only if it's not already in the store.
     if (projects.length === 0) {
@@ -77,7 +79,7 @@ const ProjectsSection = () => {
               >
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent z-10"/>
                 <img 
-                  src={`http://localhost:3000${project.image}`}
+                  src={`${SERVER_URL}${project.image}`}
                   alt={project.title} 
                   className="w-full h-80 object-cover transform group-hover:scale-105 transition-transform duration-500" 
                 />

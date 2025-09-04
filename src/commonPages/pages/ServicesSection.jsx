@@ -27,6 +27,8 @@ const ServicesSection = () => {
   const dispatch = useDispatch();
   const { data: services, loading, error } = useSelector(selectManageServices);
 
+  const SERVER_URL = "https://vaidhei-backend.onrender.com";
+
   useEffect(() => {
     dispatch(fetchManageServicesAsync());
   }, [dispatch]);
@@ -84,7 +86,7 @@ const ServicesSection = () => {
                   <div className="relative h-56">
                     <img 
                       // ✅ ROBUSTNESS: Optional chaining ka istemal
-                      src={`http://localhost:3000${service.details?.coverImage}`}
+                      src={`${SERVER_URL}/${service.details?.coverImage}`}
                       alt={service.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />

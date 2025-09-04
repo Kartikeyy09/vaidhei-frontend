@@ -17,7 +17,7 @@ import { logoutAsync } from '../../features/adminSlice/auth/loginSlice';
 // Profile slice se user data lene ke liye selector import karein
 import { selectUserProfile, clearProfile } from '../../features/adminSlice/profile/profileSlice';
 
-const SERVER_URL = 'http://localhost:3000'; // Isko environment variable mein daalna behtar hai
+const SERVER_URL = "https://vaidhei-backend.onrender.com"; // Isko environment variable mein daalna behtar hai
 
 const Header = ({ setIsSidebarOpen }) => {
   const dispatch = useDispatch();

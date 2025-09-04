@@ -25,6 +25,8 @@ const MilestoneEditor = ({ isOpen, onClose, onSave, milestone, isSaving }) => {
     const [imagePreview, setImagePreview] = useState(null);
     const fileInputRef = useRef(null);
 
+    const SERVER_URL = "https://vaidhei-backend.onrender.com";
+
     useEffect(() => {
         if (isOpen) {
             if (milestone) { // Edit Mode
@@ -34,7 +36,7 @@ const MilestoneEditor = ({ isOpen, onClose, onSave, milestone, isSaving }) => {
                     description: milestone.description || '',
                     outcomes: Array.isArray(milestone.outcomes) ? milestone.outcomes.join(', ') : '' // Convert array to comma-separated string
                 });
-                setImagePreview(milestone.imageUrl ? `http://localhost:3000${milestone.imageUrl}` : null);
+                setImagePreview(milestone.imageUrl ? `${SERVER_URL}${milestone.imageUrl}` : null);
                 setImageFile(null);
             } else { // Add New Mode
                 setFormData({ year: '', title: '', description: '', outcomes: '' });

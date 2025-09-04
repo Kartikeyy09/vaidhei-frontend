@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { CheckCircleIcon, StarIcon } from "@heroicons/react/24/solid";
 import { fetchMilestonesAsync, selectManageJourney } from "../../features/adminSlice/ManageJourney/ManageJourneySlice";
 
-const SERVER_URL = "http://localhost:3000"; // Backend URL
+const SERVER_URL = "https://vaidhei-backend.onrender.com"; // Backend URL
 
 // --- Milestone Card (No changes needed here, but removed unused prop) ---
 const MilestoneCard = ({ item, isActive }) => {

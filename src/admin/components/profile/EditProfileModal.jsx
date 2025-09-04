@@ -6,7 +6,7 @@ import { XMarkIcon, PhotoIcon, CheckCircleIcon } from '@heroicons/react/24/solid
 import { useDispatch, useSelector } from 'react-redux';
 import { updateProfileAsync, selectProfile, resetProfileStatus } from '../../../features/adminSlice/profile/profileSlice';
 
-const SERVER_URL = "http://localhost:3000";
+const SERVER_URL = "https://vaidhei-backend.onrender.com";
 
 const EditProfileModal = ({ isOpen, onClose, user }) => {
   const dispatch = useDispatch();

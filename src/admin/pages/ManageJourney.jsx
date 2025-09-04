@@ -12,6 +12,8 @@ const ManageJourney = () => {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [selectedMilestone, setSelectedMilestone] = useState(null);
 
+    const SERVER_URL = "https://vaidhei-backend.onrender.com";
+
     const dispatch = useDispatch();
     const { data: milestones, loading, error } = useSelector(selectManageJourney);
 
@@ -67,7 +69,7 @@ const ManageJourney = () => {
                 ) : milestones.map((milestone) => (
                     <div key={milestone._id} className="bg-white rounded-xl shadow-md p-6 flex flex-col md:flex-row gap-6 items-start relative">
                         {/* Image */}
-                        <img src={`http://localhost:3000${milestone.imageUrl}`} alt={milestone.title} className="w-full md:w-48 h-40 md:h-32 object-cover rounded-lg flex-shrink-0 bg-gray-100" />
+                        <img src={`${SERVER_URL}${milestone.imageUrl}`} alt={milestone.title} className="w-full md:w-48 h-40 md:h-32 object-cover rounded-lg flex-shrink-0 bg-gray-100" />
 
                         {/* Content */}
                         <div className="flex-grow">

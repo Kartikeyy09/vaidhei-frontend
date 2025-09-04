@@ -34,6 +34,8 @@ const GalleryEditor = ({ isOpen, onClose, onSave, item, isSaving }) => {
     // ✅ Predefined categories
     const categories = ['railway', 'municipal', 'Highways', 'government', 'transport', 'others'];
 
+    const SERVER_URL = "https://vaidhei-backend.onrender.com";
+
     useEffect(() => {
         if (isOpen) {
             if (item) {
@@ -43,7 +45,7 @@ const GalleryEditor = ({ isOpen, onClose, onSave, item, isSaving }) => {
                     type: item.type || 'image',
                     videoUrl: item.videoUrl || '',
                 });
-                setImagePreview(item.imageUrl ? `http://localhost:3000${item.imageUrl}` : null);
+                setImagePreview(item.imageUrl ? `${SERVER_URL}${item.imageUrl}` : null);
                 setImageFile(null);
             } else {
                 setFormData({ title: '', category: '', type: 'image', videoUrl: '' });

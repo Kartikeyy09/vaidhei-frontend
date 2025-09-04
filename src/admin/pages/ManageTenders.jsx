@@ -42,6 +42,8 @@ const ManageTenders = () => {
     const handleEdit = (tender) => { setSelectedTender(tender); setIsEditorOpen(true); };
     const handleDeleteClick = (tender) => { setSelectedTender(tender); setIsDeleteModalOpen(true); };
 
+    const SERVER_URL = "https://vaidhei-backend.onrender.com";
+
     const confirmDelete = () => {
         if (selectedTender) {
             dispatch(deleteTenderAsync(selectedTender._id))
@@ -114,7 +116,7 @@ const ManageTenders = () => {
                                 <td className="p-4">
                                     <div className="flex items-center gap-1">
                                         {tender.documentUrl && (
-                                            <a href={`http://localhost:3000${tender.documentUrl}`} target="_blank" rel="noopener noreferrer" className="p-2 text-slate-500 hover:text-gray-800 rounded-full hover:bg-gray-100" title="View Document">
+                                            <a href={`${SERVER_URL}${tender.documentUrl}`} target="_blank" rel="noopener noreferrer" className="p-2 text-slate-500 hover:text-gray-800 rounded-full hover:bg-gray-100" title="View Document">
                                                 <ArrowTopRightOnSquareIcon className="w-5 h-5" />
                                             </a>
                                         )}

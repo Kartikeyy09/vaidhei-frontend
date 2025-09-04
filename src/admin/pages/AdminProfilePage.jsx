@@ -16,7 +16,7 @@ import {
 import ChangePasswordModal from '../components/profile/ChangePasswordModal';
 import EditProfileModal from '../components/profile/EditProfileModal'; 
 
-const SERVER_URL = "http://localhost:3000";
+const SERVER_URL = "https://vaidhei-backend.onrender.com";
 
 const AdminProfilePage = () => {
   const dispatch = useDispatch();

@@ -18,6 +18,8 @@ import {
 
 const ITEMS_PER_PAGE = 8;
 
+const SERVER_URL = "https://vaidhei-backend.onrender.com/";
+
 // Helper to convert YouTube URL → Embed URL
 const getYoutubeEmbedUrl = (url) => {
   if (!url) return "";
@@ -189,7 +191,7 @@ const GallerySection = () => {
                     </div>
                   ) : (
                     <img
-                      src={`http://localhost:3000${item.imageUrl}`}
+                      src={`${SERVER_URL}${item.imageUrl}`}
                       alt={item.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />

@@ -46,7 +46,7 @@ const ProjectDetailPage = () => {
     );
   }
 
-  const serverUrl = 'http://localhost:3000';
+  const serverUrl = 'https://vaidhei-backend.onrender.com';
 
   return (
     <div className="bg-white">
