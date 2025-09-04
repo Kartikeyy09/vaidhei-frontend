@@ -65,6 +65,7 @@ const Header = () => {
     { name: "Tenders", path: "/tenders", icon: DocumentTextIcon },
     { name: "Gallery", path: "/gallery", icon: PhotoIcon },
     { name: "Contact", path: "/contact", icon: PhoneIcon },
+    { name : "login", path: "/admin-login", icon: UserIcon },
   ]
 
   const handleChange = (e) => {
