@@ -130,7 +130,7 @@ const ServiceDetailPage = () => {
                                         onClick={() => setLightboxImage(imageUrl)}
                                     >
                                         <img
-                                            src={`http://localhost:3000${imageUrl}`}
+                                            src={`${SERVER_URL}${imageUrl}`}
                                             alt={`${title} gallery image ${index + 1}`}
                                             className="w-full h-full object-cover"
                                         />
@@ -182,7 +182,7 @@ const ServiceDetailPage = () => {
             <XMarkIcon className="w-7 h-7" />
           </button>
           <img 
-            src={`http://localhost:3000${lightboxImage}`}
+            src={`${SERVER_URL}${lightboxImage}`}
             alt="Enlarged gallery view"
             className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
             onClick={(e) => e.stopPropagation()}

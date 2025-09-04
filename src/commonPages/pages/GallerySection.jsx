@@ -46,6 +46,8 @@ const GallerySection = () => {
   const [selectedMediaIndex, setSelectedMediaIndex] = useState(null);
   const [visibleItemsCount, setVisibleItemsCount] = useState(ITEMS_PER_PAGE);
 
+  const SERVER_URL = "https://vaidhei-backend.onrender.com";
+
   // Fetch gallery from backend
   useEffect(() => {
     dispatch(fetchGalleryAsync());
@@ -247,7 +249,7 @@ const GallerySection = () => {
                 ></iframe>
               ) : (
                 <img
-                  src={`http://localhost:3000${selectedMedia.imageUrl}`}
+                  src={`${SERVER_URL}${selectedMedia.imageUrl}`}
                   alt={selectedMedia.title}
                   className="max-w-full max-h-[70vh] object-contain"
                 />
