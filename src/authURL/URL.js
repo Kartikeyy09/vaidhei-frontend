@@ -1,6 +1,6 @@
 // export const BASE_URL = "https://vaidhei-backend.onrender.com/";
 
-export const BASE_URL = "http://localhost:3000/";
+export const BASE_URL = "https://vaidhei-backend.onrender.com/";
 
 // ---------------- login ----------------
 export const ADMIN_LOGIN_URL = `${BASE_URL}api/auth`;
