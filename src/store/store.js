@@ -10,6 +10,7 @@ import manageInquiriesReducer from "../features/adminSlice/ManageInquiries/Manag
 import dashboardReducer from "../features/adminSlice/Dashboard/DashboardSlice";
 import settingsReducer from "../features/adminSlice/Settings/SettingsSlice";
 import profileReducer from "../features/adminSlice/profile/profileSlice";
+import analyticsReducer from "../features/adminSlice/analytics/analyticsSlice"
 // import adminReducer from "../features/adminSlice/auth/adminReducer";
 
 export const store = configureStore({
@@ -26,5 +27,6 @@ export const store = configureStore({
     dashboard: dashboardReducer,
     settings: settingsReducer,
     profile: profileReducer,
+    analytics: analyticsReducer
   },
 });
