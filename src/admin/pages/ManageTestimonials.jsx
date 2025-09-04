@@ -29,6 +29,8 @@ const ManageTestimonials = () => {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [selectedTestimonial, setSelectedTestimonial] = useState(null);
 
+    const SERVER_URL = "https://vaidhei-backend.onrender.com";
+
     const dispatch = useDispatch();
     const { data: testimonials, loading, error } = useSelector(selectManageTestimonials);
 
@@ -97,10 +99,12 @@ const ManageTestimonials = () => {
                                     <div className="flex items-center gap-4">
                                         {/* बदला हुआ: avatarUrl -> avatar, authorName -> name */}
                                         <img 
-                                            src={testimonial.avatar || `https://ui-avatars.com/api/?name=${testimonial.name}`} 
-                                            alt={testimonial.name} 
-                                            className="w-10 h-10 object-cover rounded-full bg-gray-200" 
-                                        />
+                                     src={testimonial.avatar 
+                                   ? `${SERVER_URL}${testimonial.avatar}` 
+                                      : `https://ui-avatars.com/api/?name=${testimonial.name}`} 
+                                      alt={testimonial.name} 
+                                     className="w-10 h-10 object-cover rounded-full bg-gray-200" 
+                                       />
                                         <div>
                                             {/* बदला हुआ: authorName -> name, authorTitle -> position, company */}
                                             <p className="font-semibold text-slate-800">{testimonial.name}</p>
