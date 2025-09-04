@@ -68,7 +68,7 @@ const AnalyticsPage = () => {
   }
 
   return (
-    <div className="space-y-8 p-4 md:p-8 bg-slate-50/70 min-h-full">
+    <div className="space-y-8 p-4 md:p-4 bg-slate-50/70 min-h-full">
       <div>
         <h1 className="text-3xl font-bold text-slate-800">Inquiry Analytics</h1>
         <p className="text-slate-500 mt-1">An overview of inquiry trends and performance for the last 7 days.</p>

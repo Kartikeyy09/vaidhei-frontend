@@ -7,6 +7,7 @@ import { Outlet, useNavigate } from 'react-router-dom';
 // Slices se zaroori cheezein import karein
 import { selectLogin, logoutAsync } from '../../features/adminSlice/auth/loginSlice';
 import { selectUserProfile, getProfileAsync } from '../../features/adminSlice/profile/profileSlice';
+import ScrollToTop from "../../commonPages/components/ScrollToTop";
 
 import Header from './Header'; // Apne components ke path adjust karein
 import Sidebar from './Sidebar';
@@ -45,6 +46,7 @@ const AdminLayout = () => {
     // Agar user authenticated hai, to layout (Sidebar, Header) aur child route (Outlet) dikhao
     return (
         <div>
+            <ScrollToTop/>
             <Sidebar />
             <div className="lg:pl-72"> {/* Sidebar ki width ke anusaar */}
                 <Header />
