@@ -11,6 +11,8 @@ const TestimonialsSection = () => {
   const dispatch = useDispatch()
   const { data: testimonials, loading, error } = useSelector(selectManageTestimonials)
 
+  const SERVER_URL = "https://vaidhei-backend.onrender.com"
+
   // fetch testimonials from backend
   useEffect(() => {
     dispatch(fetchTestimonialsAsync())
@@ -93,7 +95,7 @@ const TestimonialsSection = () => {
                     <div className={`w-24 h-24 rounded-full border-4 border-white ring-4 ring-${testimonial.color} shadow-lg overflow-hidden`}>
                       {testimonial.avatar ? (
                         <img
-                          src={testimonial.avatar}
+                          src={`${SERVER_URL}/${testimonial.avatar}`}
                           alt={testimonial.name}
                           className="w-full h-full object-cover"
                         />
