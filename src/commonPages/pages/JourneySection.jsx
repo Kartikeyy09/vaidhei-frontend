@@ -1,53 +1,54 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react"; // Import useRef
 import { useSelector, useDispatch } from "react-redux";
-import { CheckCircleIcon , StarIcon } from "@heroicons/react/24/solid";
+import { CheckCircleIcon, StarIcon } from "@heroicons/react/24/solid";
 import { fetchMilestonesAsync, selectManageJourney } from "../../features/adminSlice/ManageJourney/ManageJourneySlice";
 
-const SERVER_URL =  "http://localhost:3000"; // Backend URL
+const SERVER_URL = "http://localhost:3000"; // Backend URL
 
-// --- Milestone Card ---
-const MilestoneCard = ({ item, index, setActiveIndex, isActive }) => {
+// --- Milestone Card (No changes needed here, but removed unused prop) ---
+const MilestoneCard = ({ item, isActive }) => {
   return (
-    <div
-      className={`py-5 transition-opacity duration-500 ${isActive ? "opacity-100" : "opacity-40 lg:opacity-30"}`}
-    >
+    // The opacity is controlled by the `isActive` prop, which is updated by the scroll listener
+    <div className={`py-5 transition-opacity duration-500 ${isActive ? "opacity-100" : "opacity-40 lg:opacity-30"}`}>
       <div className="bg-slate-50 p-8 rounded-2xl border border-gray-200">
         <div className="flex items-center gap-x-4">
-          {/* <img src={`${SERVER_URL}/${item.icon}`} alt="" className="w-10 h-10 text-red-500" /> server URL */}
-          < StarIcon className={`w-10 h-10 text-red-500 `|| StarIcon} aria-hidden="true"/>
+          <StarIcon className="w-10 h-10 text-red-500" aria-hidden="true" />
           <div>
             <span className="text-xl font-black text-red-600">{item.year}</span>
             <h3 className="text-3xl font-extrabold text-slate-900 leading-tight">{item.title}</h3>
           </div>
         </div>
         <p className="mt-6 text-lg text-slate-600 leading-relaxed border-t border-gray-200 pt-6">{item.description}</p>
-        <div className="mt-6">
-          <h4 className="text-lg font-bold text-slate-700">Key Outcomes:</h4>
-          <ul className="mt-3 space-y-2">
-            {item.outcomes?.map((outcome, i) => (
-              <li key={i} className="flex items-center">
-                <CheckCircleIcon className="w-5 h-5 text-green-600 mr-2 flex-shrink-0" />
-                <span className="text-slate-700">{outcome}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
+        {item.outcomes && item.outcomes.length > 0 && (
+            <div className="mt-6">
+                <h4 className="text-lg font-bold text-slate-700">Key Outcomes:</h4>
+                <ul className="mt-3 space-y-2">
+                    {item.outcomes.map((outcome, i) => (
+                    <li key={i} className="flex items-start">
+                        <CheckCircleIcon className="w-5 h-5 text-green-600 mr-2 flex-shrink-0 mt-1" />
+                        <span className="text-slate-700">{outcome}</span>
+                    </li>
+                    ))}
+                </ul>
+            </div>
+        )}
       </div>
     </div>
   );
 };
 
-// --- Sticky Visuals ---
+// --- Sticky Visuals (No changes needed) ---
 const StickyVisuals = ({ milestones, activeIndex }) => {
-  const progressPercentage = activeIndex >= 0 ? ((activeIndex + 1) / milestones.length) * 100 : 0;
+  // Guard against milestones being empty before calculating progress
+  const progressPercentage = milestones.length > 0 && activeIndex >= 0 ? ((activeIndex + 1) / milestones.length) * 100 : 0;
 
   return (
     <div className="relative w-full h-screen flex items-center justify-center">
       <div className="absolute inset-0 w-full h-full">
         {milestones.map((item, index) => (
           <img
-            key={index}
-            src={`${SERVER_URL}/${item.imageUrl}`} // server URL added
+            key={item._id || index}
+            src={`${SERVER_URL}${item.imageUrl}`} // Corrected URL concatenation
             alt={item.title}
             className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${
               activeIndex === index ? "opacity-80" : "opacity-0"
@@ -56,11 +57,11 @@ const StickyVisuals = ({ milestones, activeIndex }) => {
         ))}
         <div className="absolute inset-0 bg-gradient-to-t from-white via-white/80 to-transparent"></div>
       </div>
-      <div className="relative z-10 w-full max-w-md p-8 text-center backdrop-blur-md rounded-3xl">
+      <div className="relative z-10 w-full max-w-md p-8 text-center backdrop-blur-md rounded-3xl bg-white/1">
         <div className="relative w-40 h-40 mx-auto">
           {milestones.map((item, index) => (
             <h2
-              key={index}
+              key={item._id || index}
               className={`absolute inset-0 flex items-center justify-center text-7xl font-black text-slate-800 transition-all duration-300 ease-out ${
                 activeIndex === index ? "opacity-100 scale-100" : "opacity-0 scale-125"
               }`}
@@ -80,17 +81,61 @@ const StickyVisuals = ({ milestones, activeIndex }) => {
   );
 };
 
-// --- Main Component ---
+// --- Main Component (This is where the logic is added) ---
 const JourneySection = () => {
   const dispatch = useDispatch();
   const { data: milestones = [], loading, error } = useSelector(selectManageJourney);
   const [activeIndex, setActiveIndex] = useState(0);
 
+  // NEW: Create a ref to hold an array of the milestone card DOM elements
+  const milestoneRefs = useRef([]);
+
   useEffect(() => {
-    if (milestones.length === 0) dispatch(fetchMilestonesAsync());
+    // Fetch data only if it's not already loaded
+    if (milestones.length === 0) {
+      dispatch(fetchMilestonesAsync());
+    }
   }, [dispatch, milestones.length]);
 
-  if (loading) return <div className="text-center py-20">Loading milestones...</div>;
+  // NEW: Scroll listener effect
+  useEffect(() => {
+    // Ensure we have milestones before adding the listener
+    if (milestones.length === 0) return;
+
+    const handleScroll = () => {
+      let newActiveIndex = 0;
+      let closestDistance = Infinity;
+      
+      // We set a "trigger point" on the screen (e.g., the vertical center)
+      const triggerPoint = window.innerHeight / 2;
+
+      milestoneRefs.current.forEach((el, index) => {
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          // Calculate the distance from the element's top to the trigger point
+          const distance = Math.abs(rect.top - triggerPoint);
+          
+          if (distance < closestDistance) {
+            closestDistance = distance;
+            newActiveIndex = index;
+          }
+        }
+      });
+      
+      // Update the activeIndex state only if it has changed
+      setActiveIndex(prevIndex => prevIndex !== newActiveIndex ? newActiveIndex : prevIndex);
+    };
+
+    // Attach listener
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    
+    // Cleanup: remove the listener when the component unmounts
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [milestones]); // Rerun this effect if the milestones data changes
+
+  if (loading && milestones.length === 0) return <div className="text-center py-20">Loading milestones...</div>;
   if (error) return <div className="text-center py-20 text-red-600">{error}</div>;
 
   return (
@@ -107,13 +152,13 @@ const JourneySection = () => {
         </div>
         <div className="relative">
           {milestones.map((item, index) => (
-            <MilestoneCard
-              key={item._id}
-              item={item}
-              index={index}
-              setActiveIndex={setActiveIndex}
-              isActive={index === activeIndex}
-            />
+            // NEW: Add a wrapper div with the ref to track this element's position
+            <div key={item._id} ref={el => (milestoneRefs.current[index] = el)}>
+              <MilestoneCard
+                item={item}
+                isActive={index === activeIndex} // This now controls the opacity
+              />
+            </div>
           ))}
         </div>
       </div>

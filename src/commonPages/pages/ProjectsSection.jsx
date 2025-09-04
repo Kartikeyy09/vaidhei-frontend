@@ -66,7 +66,7 @@ const ProjectsSection = () => {
           {displayedProjects.map((project, index) => (
             <div
               key={project._id}
-              className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center transition-all duration-500 ease-in-out animate-fade-in"
+              className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center transition-all duration-500 ease-in-out animate-fade-in cursor-pointer"
               onClick={() => navigate(`/projects/${project.slug}`)}
             >
               {/* Image Section - This correctly uses `project.image` for the thumbnail */}
