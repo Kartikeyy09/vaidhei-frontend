@@ -1,8 +1,7 @@
-// ✅ FILE: src/admin/AdminLayout.jsx (CREATE THIS NEW FILE)
-
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react'; // ✅ Kadam 1: useState ko import karein
 import { useSelector, useDispatch } from 'react-redux';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Outlet, useNavigate, Navigate } from 'react-router-dom';
+import { toast } from 'react-toastify'; // toast ko import karein agar nahi kiya hai
 
 // Slices se zaroori cheezein import karein
 import { selectLogin, logoutAsync } from '../../features/adminSlice/auth/loginSlice';
@@ -15,6 +14,9 @@ import Sidebar from './Sidebar';
 const AdminLayout = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
+
+    // ✅ Kadam 2: Sidebar ke liye state banayein (default mein band rahega)
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     
     // Auth state (sirf isAuthenticated ke liye)
     const { isAuthenticated } = useSelector(selectLogin);
@@ -47,9 +49,15 @@ const AdminLayout = () => {
     return (
         <div>
             <ScrollToTop/>
-            <Sidebar />
+            {/* ✅ Kadam 3: State aur function ko Sidebar aur Header mein pass karein */}
+            <Sidebar 
+                isSidebarOpen={isSidebarOpen} 
+                setIsSidebarOpen={setIsSidebarOpen} 
+            />
             <div className="lg:pl-72"> {/* Sidebar ki width ke anusaar */}
-                <Header />
+                <Header 
+                    setIsSidebarOpen={setIsSidebarOpen} 
+                />
                 <main className="py-10">
                     <div className="px-4 sm:px-6 lg:px-8">
                         {/* Aapke admin pages yahan render honge */}
