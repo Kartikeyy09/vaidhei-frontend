@@ -1,5 +1,3 @@
-// ✅ FILE: src/admin/pages/AdminProfilePage.jsx (COMPLETE AND CORRECTED)
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -18,6 +16,76 @@ import EditProfileModal from '../components/profile/EditProfileModal';
 
 const SERVER_URL = "https://vaidhei-backend.onrender.com";
 
+// --- SKELETON LOADER COMPONENT ---
+// Yeh component poore page ke layout ka dhancha (skeleton) dikhata hai jab data load ho raha hota hai.
+const ProfilePageSkeleton = () => {
+  return (
+    <div className="bg-slate-100/70 min-h-full p-4 md:p-8 animate-pulse">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        
+        <div className="lg:col-span-2 space-y-8">
+          {/* Profile Card Skeleton */}
+          <div className="bg-white rounded-lg shadow-md overflow-hidden">
+            <div className="h-48 bg-slate-200"></div>
+            <div className="p-6">
+              <div className="relative -mt-24">
+                <div className="w-32 h-32 bg-slate-200 rounded-full ring-4 ring-white mx-auto sm:mx-0"></div>
+              </div>
+              <div className="mt-4 flex flex-col sm:flex-row justify-between items-start">
+                <div className="mb-4 sm:mb-0 w-full sm:w-1/2">
+                  <div className="h-8 w-3/4 bg-slate-200 rounded-md"></div>
+                  <div className="h-5 w-1/2 bg-slate-200 rounded-md mt-2"></div>
+                  <div className="h-4 w-2/3 bg-slate-200 rounded-md mt-3"></div>
+                </div>
+                <div className="h-10 w-36 bg-slate-200 rounded-full"></div>
+              </div>
+            </div>
+          </div>
+
+          {/* Company Info Card Skeleton */}
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="h-7 w-1/2 bg-slate-200 rounded-md mb-8"></div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-8">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="flex items-start">
+                  <div className="w-6 h-6 bg-slate-200 rounded-md mr-4 mt-1 flex-shrink-0"></div>
+                  <div className="w-full">
+                    <div className="h-4 w-1/3 bg-slate-200 rounded-md"></div>
+                    <div className="h-5 w-2/3 bg-slate-200 rounded-md mt-2"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Sidebar Skeleton */}
+        <div className="lg:col-span-1">
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="h-6 w-3/4 bg-slate-200 rounded-md mb-6"></div>
+            <ul className="divide-y divide-slate-200">
+              {[...Array(3)].map((_, i) => (
+                <li key={i} className="py-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center w-full">
+                      <div className="w-6 h-6 mr-4 bg-slate-200 rounded-md"></div>
+                      <div className="w-full">
+                        <div className="h-5 w-1/2 bg-slate-200 rounded-md"></div>
+                        <div className="h-4 w-3/4 bg-slate-200 rounded-md mt-2"></div>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
 const AdminProfilePage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -33,8 +101,10 @@ const AdminProfilePage = () => {
     if (isAuthenticated && !user) {
       dispatch(getProfileAsync());
     }
-    dispatch(fetchSettingsAsync());
-  }, [dispatch, isAuthenticated, user]);
+    if (settingsStatus === 'idle') {
+      dispatch(fetchSettingsAsync());
+    }
+  }, [dispatch, isAuthenticated, user, settingsStatus]);
 
   const handleLogout = () => {
     if (window.confirm("Are you sure you want to logout?")) {
@@ -48,24 +118,18 @@ const AdminProfilePage = () => {
     return names.length > 1 ? `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase() : name.substring(0, 2).toUpperCase();
   };
   
-  // This function is passed to the modal to close it after a successful update.
   const handleProfileUpdateSuccess = () => {
     setIsEditModalOpen(false);
-    // confirm('Profile updated successfully!');
   };
   
-  // This function is for the password modal.
   const handleChangePasswordSuccess = () => {
     setIsPasswordModalOpen(false);
   };
 
-  // if (!user || settingsStatus !== 'succeeded') {
-  //   return (
-  //     <div className="flex justify-center items-center h-screen bg-slate-100">
-  //       <p className="text-slate-600">Loading profile...</p>
-  //     </div>
-  //   );
-  // }
+  // Jab tak user ya settings ka data load nahi hota, skeleton dikhao.
+  if (!user || settingsStatus !== 'succeeded') {
+    return <ProfilePageSkeleton />;
+  }
 
   return (
     <>
@@ -100,7 +164,7 @@ const AdminProfilePage = () => {
                     <p className="text-sm text-slate-500 mt-2">{user.email}</p>
                   </div>
                   <button 
-                    onClick={() => setIsEditModalOpen(true)} // Button click sets state to true
+                    onClick={() => setIsEditModalOpen(true)}
                     className="flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white font-semibold rounded-full hover:bg-red-700 transition-colors shadow-sm"
                   >
                     <PencilIcon className="w-5 h-5" />
@@ -136,7 +200,7 @@ const AdminProfilePage = () => {
                     icon={KeyIcon} 
                     title="Change Password" 
                     description="Update your account security." 
-                    onClick={() => setIsPasswordModalOpen(true)} // Button click sets state to true
+                    onClick={() => setIsPasswordModalOpen(true)}
                 />
                 <SidebarActionItem 
                     icon={ArrowLeftOnRectangleIcon} 
@@ -151,7 +215,7 @@ const AdminProfilePage = () => {
         </div>
       </div>
       
-      {/* ⭐ Modals are defined here. We pass the state and the success handlers. */}
+      {/* Modals */}
       <ChangePasswordModal 
         isOpen={isPasswordModalOpen} 
         onClose={() => setIsPasswordModalOpen(false)}

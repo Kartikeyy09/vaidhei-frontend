@@ -1,11 +1,31 @@
-// ✅ FILE: src/admin/pages/ManageGallery.jsx
-
 import { useState, useEffect } from "react";
 import { PlusIcon, PencilIcon, TrashIcon, PlayCircleIcon } from "@heroicons/react/24/solid";
 import GalleryEditor from "../components/gallery/GalleryEditor";
 import ConfirmDeleteModal from "../components/ConfirmDeleteModal";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchGalleryAsync, selectManageGallery, addGalleryItemAsync, updateGalleryItemAsync, deleteGalleryItemAsync } from "../../features/adminSlice/ManageGallery/ManageGallerySlice";
+
+// --- SKELETON LOADER COMPONENTS ---
+
+// Ek single gallery item ka skeleton
+const GalleryItemSkeleton = () => (
+    <div className="group relative rounded-xl overflow-hidden shadow-lg border border-gray-200">
+        <div className="w-full h-48 bg-slate-200"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+        <div className="absolute bottom-0 left-0 p-4 w-full">
+            <div className="h-5 w-3/4 bg-slate-400 rounded-md"></div>
+            <div className="h-3 w-1/2 bg-slate-500 rounded-md mt-2"></div>
+        </div>
+    </div>
+);
+
+// Poore gallery grid ka skeleton
+const GallerySkeleton = () => (
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 animate-pulse">
+        {[...Array(8)].map((_, i) => <GalleryItemSkeleton key={i} />)}
+    </div>
+);
+
 
 // Helper to convert any YouTube URL to an embeddable URL
 const getYoutubeEmbedUrl = (url) => {
@@ -19,7 +39,6 @@ const getYoutubeEmbedUrl = (url) => {
             videoId = urlObj.searchParams.get('v');
         }
     } catch (e) {
-        // Fallback for non-standard URLs
         const match = url.match(/(?:v=|\/embed\/|\/)([^#\&\?]*).*/);
         videoId = match ? match[1] : null;
     }
@@ -34,7 +53,11 @@ const ManageGallery = () => {
     const dispatch = useDispatch();
     const { data: galleryItems, loading, error } = useSelector(selectManageGallery);
 
-    useEffect(() => { dispatch(fetchGalleryAsync()); }, [dispatch]);
+    useEffect(() => { 
+        if(galleryItems.length === 0){
+            dispatch(fetchGalleryAsync());
+        }
+    }, [dispatch, galleryItems.length]);
 
     const handleAddNew = () => { setSelectedItem(null); setIsEditorOpen(true); };
     const handleEdit = (item) => { setSelectedItem(item); setIsEditorOpen(true); };
@@ -75,8 +98,9 @@ const ManageGallery = () => {
 
             {error && <p className="text-center text-red-600 bg-red-100 p-4 rounded-lg mb-4">Error: {error}</p>}
             
+            {/* Jab tak data load ho raha hai aur gallery khali hai, skeleton dikhao */}
             {loading && galleryItems.length === 0 ? (
-                <div className="text-center py-16 text-slate-500">Loading gallery...</div>
+                <GallerySkeleton />
             ) : galleryItems.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                     {galleryItems.map(item => (

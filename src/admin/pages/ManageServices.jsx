@@ -1,12 +1,10 @@
-// FILE: src/admin/pages/ManageServices.jsx (Updated with Empty State)
-
 import { useState, useEffect } from "react";
 import { 
     PlusIcon, 
     PencilIcon, 
     TrashIcon, 
     BriefcaseIcon,
-    InboxIcon // ✅ Added for the empty state
+    InboxIcon
 } from "@heroicons/react/24/solid";
 import ServiceEditor from "../components/services/ServiceEditor";
 import ConfirmDeleteModal from "../components/ConfirmDeleteModal";
@@ -19,6 +17,36 @@ import {
   deleteServiceAsync,
 } from "../../features/adminSlice/ManageServices/ManageServicesSlice";
 
+// --- SKELETON LOADER COMPONENT ---
+// This component renders a skeleton version of the table body while data is loading.
+const ServiceTableSkeleton = () => (
+    <tbody className="animate-pulse">
+        {[...Array(6)].map((_, i) => (
+            <tr key={i} className="border-b border-slate-200">
+                <td className="p-4">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-slate-200 rounded-lg flex-shrink-0"></div>
+                        <div>
+                            <div className="h-5 w-40 bg-slate-200 rounded-md"></div>
+                            <div className="h-3 w-24 bg-slate-200 rounded-md mt-2"></div>
+                        </div>
+                    </div>
+                </td>
+                <td className="p-4 hidden md:table-cell">
+                    <div className="h-4 w-full bg-slate-200 rounded-md"></div>
+                </td>
+                <td className="p-4">
+                    <div className="flex gap-2">
+                        <div className="w-8 h-8 bg-slate-200 rounded-full"></div>
+                        <div className="w-8 h-8 bg-slate-200 rounded-full"></div>
+                    </div>
+                </td>
+            </tr>
+        ))}
+    </tbody>
+);
+
+
 const ManageServices = () => {
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -28,8 +56,11 @@ const ManageServices = () => {
   const { data: services, loading, error } = useSelector(selectManageServices);
 
   useEffect(() => {
-    dispatch(fetchManageServicesAsync());
-  }, [dispatch]);
+    // Fetch services only if the list is empty to prevent re-fetching
+    if (services.length === 0) {
+        dispatch(fetchManageServicesAsync());
+    }
+  }, [dispatch, services.length]);
 
   const handleAddNew = () => {
     setSelectedService(null);
@@ -90,46 +121,29 @@ const ManageServices = () => {
         </button>
       </div>
 
-      {/* ✅ UPDATED: Conditional rendering for Loading, Error, Empty, and Data states */}
-      {loading && services.length === 0 ? (
-        <p className="text-center text-gray-500 py-8">Loading services...</p>
-      ) : error ? (
+      {error && (
         <p className="text-center text-red-600 bg-red-100 p-4 rounded-lg">Error: {error}</p>
-      ) : services.length === 0 ? (
-        // ✅ NEW: Beautiful Empty State Component
-        <div className="text-center py-20 px-6 bg-slate-50 rounded-xl border-2 border-dashed border-slate-200">
-          <InboxIcon className="mx-auto h-16 w-16 text-slate-400" />
-          <h3 className="mt-4 text-xl font-semibold text-slate-700">No Services Added Yet</h3>
-          <p className="mt-2 text-base text-slate-500">
-            Get started by adding your first service to the list.
-          </p>
-          <div className="mt-6">
-            <button
-                onClick={handleAddNew}
-                className="flex items-center gap-2 mx-auto bg-red-600 text-white px-5 py-3 rounded-lg font-semibold shadow-lg hover:bg-red-700 transition-colors"
-            >
-                <PlusIcon className="w-5 h-5" />
-                Add Your First Service
-            </button>
-          </div>
-        </div>
-      ) : (
-        // ✅ EXISTING: Table for when there is data
-        <div className="bg-white rounded-xl shadow-md overflow-x-auto">
-          <table className="w-full text-left">
-            <thead className="bg-slate-50 border-b border-slate-200">
-              <tr>
-                <th className="p-4 text-sm font-semibold text-slate-600">Service Title</th>
-                <th className="p-4 text-sm font-semibold text-slate-600 hidden md:table-cell">Short Description</th>
-                <th className="p-4 text-sm font-semibold text-slate-600">Actions</th>
-              </tr>
-            </thead>
+      )}
+
+      <div className="bg-white rounded-xl shadow-md overflow-x-auto">
+        <table className="w-full text-left">
+          <thead className="bg-slate-50 border-b border-slate-200">
+            <tr>
+              <th className="p-4 text-sm font-semibold text-slate-600">Service Title</th>
+              <th className="p-4 text-sm font-semibold text-slate-600 hidden md:table-cell">Short Description</th>
+              <th className="p-4 text-sm font-semibold text-slate-600">Actions</th>
+            </tr>
+          </thead>
+          
+          {loading && services.length === 0 ? (
+            <ServiceTableSkeleton />
+          ) : services.length > 0 ? (
             <tbody>
-              {services?.map((service) => (
-                <tr key={service._id} className="border-b border-slate-200 hover:bg-slate-50">
+              {services.map((service) => (
+                <tr key={service._id} className="border-b border-slate-200 last:border-b-0 hover:bg-slate-50">
                   <td className="p-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                      <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
                         <BriefcaseIcon className="w-6 h-6 text-red-600" />
                       </div>
                       <div>
@@ -152,11 +166,24 @@ const ManageServices = () => {
                 </tr>
               ))}
             </tbody>
-          </table>
-        </div>
-      )}
+          ) : (
+             <tbody>
+                <tr>
+                    <td colSpan="3">
+                        <div className="text-center py-20 px-6">
+                            <InboxIcon className="mx-auto h-16 w-16 text-slate-400" />
+                            <h3 className="mt-4 text-xl font-semibold text-slate-700">No Services Added Yet</h3>
+                            <p className="mt-2 text-base text-slate-500">
+                                Get started by adding your first service to the list.
+                            </p>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+          )}
+        </table>
+      </div>
 
-      {/* Modals remain unchanged */}
       <ServiceEditor
         isOpen={isEditorOpen}
         onClose={() => setIsEditorOpen(false)}

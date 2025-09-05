@@ -1,38 +1,28 @@
-import { useEffect, useState } from 'react'; // ✅ Kadam 1: useState ko import karein
+import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Outlet, useNavigate, Navigate } from 'react-router-dom';
-import { toast } from 'react-toastify'; // toast ko import karein agar nahi kiya hai
+import { toast } from 'react-toastify';
 
-// Slices se zaroori cheezein import karein
 import { selectLogin, logoutAsync } from '../../features/adminSlice/auth/loginSlice';
 import { selectUserProfile, getProfileAsync } from '../../features/adminSlice/profile/profileSlice';
 import ScrollToTop from "../../commonPages/components/ScrollToTop";
 
-import Header from './Header'; // Apne components ke path adjust karein
+import Header from './Header';
 import Sidebar from './Sidebar';
 
 const AdminLayout = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-
-    // ✅ Kadam 2: Sidebar ke liye state banayein (default mein band rahega)
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     
-    // Auth state (sirf isAuthenticated ke liye)
     const { isAuthenticated } = useSelector(selectLogin);
-    // Profile state (user object ke liye)
     const user = useSelector(selectUserProfile);
 
-    // ✅ YAHI SABSE ZAROORI HISSA HAI
     useEffect(() => {
-        // Condition: Agar client-side kehta hai ki user logged in hai,
-        // lekin hamare paas profileSlice mein user ka data nahi hai (ye page refresh par hota hai).
         if (isAuthenticated && !user) {
             dispatch(getProfileAsync())
                 .unwrap()
                 .catch(() => {
-                    // Agar getProfileAsync fail hota hai, iska matlab token invalid hai.
-                    // User ko forcefully logout kar do.
                     toast.error("Your session has expired. Please log in again.");
                     dispatch(logoutAsync());
                     navigate('/admin-login');
@@ -40,27 +30,28 @@ const AdminLayout = () => {
         }
     }, [isAuthenticated, user, dispatch, navigate]);
 
-    // Agar user authenticated nahi hai, to use login page par bhej do
     if (!isAuthenticated) {
         return <Navigate to="/admin-login" replace />;
     }
 
-    // Agar user authenticated hai, to layout (Sidebar, Header) aur child route (Outlet) dikhao
     return (
-        <div>
+        // ✅ PREMIUM UPGRADE: Poore page ko soft gray background diya
+        <div className="min-h-screen bg-slate-100">
             <ScrollToTop/>
-            {/* ✅ Kadam 3: State aur function ko Sidebar aur Header mein pass karein */}
             <Sidebar 
                 isSidebarOpen={isSidebarOpen} 
                 setIsSidebarOpen={setIsSidebarOpen} 
             />
-            <div className="lg:pl-72"> {/* Sidebar ki width ke anusaar */}
+            {/* Sidebar ki width ke anusaar left padding */}
+            <div className="lg:pl-60 "> 
                 <Header 
                     setIsSidebarOpen={setIsSidebarOpen} 
                 />
-                <main className="py-10">
+                {/* ✅ PREMIUM UPGRADE: Main content ke liye behtar padding */}
+                <main className="py-8 px-4">
                     <div className="px-4 sm:px-6 lg:px-8">
-                        {/* Aapke admin pages yahan render honge */}
+                        {/* Aapke admin pages (cards, forms, tables) yahan render honge */}
+                        {/* Example: <div className="p-6 bg-white rounded-lg shadow-md">...</div> */}
                         <Outlet />
                     </div>
                 </main>

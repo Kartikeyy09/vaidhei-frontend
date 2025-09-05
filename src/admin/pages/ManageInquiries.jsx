@@ -1,11 +1,46 @@
-// ✅ FILE: src/admin/pages/ManageInquiries.jsx
-
 import { useState, useEffect } from "react";
 import { TrashIcon } from "@heroicons/react/24/solid";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchInquiriesAsync, selectManageInquiries, fetchInquiryByIdAsync, deleteInquiryAsync, clearSelectedInquiry } from "../../features/adminSlice/ManageInquiries/ManageInquiriesSlice";
 import InquiryViewer from "../components/contactInquiry/InquiryViewer";
 import ConfirmDeleteModal from "../components/ConfirmDeleteModal";
+
+// --- SKELETON LOADER COMPONENT ---
+// This component mimics the table structure while data is loading.
+const TableSkeleton = () => (
+    <div className="overflow-x-auto animate-pulse">
+        <table className="w-full text-left">
+            <thead className="bg-slate-50 border-b border-slate-200">
+                <tr>
+                    <th className="p-4"><div className="h-4 w-20 bg-slate-200 rounded-md"></div></th>
+                    <th className="p-4"><div className="h-4 w-24 bg-slate-200 rounded-md"></div></th>
+                    <th className="p-4"><div className="h-4 w-24 bg-slate-200 rounded-md"></div></th>
+                    <th className="p-4"><div className="h-4 w-32 bg-slate-200 rounded-md"></div></th>
+                    <th className="p-4 hidden md:table-cell"><div className="h-4 w-40 bg-slate-200 rounded-md"></div></th>
+                    <th className="p-4"><div className="h-4 w-16 bg-slate-200 rounded-md"></div></th>
+                    <th className="p-4"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {[...Array(8)].map((_, i) => (
+                    <tr key={i} className="border-b border-slate-200">
+                        <td className="p-4">
+                            <div className="h-5 w-3/4 bg-slate-200 rounded-md"></div>
+                            <div className="h-3 w-1/2 bg-slate-200 rounded-md mt-2"></div>
+                        </td>
+                        <td className="p-4"><div className="h-4 w-2/3 bg-slate-200 rounded-md"></div></td>
+                        <td className="p-4"><div className="h-4 w-3/4 bg-slate-200 rounded-md"></div></td>
+                        <td className="p-4"><div className="h-4 w-5/6 bg-slate-200 rounded-md"></div></td>
+                        <td className="p-4 hidden md:table-cell"><div className="h-4 w-full bg-slate-200 rounded-md"></div></td>
+                        <td className="p-4"><div className="h-6 w-16 bg-slate-200 rounded-full"></div></td>
+                        <td className="p-4 text-right"><div className="w-8 h-8 bg-slate-200 rounded-full"></div></td>
+                    </tr>
+                ))}
+            </tbody>
+        </table>
+    </div>
+);
+
 
 const StatusBadge = ({ status }) => (
     <span className={`inline-flex items-center gap-1.5 px-2 py-1 text-xs font-semibold rounded-full ${status === 'New' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}`}>
@@ -26,20 +61,20 @@ const ManageInquiries = () => {
     const dispatch = useDispatch();
     const { data: inquiries, selectedInquiry, loading, error } = useSelector(selectManageInquiries);
     
-    // Viewer is open if there is a selected inquiry in the Redux state
     const isViewerOpen = !!selectedInquiry;
 
     useEffect(() => {
-        dispatch(fetchInquiriesAsync());
-    }, [dispatch]);
+        // Fetch inquiries only if the list is empty to prevent re-fetching
+        if (inquiries.length === 0) {
+            dispatch(fetchInquiriesAsync());
+        }
+    }, [dispatch, inquiries.length]);
 
     const handleView = (inquiry) => {
-        // Fetch full details, which also marks it as 'Read' on the backend and updates the state
         dispatch(fetchInquiryByIdAsync(inquiry._id));
     };
 
     const handleCloseViewer = () => {
-        // Clear the selected inquiry from the Redux state to close the viewer
         dispatch(clearSelectedInquiry());
     };
 
@@ -69,54 +104,57 @@ const ManageInquiries = () => {
 
             {error && <p className="text-center text-red-600 bg-red-100 p-4 rounded-lg mb-4">Error: {error}</p>}
 
-            <div className="bg-white rounded-xl shadow-md overflow-x-auto">
-                <table className="w-full text-left">
-                    <thead className="bg-slate-50 border-b border-slate-200">
-                        <tr>
-                            <th className="p-4 text-sm font-semibold text-slate-600">From</th>
-                            <th className="p-4 text-sm font-semibold text-slate-600">Number</th>
-                            <th className="p-4 text-sm font-semibold text-slate-600">Company</th>
-                            <th className="p-4 text-sm font-semibold text-slate-600">Subject</th>
-                            <th className="p-4 text-sm font-semibold text-slate-600 hidden md:table-cell">Received</th>
-                            <th className="p-4 text-sm font-semibold text-slate-600">Status</th>
-                            <th className="p-4 text-sm font-semibold text-slate-600"></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {loading && inquiries.length === 0 ? (
-                            <tr><td colSpan="5" className="text-center p-8 text-gray-500">Loading inquiries...</td></tr>
-                        ) : inquiries.map(inquiry => (
-                            <tr key={inquiry._id} className="border-b border-slate-200 hover:bg-slate-50 cursor-pointer" onClick={() => handleView(inquiry)}>
-                                <td className="p-4">
-                                    <p className={`font-semibold text-slate-800 ${inquiry.status === 'New' ? 'font-bold' : ''}`}>{inquiry.name}</p>
-                                    <p className="text-xs text-slate-500">{inquiry.email}</p>
-                                </td>
-                                 <td className="p-4">
-                                    {/* <p className={`font-semibold text-slate-800 ${inquiry.status === 'New' ? 'font-bold' : ''}`}>{inquiry.company}</p> */}
-                                    <p className="text-xs text-slate-500">{inquiry.phone}</p>
-                                </td>
-                                <td className="p-4">
-                                    <p className={`font-semibold text-slate-800 ${inquiry.status === 'New' ? 'font-bold' : ''}`}>{inquiry.company}</p>
-                                    {/* <p className="text-xs text-slate-500">{inquiry.phone}</p> */}
-                                </td>
-                                <td className="p-4 text-slate-600">
-                                    <span className={inquiry.status === 'New' ? 'font-bold text-slate-700' : ''}>{inquiry.subject}</span>
-                                </td>
-                                <td className="p-4 text-slate-500 hidden md:table-cell">{formatDate(inquiry.createdAt)}</td>
-                                <td className="p-4"><StatusBadge status={inquiry.status} /></td>
-                                <td className="p-4 text-right">
-                                    <button 
-                                        onClick={(e) => { e.stopPropagation(); handleDeleteClick(inquiry); }} 
-                                        className="p-2 text-slate-400 hover:text-red-600 rounded-full hover:bg-red-100"
-                                        title="Delete Inquiry"
-                                    >
-                                        <TrashIcon className="w-5 h-5" />
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+            <div className="bg-white rounded-xl shadow-md overflow-hidden">
+                {loading && inquiries.length === 0 ? (
+                    <TableSkeleton />
+                ) : inquiries.length > 0 ? (
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left">
+                            <thead className="bg-slate-50 border-b border-slate-200">
+                                <tr>
+                                    <th className="p-4 text-sm font-semibold text-slate-600">From</th>
+                                    <th className="p-4 text-sm font-semibold text-slate-600">Number</th>
+                                    <th className="p-4 text-sm font-semibold text-slate-600">Company</th>
+                                    <th className="p-4 text-sm font-semibold text-slate-600">Subject</th>
+                                    <th className="p-4 text-sm font-semibold text-slate-600 hidden md:table-cell">Received</th>
+                                    <th className="p-4 text-sm font-semibold text-slate-600">Status</th>
+                                    <th className="p-4 text-sm font-semibold text-slate-600"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {inquiries.map(inquiry => (
+                                    <tr key={inquiry._id} className="border-b border-slate-200 last:border-b-0 hover:bg-slate-50 cursor-pointer" onClick={() => handleView(inquiry)}>
+                                        <td className="p-4 align-top">
+                                            <p className={`font-semibold text-slate-800 ${inquiry.status === 'New' ? 'font-bold' : ''}`}>{inquiry.name}</p>
+                                            <p className="text-xs text-slate-500">{inquiry.email}</p>
+                                        </td>
+                                        <td className="p-4 align-top text-sm text-slate-600">{inquiry.phone}</td>
+                                        <td className="p-4 align-top text-sm text-slate-600">{inquiry.company}</td>
+                                        <td className="p-4 align-top text-slate-600">
+                                            <span className={inquiry.status === 'New' ? 'font-bold text-slate-700' : ''}>{inquiry.subject}</span>
+                                        </td>
+                                        <td className="p-4 align-top text-slate-500 hidden md:table-cell">{formatDate(inquiry.createdAt)}</td>
+                                        <td className="p-4 align-top"><StatusBadge status={inquiry.status} /></td>
+                                        <td className="p-4 text-right align-top">
+                                            <button 
+                                                onClick={(e) => { e.stopPropagation(); handleDeleteClick(inquiry); }} 
+                                                className="p-2 text-slate-400 hover:text-red-600 rounded-full hover:bg-red-100"
+                                                title="Delete Inquiry"
+                                            >
+                                                <TrashIcon className="w-5 h-5" />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                ) : (
+                    <div className="text-center py-16">
+                        <h3 className="text-xl font-semibold text-slate-700">Inbox Zero!</h3>
+                        <p className="text-slate-500 mt-2">There are currently no inquiries to display.</p>
+                    </div>
+                )}
             </div>
             
             <InquiryViewer isOpen={isViewerOpen} onClose={handleCloseViewer} inquiry={selectedInquiry} isDeleting={loading} />

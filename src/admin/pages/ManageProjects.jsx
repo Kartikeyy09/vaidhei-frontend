@@ -1,5 +1,3 @@
-// ✅ FILE: src/admin/pages/ManageProjects.jsx (Updated)
-
 import { useState, useEffect } from "react";
 import { PlusIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/solid";
 import ProjectEditor from "../components/projects/ProjectEditor";
@@ -11,7 +9,35 @@ import {
     addProjectAsync, 
     updateProjectAsync, 
     deleteProjectAsync 
-} from "../../features/adminSlice/ManageProjects/ManageProjectsSlice"; // Adjust path if needed
+} from "../../features/adminSlice/ManageProjects/ManageProjectsSlice";
+
+// --- SKELETON LOADER COMPONENT ---
+// This component renders a skeleton version of the table body.
+const ProjectTableSkeleton = () => (
+    <tbody className="animate-pulse">
+        {[...Array(8)].map((_, i) => (
+            <tr key={i} className="border-b border-slate-200">
+                <td className="p-4">
+                    <div className="flex items-center gap-4">
+                        <div className="w-16 h-12 bg-slate-200 rounded-md flex-shrink-0"></div>
+                        <div>
+                            <div className="h-5 w-48 bg-slate-200 rounded-md"></div>
+                            <div className="h-3 w-24 bg-slate-200 rounded-md mt-2"></div>
+                        </div>
+                    </div>
+                </td>
+                <td className="p-4 hidden lg:table-cell"><div className="h-4 w-32 bg-slate-200 rounded-md"></div></td>
+                <td className="p-4"><div className="h-6 w-20 bg-slate-200 rounded-full"></div></td>
+                <td className="p-4">
+                    <div className="flex gap-2">
+                        <div className="w-8 h-8 bg-slate-200 rounded-full"></div>
+                        <div className="w-8 h-8 bg-slate-200 rounded-full"></div>
+                    </div>
+                </td>
+            </tr>
+        ))}
+    </tbody>
+);
 
 const StatusBadge = ({ status }) => {
     const baseClasses = "px-2 py-1 text-xs font-semibold rounded-full";
@@ -32,8 +58,11 @@ const ManageProjects = () => {
     const { data: projects, loading, error } = useSelector(selectManageProjects);
 
     useEffect(() => {
-        dispatch(fetchProjectsAsync());
-    }, [dispatch]);
+        // Fetch projects only if the list is empty to prevent re-fetching
+        if (projects.length === 0) {
+            dispatch(fetchProjectsAsync());
+        }
+    }, [dispatch, projects.length]);
 
     const handleAddNew = () => { setSelectedProject(null); setIsEditorOpen(true); };
     const handleEdit = (project) => { setSelectedProject(project); setIsEditorOpen(true); };
@@ -86,33 +115,43 @@ const ManageProjects = () => {
                             <th className="p-4 text-sm font-semibold text-slate-600">Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        {loading && projects.length === 0 ? (
-                            <tr><td colSpan="4" className="text-center p-8 text-gray-500">Loading case studies...</td></tr>
-                        ) : projects.map(project => (
-                            <tr key={project._id} className="border-b border-slate-200 hover:bg-slate-50">
-                                <td className="p-4">
-                                    <div className="flex items-center gap-4">
-                                        {/* ✅ UPDATED: Using `project.image` for the card thumbnail */}
-                                        <img src={`${SERVER_URL}/${project.image}`} alt={project.title} className="w-16 h-12 object-cover rounded-md flex-shrink-0 bg-gray-100" />
-                                        <div>
-                                            <p className="font-semibold text-slate-800">{project.title}</p>
-                                            <p className="text-xs text-slate-500">/{project.slug}</p>
+                    
+                    {loading && projects.length === 0 ? (
+                        <ProjectTableSkeleton />
+                    ) : projects.length > 0 ? (
+                        <tbody>
+                            {projects.map(project => (
+                                <tr key={project._id} className="border-b border-slate-200 last:border-b-0 hover:bg-slate-50">
+                                    <td className="p-4">
+                                        <div className="flex items-center gap-4">
+                                            <img src={`${SERVER_URL}${project.image}`} alt={project.title} className="w-16 h-12 object-cover rounded-md flex-shrink-0 bg-gray-100" />
+                                            <div>
+                                                <p className="font-semibold text-slate-800">{project.title}</p>
+                                                <p className="text-xs text-slate-500">/{project.slug}</p>
+                                            </div>
                                         </div>
-                                    </div>
-                                </td>
-                                {/* ❌ REMOVED: Category column is gone */}
-                                <td className="p-4 text-slate-600 hidden lg:table-cell">{project.location}</td>
-                                <td className="p-4"><StatusBadge status={project.status} /></td>
-                                <td className="p-4">
-                                    <div className="flex gap-2">
-                                        <button onClick={() => handleEdit(project)} className="p-2 text-slate-500 hover:text-blue-600 rounded-full hover:bg-blue-100"><PencilIcon className="w-5 h-5" /></button>
-                                        <button onClick={() => handleDeleteClick(project)} className="p-2 text-slate-500 hover:text-red-600 rounded-full hover:bg-red-100"><TrashIcon className="w-5 h-5" /></button>
-                                    </div>
+                                    </td>
+                                    <td className="p-4 text-slate-600 hidden lg:table-cell">{project.location}</td>
+                                    <td className="p-4"><StatusBadge status={project.status} /></td>
+                                    <td className="p-4">
+                                        <div className="flex gap-2">
+                                            <button onClick={() => handleEdit(project)} className="p-2 text-slate-500 hover:text-blue-600 rounded-full hover:bg-blue-100"><PencilIcon className="w-5 h-5" /></button>
+                                            <button onClick={() => handleDeleteClick(project)} className="p-2 text-slate-500 hover:text-red-600 rounded-full hover:bg-red-100"><TrashIcon className="w-5 h-5" /></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    ) : (
+                        <tbody>
+                            <tr>
+                                <td colSpan="4" className="text-center py-16">
+                                    <h3 className="text-xl font-semibold text-slate-700">No Case Studies Found</h3>
+                                    <p className="text-slate-500 mt-2">Click "Add New Case Study" to get started.</p>
                                 </td>
                             </tr>
-                        ))}
-                    </tbody>
+                        </tbody>
+                    )}
                 </table>
             </div>
             

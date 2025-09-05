@@ -7,6 +7,55 @@ import { ArrowUpIcon, ArrowDownIcon, ChartBarIcon, ClockIcon, EnvelopeIcon } fro
 const COLORS = { increase: '#22c55e', decrease: '#ef4444', neutral: '#94a3b8', averageLine: '#a855f7' };
 const PIE_COLORS = { 'New': '#3b82f6', 'Read': '#f97316', 'Completed': '#16a34a', 'Spam': '#64748b' };
 
+// --- SKELETON LOADER COMPONENT ---
+// Yeh component poore analytics dashboard ka dhancha (skeleton) dikhata hai.
+const AnalyticsPageSkeleton = () => (
+  <div className="space-y-8 p-4 md:p-4 bg-slate-50/70 min-h-full animate-pulse">
+    {/* Header Skeleton */}
+    <div>
+      <div className="h-8 w-1/3 bg-slate-200 rounded-md"></div>
+      <div className="h-4 w-1/2 bg-slate-200 rounded-md mt-2"></div>
+    </div>
+
+    {/* KPI Cards Skeleton */}
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {[...Array(3)].map((_, i) => (
+        <div key={i} className="bg-white p-6 rounded-xl shadow-md">
+          <div className="h-4 w-1/2 bg-slate-200 rounded-md"></div>
+          <div className="h-8 w-1/3 bg-slate-200 rounded-md mt-3"></div>
+          <div className="h-4 w-2/3 bg-slate-200 rounded-md mt-2"></div>
+        </div>
+      ))}
+    </div>
+
+    {/* Charts Section Skeleton */}
+    <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+      <div className="lg:col-span-3 bg-white p-6 rounded-xl shadow-md">
+        <div className="h-6 w-1/2 bg-slate-200 rounded-md"></div>
+        <div className="h-64 mt-6 bg-slate-200 rounded-md"></div>
+      </div>
+      <div className="lg:col-span-2 bg-white p-6 rounded-xl shadow-md flex flex-col">
+        <div className="h-6 w-2/3 bg-slate-200 rounded-md mb-4"></div>
+        <div className="flex-grow flex items-center justify-center">
+            <div className="w-48 h-48 bg-slate-200 rounded-full"></div>
+        </div>
+      </div>
+    </div>
+
+    {/* Table Skeleton */}
+    <div className="bg-white p-6 rounded-xl shadow-md">
+      <div className="h-6 w-1/3 bg-slate-200 rounded-md mb-4"></div>
+      <div className="w-full mt-4 space-y-2">
+        <div className="h-8 bg-slate-100 rounded-md"></div>
+        {[...Array(5)].map((_, i) => (
+          <div key={i} className="h-12 bg-slate-50 rounded-md"></div>
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
+
 const KpiCard = ({ title, value, change, icon: Icon }) => (
   <div className="bg-white p-6 rounded-xl shadow-md">
     <div className="flex items-center justify-between">
@@ -34,7 +83,6 @@ const AnalyticsPage = () => {
   }, [status, dispatch]);
 
   const analyticsSummary = useMemo(() => {
-    // Because rawInquiries is now initialized to [], this check is safe.
     if (!rawInquiries || rawInquiries.length === 0) {
       return { total: 0, change: 0, busiestDay: { name: 'N/A', inquiries: 0 }, pieData: [] };
     }
@@ -56,15 +104,16 @@ const AnalyticsPage = () => {
       return acc;
     }, {});
     const pieData = Object.entries(statusCounts).map(([name, value]) => ({ name, value }));
-
     return { total, change, busiestDay, pieData };
   }, [rawInquiries, chartData]);
 
+  // Jab tak data load ho raha hai, skeleton dikhao.
   if (status === 'loading' || status === 'idle') {
-    return <div className="p-8 text-center text-slate-500">Loading Analytics...</div>;
+    return <AnalyticsPageSkeleton />;
   }
+  
   if (status === 'failed') {
-    return <div className="p-8 text-center text-red-500">Error: {error}</div>;
+    return <div className="p-8 text-center bg-white rounded-lg shadow-md"><h3 className="text-xl font-bold text-red-600">Error Loading Analytics</h3><p className="text-slate-500 mt-2">{error}</p></div>;
   }
 
   return (
@@ -113,7 +162,6 @@ const AnalyticsPage = () => {
   );
 };
 
-// Tooltip needs to be defined for the chart to use it
 const CustomBarTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
