@@ -27,7 +27,7 @@ const ServicesSection = () => {
   const dispatch = useDispatch();
   const { data: services, loading, error } = useSelector(selectManageServices);
 
-  const SERVER_URL = "https://vaidhei-backend.onrender.com";
+  const SERVER_URL = import.meta.env.VITE_BASE_URL;
 
   useEffect(() => {
     dispatch(fetchManageServicesAsync());

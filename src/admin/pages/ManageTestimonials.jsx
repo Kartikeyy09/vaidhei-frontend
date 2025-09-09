@@ -66,7 +66,7 @@ const ManageTestimonials = () => {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [selectedTestimonial, setSelectedTestimonial] = useState(null);
 
-    const SERVER_URL = "https://vaidhei-backend.onrender.com";
+    const SERVER_URL = import.meta.env.VITE_BASE_URL;
 
     const dispatch = useDispatch();
     const { data: testimonials, loading, error } = useSelector(selectManageTestimonials);

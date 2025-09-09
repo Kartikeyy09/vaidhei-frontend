@@ -34,7 +34,7 @@ const ProjectsSection = () => {
   const dispatch = useDispatch();
   const { data: projects, loading, error } = useSelector(selectManageProjects);
 
-  const SERVER_URL = "https://vaidhei-backend.onrender.com";
+  const SERVER_URL = import.meta.env.VITE_BASE_URL;
 
   useEffect(() => {
     if (projects.length === 0) {

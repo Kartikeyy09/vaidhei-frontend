@@ -14,7 +14,7 @@ import {
 import ChangePasswordModal from '../components/profile/ChangePasswordModal';
 import EditProfileModal from '../components/profile/EditProfileModal'; 
 
-const SERVER_URL = "https://vaidhei-backend.onrender.com";
+const SERVER_URL = import.meta.env.VITE_BASE_URL;
 
 // --- SKELETON LOADER COMPONENT ---
 // Yeh component poore page ke layout ka dhancha (skeleton) dikhata hai jab data load ho raha hota hai.

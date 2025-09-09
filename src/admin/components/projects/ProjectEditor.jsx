@@ -38,7 +38,7 @@ const ProjectEditor = ({ isOpen, onClose, onSave, project, isSaving }) => {
     // ✅ UPDATED: useEffect populates all new fields for editing
     useEffect(() => {
         if (isOpen) {
-            const SERVER_URL = "https://vaidhei-backend.onrender.com";
+            const SERVER_URL = import.meta.env.VITE_BASE_URL;
             if (project) { // Edit Mode
                 setFormData({
                     title: project.title || '',

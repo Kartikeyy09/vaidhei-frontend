@@ -68,7 +68,7 @@ const ManageProjects = () => {
     const handleEdit = (project) => { setSelectedProject(project); setIsEditorOpen(true); };
     const handleDeleteClick = (project) => { setSelectedProject(project); setIsDeleteModalOpen(true); };
 
-    const SERVER_URL = "https://vaidhei-backend.onrender.com";
+    const SERVER_URL = import.meta.env.VITE_BASE_URL;
     
     const confirmDelete = () => {
         if (selectedProject) {

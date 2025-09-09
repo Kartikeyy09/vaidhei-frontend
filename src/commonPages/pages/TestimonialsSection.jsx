@@ -11,7 +11,7 @@ const TestimonialsSection = () => {
   const dispatch = useDispatch()
   const { data: testimonials, loading, error } = useSelector(selectManageTestimonials)
 
-  const SERVER_URL = "https://vaidhei-backend.onrender.com"
+  const SERVER_URL = import.meta.env.VITE_BASE_URL
 
   // fetch testimonials from backend
   useEffect(() => {

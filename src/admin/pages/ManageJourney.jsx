@@ -37,7 +37,7 @@ const ManageJourney = () => {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [selectedMilestone, setSelectedMilestone] = useState(null);
 
-    const SERVER_URL = "https://vaidhei-backend.onrender.com";
+    const SERVER_URL = import.meta.env.VITE_BASE_URL;
 
     const dispatch = useDispatch();
     const { data: milestones, loading, error } = useSelector(selectManageJourney);

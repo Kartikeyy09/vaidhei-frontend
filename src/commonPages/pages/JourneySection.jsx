@@ -5,7 +5,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { CheckCircleIcon, StarIcon, PhotoIcon } from "@heroicons/react/24/solid";
 import { fetchMilestonesAsync, selectManageJourney } from "../../features/adminSlice/ManageJourney/ManageJourneySlice";
 
-const SERVER_URL = "https://vaidhei-backend.onrender.com";
+const SERVER_URL = import.meta.env.VITE_BASE_URL;
 
 // --- SKELETON LOADER COMPONENTS ---
 

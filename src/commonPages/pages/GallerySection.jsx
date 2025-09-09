@@ -38,7 +38,7 @@ const GalleryGridSkeleton = () => (
 );
 
 const ITEMS_PER_PAGE = 8;
-const SERVER_URL = "https://vaidhei-backend.onrender.com";
+const SERVER_URL = import.meta.env.VITE_BASE_URL;
 
 // Helper to convert YouTube URL → Embed URL
 const getYoutubeEmbedUrl = (url) => {

@@ -4,7 +4,7 @@ import { useState, useEffect, Fragment, useRef } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { XMarkIcon, PhotoIcon, PlusIcon } from '@heroicons/react/24/solid';
 
-const SERVER_URL = "https://vaidhei-backend.onrender.com";
+const SERVER_URL = import.meta.env.VITE_BASE_URL;
 
 // --- Reusable UI Components (No Changes) ---
 const FloatingLabelInput = ({ id, label, ...props }) => (

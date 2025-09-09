@@ -34,7 +34,7 @@ const GalleryEditor = ({ isOpen, onClose, onSave, item, isSaving }) => {
     // ✅ Predefined categories
     const categories = ['railway', 'municipal', 'Highways', 'government', 'transport', 'others'];
 
-    const SERVER_URL = "https://vaidhei-backend.onrender.com";
+    const SERVER_URL = import.meta.env.VITE_BASE_URL;
 
     useEffect(() => {
         if (isOpen) {

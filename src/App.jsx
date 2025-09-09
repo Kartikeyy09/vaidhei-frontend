@@ -37,6 +37,7 @@ import NotFoundPage from "./commonPages/pages/NotFoundPage";
 import PrivacyPolicyPage from "./commonPages/pages/PrivacyPolicyPage";
 import AdminProfilePage from "./admin/pages/AdminProfilePage";
 import AnalyticsPage from "./admin/pages/AnalyticsPage";
+import InvoiceGenerator from "./admin/pages/InvoicePage";
 
 
 
@@ -93,7 +94,11 @@ const router = createBrowserRouter([
           {
             path : "analytics",
             element : <AnalyticsPage/>
-          }
+          },
+          {
+            path: "invoice-generator",
+            element: <InvoiceGenerator />
+           }
         ],
       },
     ],

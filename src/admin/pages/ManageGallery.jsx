@@ -63,7 +63,7 @@ const ManageGallery = () => {
     const handleEdit = (item) => { setSelectedItem(item); setIsEditorOpen(true); };
     const handleDeleteClick = (item) => { setSelectedItem(item); setIsDeleteModalOpen(true); };
 
-    const SERVER_URL = "https://vaidhei-backend.onrender.com";
+    const SERVER_URL = import.meta.env.VITE_BASE_URL;
     
     const confirmDelete = () => {
         if (selectedItem) {

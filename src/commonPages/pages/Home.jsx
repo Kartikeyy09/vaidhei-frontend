@@ -12,7 +12,7 @@ import HeroSection from "../components/HeroSection";
 import TestimonialsSection from "./TestimonialsSection";
 import WhyChooseSection from "../components/WhyChooseSection";
 
-const SERVER_URL = "https://vaidhei-backend.onrender.com";
+const SERVER_URL = import.meta.env.VITE_BASE_URL;
 
 // --- ✅ KADAM 1: Create Skeleton Components ---
 

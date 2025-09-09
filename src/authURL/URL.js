@@ -28,3 +28,5 @@ export const TESTIMONIAL_URL = `${BASE_URL}api/testimonials`;
 export const SETTINGS_URL = `${BASE_URL}api/settings`;
 
 export const USER_URL = `${BASE_URL}api/users/`;
+
+export const INVOICE_URL = `${BASE_URL}api/invoices`;

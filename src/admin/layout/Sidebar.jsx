@@ -9,7 +9,8 @@ import {
     PhotoIcon,
     ClipboardDocumentListIcon,
     ChatBubbleBottomCenterTextIcon,
-    EnvelopeIcon
+    EnvelopeIcon,
+    DocumentTextIcon
 } from "@heroicons/react/24/solid";
 
 const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
@@ -31,6 +32,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                 { to: "/admin/services", icon: BriefcaseIcon, label: "Manage Services" },
                 { to: "/admin/projects", icon: FolderIcon, label: "Manage Projects" },
                 { to: "/admin/gallery", icon: PhotoIcon, label: "Manage Gallery" },
+               
             ]
         },
         {
@@ -39,6 +41,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                 { to: "/admin/tenders", icon: ClipboardDocumentListIcon, label: "Manage Tenders" },
                 { to: "/admin/testimonials", icon: ChatBubbleBottomCenterTextIcon, label: "Manage Testimonials" },
                 { to: "/admin/inquiries", icon: EnvelopeIcon, label: "Contact Inquiries" },
+                { to: "/admin/invoice-generator", icon: DocumentTextIcon, label: "Invoice Generator" },
             ]
         }
     ];

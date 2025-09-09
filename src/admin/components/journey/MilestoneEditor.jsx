@@ -25,7 +25,7 @@ const MilestoneEditor = ({ isOpen, onClose, onSave, milestone, isSaving }) => {
     const [imagePreview, setImagePreview] = useState(null);
     const fileInputRef = useRef(null);
 
-    const SERVER_URL = "https://vaidhei-backend.onrender.com";
+    const SERVER_URL = import.meta.env.VITE_BASE_URL;
 
     useEffect(() => {
         if (isOpen) {
