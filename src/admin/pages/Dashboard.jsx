@@ -168,10 +168,10 @@ const DashboardHome = () => {
                      <div className="bg-white p-6 rounded-xl shadow-md">
                         <h2 className="text-xl font-semibold text-slate-800 mb-4">Quick Actions</h2>
                         <div className="space-y-3">
-                            <Link to="/admin/invoice-generator"className="w-full flex items-center gap-3 p-3 rounded-lg bg-slate-100 hover:bg-red-100 transition-colors"><PlusIcon className="w-5 h-5 text-red-600"/><span className="font-semibold text-slate-700">Generate Invoice</span ></Link>
-                            <Link to="/admin/journey/add" className="w-full flex items-center gap-3 p-3 rounded-lg bg-slate-100 hover:bg-red-100 transition-colors"><PlusIcon className="w-5 h-5 text-red-600"/><span className="font-semibold text-slate-700">Add New Milestone</span></Link>
-                            <Link to="/admin/projects/add" className="w-full flex items-center gap-3 p-3 rounded-lg bg-slate-100 hover:bg-green-100 transition-colors"><PlusIcon className="w-5 h-5 text-green-600"/><span className="font-semibold text-slate-700">Add New Project</span></Link>
-                            <Link to="/admin/tenders/add" className="w-full flex items-center gap-3 p-3 rounded-lg bg-slate-100 hover:bg-blue-100 transition-colors"><PlusIcon className="w-5 h-5 text-blue-600"/><span className="font-semibold text-slate-700">Add New Tender</span></Link>
+                            <Link to="/admin/invoice-generator"className="w-full flex items-center gap-3 p-3 rounded-lg bg-slate-100 hover:bg-red-100 transition-colors"><PlusIcon className="w-5 h-5 text-red-600"/><span className="font-semibold text-slate-700">Add New Invoice</span ></Link>
+                            <Link to="/admin/journey" className="w-full flex items-center gap-3 p-3 rounded-lg bg-slate-100 hover:bg-red-100 transition-colors"><PlusIcon className="w-5 h-5 text-red-600"/><span className="font-semibold text-slate-700">Add New Milestone</span></Link>
+                            <Link to="/admin/projects" className="w-full flex items-center gap-3 p-3 rounded-lg bg-slate-100 hover:bg-green-100 transition-colors"><PlusIcon className="w-5 h-5 text-green-600"/><span className="font-semibold text-slate-700">Add New Project</span></Link>
+                            <Link to="/admin/tenders" className="w-full flex items-center gap-3 p-3 rounded-lg bg-slate-100 hover:bg-blue-100 transition-colors"><PlusIcon className="w-5 h-5 text-blue-600"/><span className="font-semibold text-slate-700">Add New Tender</span></Link>
                         </div>
                     </div>
                     <div className="bg-white p-6 rounded-xl shadow-md">
