@@ -1,3 +1,5 @@
+// ✅ FILE: src/pages/GallerySection.jsx (COMPLETE AND FINAL)
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -15,9 +17,9 @@ import {
   PhotoIcon,
 } from "@heroicons/react/24/outline";
 
-// --- SKELETON LOADER COMPONENTS ---
+// --- Skeleton Loader Components ---
 
-// Skeleton for a single gallery item card
+// Esqueleto para un solo ítem de la galería
 const GalleryItemSkeleton = () => (
   <div className="relative rounded-xl overflow-hidden bg-slate-200 aspect-[4/5]">
     <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
@@ -28,7 +30,7 @@ const GalleryItemSkeleton = () => (
   </div>
 );
 
-// Skeleton for the entire gallery grid
+// Esqueleto para toda la parrilla de la galería
 const GalleryGridSkeleton = () => (
   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 animate-pulse">
     {[...Array(8)].map((_, i) => (
@@ -40,7 +42,7 @@ const GalleryGridSkeleton = () => (
 const ITEMS_PER_PAGE = 8;
 const SERVER_URL = import.meta.env.VITE_BASE_URL;
 
-// Helper to convert YouTube URL → Embed URL
+// Helper para convertir URL de YouTube → URL de Embed
 const getYoutubeEmbedUrl = (url) => {
   if (!url) return "";
   let videoId;
@@ -63,11 +65,10 @@ const GallerySection = () => {
   const { data: galleryItems, loading, error } = useSelector(selectManageGallery);
 
   const [activeTab, setActiveTab] = useState("all");
-  const [selectedMediaIndex, setSelectedMediaIndex] = useState(null);
+  const [selectedMediaId, setSelectedMediaId] = useState(null);
   const [visibleItemsCount, setVisibleItemsCount] = useState(ITEMS_PER_PAGE);
 
   useEffect(() => {
-    // Fetch only if the gallery is empty to prevent re-fetching on navigation
     if (galleryItems.length === 0) {
       dispatch(fetchGalleryAsync());
     }
@@ -90,39 +91,40 @@ const GallerySection = () => {
 
   const visibleItems = filteredItems.slice(0, visibleItemsCount);
 
-  const openModal = (index) => setSelectedMediaIndex(index);
-  const closeModal = () => setSelectedMediaIndex(null);
+  const openModal = (itemId) => setSelectedMediaId(itemId);
+  const closeModal = () => setSelectedMediaId(null);
 
   const handleNext = (e) => {
     e.stopPropagation();
-    if (selectedMediaIndex === null) return;
-    setSelectedMediaIndex(
-      (prevIndex) => (prevIndex + 1) % filteredItems.length
-    );
+    if (!selectedMediaId) return;
+    const currentIndex = filteredItems.findIndex(item => item._id === selectedMediaId);
+    const nextIndex = (currentIndex + 1) % filteredItems.length;
+    setSelectedMediaId(filteredItems[nextIndex]._id);
   };
 
   const handlePrev = (e) => {
     e.stopPropagation();
-    if (selectedMediaIndex === null) return;
-    setSelectedMediaIndex(
-      (prevIndex) =>
-        (prevIndex - 1 + filteredItems.length) % filteredItems.length
-    );
+    if (!selectedMediaId) return;
+    const currentIndex = filteredItems.findIndex(item => item._id === selectedMediaId);
+    const prevIndex = (currentIndex - 1 + filteredItems.length) % filteredItems.length;
+    setSelectedMediaId(filteredItems[prevIndex]._id);
   };
 
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (selectedMediaIndex === null) return;
+      if (!selectedMediaId) return;
       if (e.key === "ArrowRight") handleNext(e);
       if (e.key === "ArrowLeft") handlePrev(e);
       if (e.key === "Escape") closeModal();
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedMediaIndex, filteredItems]);
+  }, [selectedMediaId, filteredItems]);
 
   const selectedMedia =
-    selectedMediaIndex !== null ? filteredItems[selectedMediaIndex] : null;
+    selectedMediaId !== null 
+    ? filteredItems.find(item => item._id === selectedMediaId) 
+    : null;
 
   return (
     <section id="gallery" className="py-20 bg-slate-50">
@@ -165,7 +167,6 @@ const GallerySection = () => {
           </div>
         </div>
         
-        {/* Conditional Rendering Logic with Skeleton Loader */}
         {(loading && galleryItems.length === 0) ? (
           <GalleryGridSkeleton />
         ) : error ? (
@@ -184,11 +185,11 @@ const GallerySection = () => {
         ) : (
           <>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-              {visibleItems.map((item, index) => (
+              {visibleItems.map((item) => (
                 <div
                   key={item._id}
                   className="group relative rounded-xl overflow-hidden cursor-pointer ring-1 ring-slate-200/50 hover:ring-red-500 transition-all duration-300 aspect-[4/5]"
-                  onClick={() => openModal(index)}
+                  onClick={() => openModal(item._id)}
                 >
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent z-10" />
                   {item.type === "video" ? (
@@ -223,10 +224,37 @@ const GallerySection = () => {
         )}
       </div>
 
-      {/* Modal remains unchanged */}
+      {/* Modal de visualización */}
       {selectedMedia && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in" onClick={closeModal}>
-          {/* ... modal content ... */}
+          
+          <button onClick={handlePrev} className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-[60] p-2 bg-white/20 rounded-full hover:bg-white/40 transition-colors">
+            <ChevronLeftIcon className="w-8 h-8 text-white" />
+          </button>
+          
+          <div className="relative w-full max-w-4xl h-auto max-h-[90vh] flex flex-col items-center justify-center" onClick={(e) => e.stopPropagation()}>
+            <div className="w-full">
+              {selectedMedia.type === 'video' ? (
+                  <div className="aspect-video bg-black rounded-lg shadow-2xl">
+                    <iframe className="w-full h-full" src={getYoutubeEmbedUrl(selectedMedia.videoUrl) + "?autoplay=1&rel=0"} title={selectedMedia.title} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
+                  </div>
+              ) : (
+                  <img src={`${SERVER_URL}${selectedMedia.imageUrl}`} alt={selectedMedia.title} className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl" />
+              )}
+            </div>
+            <div className="mt-4 text-center text-white bg-black/30 rounded-lg p-2 max-w-prose">
+                <h3 className="font-bold text-lg">{selectedMedia.title}</h3>
+                <p className="text-sm opacity-80 capitalize">{selectedMedia.category}</p>
+            </div>
+          </div>
+
+          <button onClick={handleNext} className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-[60] p-2 bg-white/20 rounded-full hover:bg-white/40 transition-colors">
+            <ChevronRightIcon className="w-8 h-8 text-white" />
+          </button>
+          
+          <button onClick={closeModal} className="absolute top-4 right-4 z-[60] p-2 bg-white/20 rounded-full hover:bg-white/40 transition-colors">
+            <XMarkIcon className="w-8 h-8 text-white" />
+          </button>
         </div>
       )}
     </section>
