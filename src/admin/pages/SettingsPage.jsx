@@ -162,7 +162,7 @@ const SettingsPage = () => {
                     </button>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+                <div className="grid grid-cols-1 lg:grid-cols gap-8 items-start">
                     <div className="lg:col-span-2 space-y-8">
                         <div className="bg-white p-6 rounded-xl shadow-md">
                             <h2 className="text-xl font-semibold text-slate-800 border-b pb-4">General Settings</h2>
@@ -183,7 +183,7 @@ const SettingsPage = () => {
                         </div>
                     </div>
 
-                    <div className="lg:col-span-1">
+                    {/* <div className="lg:col-span-1">
                         <div className="bg-white p-6 rounded-xl shadow-md">
                             <h2 className="text-xl font-semibold text-slate-800 border-b pb-4">Admin Account</h2>
                             <form onSubmit={handleChangePassword} className="space-y-6 mt-6">
@@ -198,7 +198,7 @@ const SettingsPage = () => {
                                 </button>
                             </form>
                         </div>
-                    </div>
+                    </div> */}
                 </div>
             </form>
         </div>

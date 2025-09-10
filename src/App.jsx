@@ -38,6 +38,8 @@ import PrivacyPolicyPage from "./commonPages/pages/PrivacyPolicyPage";
 import AdminProfilePage from "./admin/pages/AdminProfilePage";
 import AnalyticsPage from "./admin/pages/AnalyticsPage";
 import InvoiceGenerator from "./admin/pages/InvoicePage";
+import ResetPasswordPage from "./admin/components/password/ResetPasswordPage";
+
 
 
 
@@ -72,6 +74,10 @@ const router = createBrowserRouter([
     path: "/admin-login",
     element: <AdminLoginPage />,
   },
+  {
+    path : "/admin/reset-password/:token",
+    element : <ResetPasswordPage/>
+  },
 
   // --- Group 3: Protected Admin Routes ---
   {
@@ -98,7 +104,8 @@ const router = createBrowserRouter([
           {
             path: "invoice-generator",
             element: <InvoiceGenerator />
-           }
+           },
+           
         ],
       },
     ],

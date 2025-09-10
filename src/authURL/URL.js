@@ -30,3 +30,5 @@ export const SETTINGS_URL = `${BASE_URL}api/settings`;
 export const USER_URL = `${BASE_URL}api/users/`;
 
 export const INVOICE_URL = `${BASE_URL}api/invoices`;
+
+export const EMAIL_URL = `${BASE_URL}api/admin`;

@@ -13,6 +13,7 @@ import profileReducer from "../features/adminSlice/profile/profileSlice";
 import analyticsReducer from "../features/adminSlice/analytics/analyticsSlice"
 import invoicesReducer from "../features/adminSlice/invoices/invoiceSlice";
 // import adminReducer from "../features/adminSlice/auth/adminReducer";
+import passwordResetReducer from "../features/adminSlice/auth/passwordResetSlice"
 
 export const store = configureStore({
   reducer: {
@@ -30,6 +31,7 @@ export const store = configureStore({
     profile: profileReducer,
     analytics: analyticsReducer,
      invoices: invoicesReducer,
+     passwordReset: passwordResetReducer,
     
   },
 });
