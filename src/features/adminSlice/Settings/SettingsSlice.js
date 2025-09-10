@@ -67,7 +67,7 @@ const settingsSlice = createSlice({
             state.passwordChangeStatus = 'loading';
             state.passwordChangeError = null;
           } else {
-            state.status = 'loading';
+            state.status = 'succeeded';
             state.error = null;
           }
         }

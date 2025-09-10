@@ -10,8 +10,8 @@ import {
     deleteInvoiceAsync
 } from '../../features/adminSlice/invoices/invoiceSlice';
 
-import InvoiceForm from '../components/slip/InvoiceForm';
-import InvoicePreview from '../components/slip/InvoicePreview';
+import InvoiceForm from '../components/invoice/InvoiceForm';
+import InvoicePreview from '../components/invoice/InvoicePreview';
 import { PlusIcon, EyeIcon, PencilIcon, TrashIcon, DocumentTextIcon } from '@heroicons/react/24/solid';
 
 // --- Funciones de Utilidad (Sin cambios) ---
