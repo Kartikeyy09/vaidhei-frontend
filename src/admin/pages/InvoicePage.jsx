@@ -243,7 +243,7 @@ const InvoicePage = () => {
             
             {viewingInvoice && (
                 <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex justify-center items-start p-4 z-50 overflow-y-auto">
-                     <div className="bg-white rounded-lg shadow-2xl w-full max-w-4xl my-8 transform transition-all opacity-100 scale-100">
+                     <div className="bg-white rounded-lg shadow-2xl w-full max-w-5xl my-8 transform transition-all opacity-100 scale-100">
                         <header className="p-4 border-b flex justify-between items-center bg-gray-50 rounded-t-lg">
                             <h2 className="text-xl font-bold text-gray-800">Invoice Preview</h2>
                             <button onClick={() => setViewingInvoice(null)} className="text-gray-400 hover:text-gray-800 transition-colors">

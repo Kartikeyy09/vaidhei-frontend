@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ArrowDownTrayIcon, PrinterIcon } from '@heroicons/react/24/solid'; 
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import logo from '../../../../public/logo.png';
 
 const InvoicePreview = ({ invoiceData }) => {
     const [isProcessing, setIsProcessing] = useState(false);
@@ -48,14 +49,14 @@ const InvoicePreview = ({ invoiceData }) => {
 
         let imgWidth, imgHeight;
         if (canvasRatio > pageRatio) {
-            imgWidth = pdfWidth - 20;
+            imgWidth = pdfWidth ;
             imgHeight = imgWidth / canvasRatio;
         } else {
-            imgHeight = pdfHeight - 20;
+            imgHeight = pdfHeight ;
             imgWidth = imgHeight * canvasRatio;
         }
         
-        const x = (pdfWidth - imgWidth) / 2;
+        const x = (pdfWidth - imgWidth) ;
         const y = 10;
         
         pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight);
@@ -122,7 +123,10 @@ const InvoicePreview = ({ invoiceData }) => {
             <div id={`invoice-print-area-${invoiceData.id}`} className="bg-white p-4 sm:p-6 text-sm">
                 {/* El contenido de la factura no cambia */}
                  <div className="border border-black">
-                    <h1 className="text-center text-xl font-bold py-2">Tax Invoice</h1>
+                    <div className="flex  items-center">
+                        <div className=' bg-red-500'><img src={logo} alt="Vaidehi Logo" className=" h-20 " /></div>
+                        <div className=' w-1/2  '><h1 className=" text-center text-xl font-bold p-2">Tax Invoice</h1></div>
+                    </div>
                     <div className="flex border-t border-black">
                         <div className="w-1/2 p-2 border-r border-black">
                             <p className="font-bold">{invoiceData.sellerName}</p>
