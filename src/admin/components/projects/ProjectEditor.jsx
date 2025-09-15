@@ -35,6 +35,9 @@ const ProjectEditor = ({ isOpen, onClose, onSave, project, isSaving }) => {
     const coverImageInputRef = useRef(null);
     const galleryInputRef = useRef(null);
 
+    const serverUrl = import.meta.env.VITE_BASE_URL;
+
+
     // ✅ UPDATED: useEffect populates all new fields for editing
     useEffect(() => {
         if (isOpen) {

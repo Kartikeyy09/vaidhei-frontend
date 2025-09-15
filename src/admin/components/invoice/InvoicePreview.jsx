@@ -1,19 +1,26 @@
 import React, { useState } from 'react';
-import { ArrowDownTrayIcon, PrinterIcon } from '@heroicons/react/24/solid'; 
+import { ArrowDownTrayIcon, PrinterIcon } from '@heroicons/react/24/solid';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import logo from '../../../../public/logo.png';
+import sign from "../../../../public/vaidehi sign.jpg";
 
 const InvoicePreview = ({ invoiceData }) => {
     const [isProcessing, setIsProcessing] = useState(false);
-    
+
     const formatDate = (dateString) => {
         if (!dateString) return '';
         try {
             const date = new Date(dateString);
             if (isNaN(date.getTime())) return '';
-            return date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
-        } catch (error) { return ''; }
+            return date.toLocaleDateString('en-GB', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+        } catch (error) {
+            return '';
+        }
     };
 
     const convertAmountToWords = (amount) => {
@@ -35,31 +42,47 @@ const InvoicePreview = ({ invoiceData }) => {
         if (decimalPart > 0) { words += " and " + numToWords(decimalPart) + " Paise"; }
         return words + " Only";
     };
-    
+
+    // ✅ Multi-page PDF generator
     const generateInvoicePDF = async () => {
         const input = document.getElementById(`invoice-print-area-${invoiceData.id}`);
-        const canvas = await html2canvas(input, { scale: 3, useCORS: true });
-        const imgData = canvas.toDataURL('image/png');
-        
-        const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+
+        const canvas = await html2canvas(input, {
+            scale: 1.5,
+            useCORS: true,
+            backgroundColor: "#ffffff"
+        });
+
+        const imgData = canvas.toDataURL('image/jpeg', 0.8);
+
+        const pdf = new jsPDF({
+            orientation: 'p',
+            unit: 'mm',
+            format: 'a4',
+            compress: true
+        });
+
         const pdfWidth = pdf.internal.pageSize.getWidth();
         const pdfHeight = pdf.internal.pageSize.getHeight();
-        const canvasRatio = canvas.width / canvas.height;
-        const pageRatio = (pdfWidth - 20) / (pdfHeight - 20);
 
-        let imgWidth, imgHeight;
-        if (canvasRatio > pageRatio) {
-            imgWidth = pdfWidth ;
-            imgHeight = imgWidth / canvasRatio;
-        } else {
-            imgHeight = pdfHeight ;
-            imgWidth = imgHeight * canvasRatio;
+        const imgProps = pdf.getImageProperties(imgData);
+        const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+        let heightLeft = imgHeight;
+        let position = 0;
+
+        // 👇 First page
+        pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeight);
+        heightLeft -= pdfHeight;
+
+        // 👇 Agar content ek page se jyada hai to next page banate jao
+        while (heightLeft > 0) {
+            position = heightLeft - imgHeight;
+            pdf.addPage();
+            pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeight);
+            heightLeft -= pdfHeight;
         }
-        
-        const x = (pdfWidth - imgWidth) ;
-        const y = 10;
-        
-        pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight);
+
         return pdf;
     };
 
@@ -75,26 +98,20 @@ const InvoicePreview = ({ invoiceData }) => {
         }
     };
 
-    // --- FUNCIÓN DE IMPRESIÓN CORREGIDA Y SIMPLIFICADA ---
     const handlePrint = async () => {
         setIsProcessing(true);
         try {
             const pdf = await generateInvoicePDF();
-            // Genera el PDF como un Blob
             const pdfBlob = pdf.output('blob');
-            // Crea una URL para el Blob
             const url = URL.createObjectURL(pdfBlob);
-            // Abre la URL en una nueva pestaña. El navegador se encargará del resto.
             window.open(url, '_blank');
-            // La URL se puede revocar después de un tiempo para liberar memoria,
-            // pero el navegador la mantendrá viva mientras la pestaña esté abierta.
         } catch (error) {
             console.error("Failed to generate PDF for printing:", error);
         } finally {
             setIsProcessing(false);
         }
     };
-    
+
     if (!invoiceData) return null;
 
     const totalTax = (invoiceData.totalSgst || 0) + (invoiceData.totalCgst || 0) + (invoiceData.totalIgst || 0);
@@ -102,26 +119,25 @@ const InvoicePreview = ({ invoiceData }) => {
     return (
         <div>
             <div className="p-4 flex justify-end gap-4">
-                 <button 
-                    onClick={handleDownloadPDF} 
+                <button
+                    onClick={handleDownloadPDF}
                     disabled={isProcessing}
                     className="flex items-center gap-2 bg-green-600 text-white font-bold px-4 py-2 rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
                 >
-                    <ArrowDownTrayIcon className="w-5 h-5"/> 
+                    <ArrowDownTrayIcon className="w-5 h-5" />
                     {isProcessing ? 'Processing...' : 'Download PDF'}
-                 </button>
-                 <button 
-                    onClick={handlePrint} 
+                </button>
+                <button
+                    onClick={handlePrint}
                     disabled={isProcessing}
                     className="flex items-center gap-2 bg-blue-600 text-white font-bold px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
                 >
-                    <PrinterIcon className="w-5 h-5"/> 
+                    <PrinterIcon className="w-5 h-5" />
                     {isProcessing ? 'Processing...' : 'Print'}
-                 </button>
+                </button>
             </div>
-            
+
             <div id={`invoice-print-area-${invoiceData.id}`} className="bg-white p-4 sm:p-6 text-sm">
-                {/* El contenido de la factura no cambia */}
                  <div className="border border-black">
                     <div className="flex  items-center">
                         <div className=' bg-red-500'><img src={logo} alt="Vaidehi Logo" className=" h-20 " /></div>
@@ -140,25 +156,21 @@ const InvoicePreview = ({ invoiceData }) => {
                             <div className="flex border-b border-black"><div className="w-1/2 p-2 border-r border-black"><span className="font-bold">Invoice No.</span><br />{invoiceData.invoiceNo}</div><div className="w-1/2 p-2">
                             <span className="font-bold">Dated</span><br />{formatDate(invoiceData.invoiceDate)}</div></div>
                             <div className="flex border-b border-black"><div className="w-1/2 p-2 border-r border-black">
-                            <span className="font-bold">Delivery Note</span><br/></div>
-                            <div className='w-1/2 p-2'> <p className="">Mode/Terms of Payment</p>
-                            <span><span className="font-bold"></span> {invoiceData.bankName}</span>
+                            <span className="font-bold">Bank Payment Details</span><br/></div>
+                            <div className='w-1/2 p-2'> 
+                            <span><span className="font-bold"></span> {invoiceData.bankName}</span><br/>
                             <span className="">A/c No. </span> {invoiceData.bankAcNo}
                             <p><span className="font-bold">IFSC:</span> {invoiceData.bankIfsc}</p></div>
                             </div>
-                            <div className="flex border-b border-black">
+                            <div className="flex ">
                             <div className="w-1/2 p-2 border-r border-black">
-                            <span className="font-bold">Supplier's Ref.</span>
+                            <span className="font-bold  ">Period  </span>
                             </div>
-                            <div className='w-1/2 p-2'> <p>Other Reference(s)</p>
+                            <div className='w-1/2 p-2 '> 
                              {invoiceData.periodFrom && invoiceData.periodTo && 
-                             <p className="font-bold">For the period from {formatDate(invoiceData.periodFrom)} to {formatDate(invoiceData.periodTo)}</p>}</div>
+                             <p className="font-bold">  {formatDate(invoiceData.periodFrom)} to {formatDate(invoiceData.periodTo)}</p>}</div>
                             </div>
-                            <div className="flex border-b border-black">
-                            <div className="w-1/2 p-2 border-r border-black">
-                            <span className="font-bold">Buyer's Order No.</span><br />{formatDate(invoiceData.dateOfSupply)}</div>
-                            <div className="w-1/2 p-2"><span className="font-bold">Dated</span><br />{invoiceData.placeOfSupply}</div>
-                            </div>
+                           
                         </div>
                     </div>
                     <div className="flex border-t border-black">
@@ -198,10 +210,13 @@ const InvoicePreview = ({ invoiceData }) => {
                     <div className="border-t border-black p-2"><span className="font-bold">Tax Amount (in words) : </span> {convertAmountToWords(totalTax)}</div>
                     <div className="flex border-t border-black">
                         <div className="w-1/2 p-2 border-r border-black"><p className="font-bold">Declaration</p><p className="text-xs">{invoiceData.declaration}</p></div>
-                        <div className="w-1/2 p-2 text-center flex flex-col justify-between items-center"><p className="font-bold">for {invoiceData.sellerName}</p><p className="mt-16">Authorised Signatory</p></div>
+                        <div className="w-1/2 p-2 text-center flex flex-col justify-between items-center">
+                        <p className="font-bold mb-2">for {invoiceData.sellerName}</p>
+                        <img 
+                        src={sign} alt="new" width={200}/>
+                        <p className="mt-2">Authorised Signatory</p></div>
                     </div>
                 </div>
-                <p className="text-center text-xs mt-2">This is a Computer Generated Invoice</p>
             </div>
         </div>
     );
