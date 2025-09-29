@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom"
 import { UsersIcon, MapIcon, SparklesIcon } from "@heroicons/react/24/solid"
 import Lottie from "lottie-react"
 import railwayAnimation from "../../lotify-icone/railwayAnimation.json" // Make sure this path is correct
+import buildinganimation from "../../lotify-icone/Building and Construction.json"
 
 const HeroSection = () => {
   const [isVisible, setIsVisible] = useState(false)
@@ -13,7 +14,7 @@ const HeroSection = () => {
 
   useEffect(() => {
     const textTimer = setTimeout(() => setIsVisible(true), 100)
-    
+
     const handleMouseMove = (event) => {
       setMousePosition({ x: event.clientX, y: event.clientY })
     }
@@ -40,7 +41,7 @@ const HeroSection = () => {
       <section id="home" className="relative p-4  bg-gradient-to-br from-red-50 via-white to-blue-50 flex items-center overflow-hidden">
         <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center h-full">
-            
+
             {/* --- LEFT SIDE: Content --- */}
             <div className="text-center lg:text-left z-20">
               <div className="max-w-xl mx-auto lg:mx-0">
@@ -57,17 +58,17 @@ const HeroSection = () => {
                   Your trusted partner for navigating and executing complex public sector projects, from Indian Railways to Nagar Palikas.
                 </p>
 
-                 <div className={`mt-8 flex justify-center lg:justify-start items-center space-x-6 sm:space-x-8 transition-all duration-700 ease-out delay-600 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>
-                    <div className="text-left">
-                      <div className="text-4xl font-bold text-slate-800">15+</div>
-                      <div className="text-sm text-slate-500 tracking-wide">Years Experience</div>
-                    </div>
-                    <div className="h-12 w-px bg-slate-200"></div>
-                    <div className="text-left">
-                      <div className="text-4xl font-bold text-slate-800">500+</div>
-                      <div className="text-sm text-slate-500 tracking-wide">Projects Delivered</div>
-                    </div>
+                <div className={`mt-8 flex justify-center lg:justify-start items-center space-x-6 sm:space-x-8 transition-all duration-700 ease-out delay-600 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>
+                  <div className="text-left">
+                    <div className="text-4xl font-bold text-slate-800">15+</div>
+                    <div className="text-sm text-slate-500 tracking-wide">Years Experience</div>
                   </div>
+                  <div className="h-12 w-px bg-slate-200"></div>
+                  <div className="text-left">
+                    <div className="text-4xl font-bold text-slate-800">500+</div>
+                    <div className="text-sm text-slate-500 tracking-wide">Projects Delivered</div>
+                  </div>
+                </div>
 
                 <div className={`mt-10 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start transition-all duration-700 ease-out delay-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>
                   <button
@@ -85,44 +86,45 @@ const HeroSection = () => {
                 </div>
               </div>
             </div>
-            
+
             {/* --- RIGHT SIDE: The Integrated Visual Core --- */}
             <div className="relative h-full hidden lg:block">
-              <div 
+              <div
                 className="absolute inset-0 transition-transform duration-500 ease-out"
                 style={parallax(40)}
               >
                 {/* Layer 1: The Lottie Animation "Core" */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] opacity-80">
-                  <Lottie 
-                    animationData={railwayAnimation} 
-                    loop={true} 
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80vw] max-w-[800px] h-auto opacity-80">
+                  <Lottie
+                    animationData={buildinganimation}
+                    loop={true}
                   />
                 </div>
 
+
                 {/* Layer 2: Floating "Satellite" Cards */}
-                <div className="absolute top-20 left-0 bg-white/70 backdrop-blur-md rounded-2xl shadow-lg p-4 flex items-center z-20">
-                    <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center mr-3">
-                    <SparklesIcon className="w-6 h-6 text-red-500"/>
-                    </div>
-                    <div>
+                <div className="absolute top-0 left-0 bg-white/70 backdrop-blur-md rounded-2xl shadow-lg p-4 flex items-center z-20">
+                  <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center mr-3">
+                    <SparklesIcon className="w-6 h-6 text-red-500" />
+                  </div>
+                  <div>
                     <div className="font-bold text-slate-800">15+ Years</div>
                     <div className="text-sm text-slate-500">of Expertise</div>
-                    </div>
+                  </div>
                 </div>
-                <div className="absolute bottom-20 right-0 bg-white/70 backdrop-blur-md rounded-2xl shadow-lg p-4 flex items-center z-20">
-                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                    <MapIcon className="w-6 h-6 text-blue-500"/>
-                    </div>
-                    <div>
+                <div className="absolute bottom-0 right-0 bg-white/70 backdrop-blur-md rounded-2xl shadow-lg p-4 flex items-center z-20">
+                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                    <MapIcon className="w-6 h-6 text-blue-500" />
+                  </div>
+                  <div>
                     <div className="font-bold text-slate-800">PAN India</div>
                     <div className="text-sm text-slate-500">Coverage</div>
-                    </div>
+                  </div>
                 </div>
 
                 {/* Layer 3: Decorative Dots */}
-                <div className="absolute top-20 right-10 w-4 h-4 bg-blue-300 rounded-full"/>
-                <div className="absolute bottom-20 left-10 w-3 h-3 bg-red-300 rounded-full"/>
+                <div className="absolute top-20 right-10 w-4 h-4 bg-blue-300 rounded-full" />
+                <div className="absolute bottom-20 left-10 w-3 h-3 bg-red-300 rounded-full" />
               </div>
             </div>
           </div>
