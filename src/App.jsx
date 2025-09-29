@@ -6,8 +6,9 @@ import AdminLayout from "./admin/layout/AdminLayout";
 
 // Import the Guard Component
 import ProtectedRoute from "./components/ProtectedRoute";
- // ⚠️ Adjust this path if necessary
+// ⚠️ Adjust this path if necessary
 
+// Import Website Pages
 // Import Website Pages
 import Home from "./commonPages/pages/Home";
 import AboutSection from "./commonPages/pages/AboutSection";
@@ -62,21 +63,21 @@ const router = createBrowserRouter([
       { path: "consultation", element: <Consultation /> },
       { path: "gallery", element: <GallerySection /> },
       {
-        path : "privacy-policy",
-        element : <PrivacyPolicyPage/>
+        path: "privacy-policy",
+        element: <PrivacyPolicyPage />
       }
-      
+
     ],
   },
-  
+
   // --- Group 2: Public Admin Route (Login Page) ---
   {
     path: "/admin-login",
     element: <AdminLoginPage />,
   },
   {
-    path : "/admin/reset-password/:token",
-    element : <ResetPasswordPage/>
+    path: "/admin/reset-password/:token",
+    element: <ResetPasswordPage />
   },
 
   // --- Group 3: Protected Admin Routes ---
@@ -96,25 +97,25 @@ const router = createBrowserRouter([
           { path: "testimonials", element: <ManageTestimonials /> },
           { path: "inquiries", element: <ManageInquiries /> },
           { path: "settings", element: <SettingsPage /> },
-          {path : "profile", element : <AdminProfilePage />},
+          { path: "profile", element: <AdminProfilePage /> },
           {
-            path : "analytics",
-            element : <AnalyticsPage/>
+            path: "analytics",
+            element: <AnalyticsPage />
           },
           {
             path: "invoice-generator",
             element: <InvoiceGenerator />
-           },
-           
+          },
+
         ],
       },
     ],
   },
-  
+
   // --- Group 4: Catch-all 404 Route ---
   {
     path: "*",
-    element: <NotFoundPage/>,
+    element: <NotFoundPage />,
   },
 ]);
 
