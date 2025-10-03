@@ -167,50 +167,58 @@ const InvoiceForm = ({ initialData, onSave, onCancel, isLoading }) => {
   const [items, setItems] = useState(() => getInitialState().items);
   const [hsnSacOptions, setHsnSacOptions] = useState([]);
 
-useEffect(() => {
-  const fallbackOptions = [
-    { label: '998363 - Outdoor Advertising', value: '998363' },
-    { label: '8528 - LED Display Units', value: '8528' },
-    { label: '998717 - Installation Service', value: '998717' },
-    { label: '998511 - Maintenance & Repair Services', value: '998511' },
-    { label: '998521 - Security Services', value: '998521' },
-    { label: '998531 - Cleaning & Sanitation Services', value: '998531' },
-    { label: '998541 - IT Support Services', value: '998541' },
-    { label: '998551 - Consultancy Services', value: '998551' },
-    { label: '998561 - Audit & Accounting Services', value: '998561' },
-    { label: '998571 - Training & Education Services', value: '998571' },
-    { label: '998581 - Event Management Services', value: '998581' },
-    { label: '998591 - Waste Management Services', value: '998591' },
-    { label: '998601 - Transport Services', value: '998601' },
-    { label: '998611 - Printing & Stationery Services', value: '998611' },
-    { label: '998621 - Postal & Courier Services', value: '998621' },
-    { label: '998631 - Advertising & PR Services', value: '998631' },
-    { label: '998641 - Survey & Research Services', value: '998641' },
-    { label: '998651 - Laboratory & Testing Services', value: '998651' },
-    { label: '998661 - Facility Management Services', value: '998661' },
-    { label: '998671 - Infrastructure Development Services', value: '998671' },
-  ];
-  setHsnSacOptions(fallbackOptions);
-}, []);
+  useEffect(() => {
+    const fallbackOptions = [
+      { label: '998363 - Outdoor Advertising', value: '998363' },
+      { label: '8528 - LED Display Units', value: '8528' },
+      { label: '998717 - Installation Service', value: '998717' },
+      { label: '998511 - Maintenance & Repair Services', value: '998511' },
+      { label: '998521 - Security Services', value: '998521' },
+      { label: '998531 - Cleaning & Sanitation Services', value: '998531' },
+      { label: '998541 - IT Support Services', value: '998541' },
+      { label: '998551 - Consultancy Services', value: '998551' },
+      { label: '998561 - Audit & Accounting Services', value: '998561' },
+      { label: '998571 - Training & Education Services', value: '998571' },
+      { label: '998581 - Event Management Services', value: '998581' },
+      { label: '998591 - Waste Management Services', value: '998591' },
+      { label: '998601 - Transport Services', value: '998601' },
+      { label: '998611 - Printing & Stationery Services', value: '998611' },
+      { label: '998621 - Postal & Courier Services', value: '998621' },
+      { label: '998631 - Advertising & PR Services', value: '998631' },
+      { label: '998641 - Survey & Research Services', value: '998641' },
+      { label: '998651 - Laboratory & Testing Services', value: '998651' },
+      { label: '998661 - Facility Management Services', value: '998661' },
+      { label: '998671 - Infrastructure Development Services', value: '998671' },
+      { label: '998361 - Advertising Services', value: '998361' },
+      { label: '998362 - Purchase or sale of advertising space or time, on commission', value: '998362' },
+      { label: '998363 - Sale of advertising space in print media (except on commission)', value: '998363' },
+      { label: '998364 - Sale of television and radio advertising time', value: '998364' },
+      { label: '998365 - Sale of internet advertising space', value: '998365' },
+      { label: '998366 - Sale of Other Advertising Space Or Time (except on commission)', value: '998366' },
+      
+
+    ];
+    setHsnSacOptions(fallbackOptions);
+  }, []);
 
 
-//   const fetchHsnDetails = async (code) => {
-//     try {
-//       const response = await axios.get(
-//         `https://api.sandbox.co.in/gst/compliance/e-way-bill/tax-payer/hsn?hsn=${code}`,
-//         {
-//           headers: {
-//             Authorization: `Bearer YOUR_API_TOKEN`,
-//           },
-//         }
-//       );
-//       console.log('HSN Details:', response.data);
-//       return response.data;
-//     } catch (err) {
-//       console.error('Fetch HSN error:', err);
-//       return null;
-//     }
-//   };
+  //   const fetchHsnDetails = async (code) => {
+  //     try {
+  //       const response = await axios.get(
+  //         `https://api.sandbox.co.in/gst/compliance/e-way-bill/tax-payer/hsn?hsn=${code}`,
+  //         {
+  //           headers: {
+  //             Authorization: `Bearer YOUR_API_TOKEN`,
+  //           },
+  //         }
+  //       );
+  //       console.log('HSN Details:', response.data);
+  //       return response.data;
+  //     } catch (err) {
+  //       console.error('Fetch HSN error:', err);
+  //       return null;
+  //     }
+  //   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
