@@ -2,7 +2,7 @@
 
 import { FaUserAlt, FaQuoteRight, FaStar } from "react-icons/fa"
 import { motion } from "framer-motion"
-import { useRef, useEffect } from "react"
+import { useRef, useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { fetchTestimonialsAsync, selectManageTestimonials } from "../../features/adminSlice/ManageTestimonials/ManageTestimonialsSlice"
 
@@ -10,6 +10,7 @@ const TestimonialsSection = () => {
   const scrollRef = useRef(null)
   const dispatch = useDispatch()
   const { data: testimonials, loading, error } = useSelector(selectManageTestimonials)
+  const [imageErrors, setImageErrors] = useState({})
 
   const SERVER_URL = import.meta.env.VITE_BASE_URL
 
@@ -25,6 +26,40 @@ const TestimonialsSection = () => {
         behavior: "smooth",
       })
     }
+  }
+
+  // Handle image loading errors
+  const handleImageError = (testimonialId) => {
+    setImageErrors(prev => ({
+      ...prev,
+      [testimonialId]: true
+    }))
+  }
+
+  // Get ring color class based on color string
+  const getRingColorClass = (color) => {
+    const colorMap = {
+      'orange-500': 'ring-orange-500',
+      'indigo-600': 'ring-indigo-600',
+      'blue-500': 'ring-blue-500',
+      'green-500': 'ring-green-500',
+      'red-500': 'ring-red-500',
+      'purple-500': 'ring-purple-500',
+    }
+    return colorMap[color] || 'ring-gray-400'
+  }
+
+  // Get text color class based on color string
+  const getTextColorClass = (color) => {
+    const colorMap = {
+      'orange-500': 'text-orange-500',
+      'indigo-600': 'text-indigo-600',
+      'blue-500': 'text-blue-500',
+      'green-500': 'text-green-500',
+      'red-500': 'text-red-500',
+      'purple-500': 'text-purple-500',
+    }
+    return colorMap[color] || 'text-gray-600'
   }
 
   // autoplay scroll
@@ -92,22 +127,26 @@ const TestimonialsSection = () => {
                 >
                   {/* Profile Circle */}
                   <div className="absolute -top-12 left-1/2 -translate-x-1/2">
-                    <div className={`w-24 h-24 rounded-full border-4 border-white ring-4 ring-${testimonial.color} shadow-lg overflow-hidden`}>
-                      {testimonial.avatar ? (
+                    <div className={`w-24 h-24 rounded-full border-4 border-white ring-4 ${getRingColorClass(testimonial.color)} shadow-lg overflow-hidden`}>
+                      {testimonial.avatar && !imageErrors[testimonial._id] ? (
                         <img
-                          src={`${SERVER_URL}/${testimonial.avatar}`}
+                          src={`${SERVER_URL}${testimonial.avatar}`}
                           alt={testimonial.name}
                           className="w-full h-full object-cover"
+                          onError={() => handleImageError(testimonial._id)}
+                          onLoad={() => console.log('Image loaded successfully:', `${SERVER_URL}${testimonial.avatar}`)}
                         />
                       ) : (
-                        <FaUserAlt className="text-gray-400 text-3xl m-auto mt-6" />
+                        <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                          <FaUserAlt className="text-gray-400 text-3xl" />
+                        </div>
                       )}
                     </div>
                   </div>
 
                   {/* Name + Position */}
                   <div className="text-center mt-6 mb-6">
-                    <h3 className={`text-lg font-bold text-${testimonial.color}`}>
+                    <h3 className={`text-lg font-bold ${getTextColorClass(testimonial.color)}`}>
                       {testimonial.name}
                     </h3>
                     <p className="text-gray-500">{testimonial.position}</p>
@@ -122,11 +161,11 @@ const TestimonialsSection = () => {
                   {/* Rating + Quote */}
                   <div className="flex items-center justify-between bottom-0 border-t pt-4">
                     <div className="flex space-x-1 text-yellow-400">
-                      {[...Array(testimonial.rating)].map((_, i) => (
+                      {[...Array(testimonial.rating || 5)].map((_, i) => (
                         <FaStar key={i} />
                       ))}
                     </div>
-                    <FaQuoteRight className="text-2xl " />
+                    <FaQuoteRight className="text-2xl" />
                   </div>
                 </motion.div>
               ))
