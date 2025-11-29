@@ -73,8 +73,8 @@ const InvoicePreview = ({ invoiceData }) => {
         const displayHeight = pdfHeight;
 
         // 👇 First page
-        pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
-        heightLeft -= displayHeight;
+       pdf.addImage(imgData, "JPEG", 0, position, pdfWidth, displayHeight);
+    heightLeft -= displayHeight;
 
         // 👇 Agar content ek page se jyada hai to next page banate jao
         while (heightLeft > 0) {
