@@ -66,8 +66,7 @@ const InvoicePreview = ({ invoiceData }) => {
         const pdfHeight = pdf.internal.pageSize.getHeight();
 
         const imgProps = pdf.getImageProperties(imgData);
-        const imgWidth = pdfWidth;
-        const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
+        const imgHeight = pdfHeight;
 
         let heightLeft = imgHeight;
         let position = 0;
@@ -75,22 +74,21 @@ const InvoicePreview = ({ invoiceData }) => {
 
         // 👇 First page
         pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
-        heightLeft -= pdfHeight;
+        heightLeft -= displayHeight;
 
         // 👇 Agar content ek page se jyada hai to next page banate jao
-        // while (heightLeft > 0) {
-        //     // position = heightLeft - imgHeight;
-        //     // pdf.addPage();
-        //     // pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeight);
-        //     // heightLeft -= displayHeight;
-           
-        // }
         while (heightLeft > 0) {
-        position -= pdfHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
-        heightLeft -= pdfHeight;
-    }
+            // position = heightLeft - imgHeight;
+            // pdf.addPage();
+            // pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeight);
+            // heightLeft -= displayHeight;
+             position -= displayHeight;
+            pdf.addPage();
+            pdf.addImage(imgData, "JPEG", 0, position, pdfWidth, displayHeight);
+            heightLeft -= displayHeight;
+           
+        }
+       
 
         return pdf;
     };
