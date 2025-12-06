@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { ArrowDownTrayIcon, PrinterIcon } from '@heroicons/react/24/solid';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -7,6 +7,10 @@ import sign from "../../../../public/vaidehi sign.jpg";
 
 const InvoicePreview = ({ invoiceData }) => {
     const [isProcessing, setIsProcessing] = useState(false);
+
+    // Configuration for pagination
+    const ITEMS_PER_FIRST_PAGE = 5;  // Items on first page (less due to header)
+    const ITEMS_PER_PAGE = 8;        // Items on subsequent pages
 
     const formatDate = (dateString) => {
         if (!dateString) return '';
@@ -43,18 +47,42 @@ const InvoicePreview = ({ invoiceData }) => {
         return words + " Only";
     };
 
-    // ✅ Multi-page PDF generator
+    // Paginate items
+    const paginatedItems = useMemo(() => {
+        if (!invoiceData?.items) return [];
+
+        const items = invoiceData.items;
+        const pages = [];
+
+        if (items.length <= ITEMS_PER_FIRST_PAGE) {
+            // All items fit on first page
+            pages.push({ items, isFirstPage: true, isLastPage: true });
+        } else {
+            // First page
+            pages.push({
+                items: items.slice(0, ITEMS_PER_FIRST_PAGE),
+                isFirstPage: true,
+                isLastPage: false
+            });
+
+            // Remaining items
+            let remainingItems = items.slice(ITEMS_PER_FIRST_PAGE);
+            while (remainingItems.length > 0) {
+                const pageItems = remainingItems.slice(0, ITEMS_PER_PAGE);
+                remainingItems = remainingItems.slice(ITEMS_PER_PAGE);
+                pages.push({
+                    items: pageItems,
+                    isFirstPage: false,
+                    isLastPage: remainingItems.length === 0
+                });
+            }
+        }
+
+        return pages;
+    }, [invoiceData?.items]);
+
+    // Generate PDF with proper pagination
     const generateInvoicePDF = async () => {
-        const input = document.getElementById(`invoice-print-area-${invoiceData.id}`);
-
-        const canvas = await html2canvas(input, {
-            scale: 1.5,
-            useCORS: true,
-            backgroundColor: "#ffffff"
-        });
-
-        const imgData = canvas.toDataURL('image/jpeg', 0.8);
-
         const pdf = new jsPDF({
             orientation: 'p',
             unit: 'mm',
@@ -65,30 +93,26 @@ const InvoicePreview = ({ invoiceData }) => {
         const pdfWidth = pdf.internal.pageSize.getWidth();
         const pdfHeight = pdf.internal.pageSize.getHeight();
 
-        const imgProps = pdf.getImageProperties(imgData);
-        const imgHeight = pdfHeight;
+        const pages = document.querySelectorAll(⁠ [data-invoice-page="${invoiceData.id}"] ⁠);
 
-        let heightLeft = imgHeight;
-        let position = 0;
-        const displayHeight = pdfHeight;
+        for (let i = 0; i < pages.length; i++) {
+            const page = pages[i];
 
-        // 👇 First page
-       pdf.addImage(imgData, "JPEG", 0, position, pdfWidth, displayHeight);
-    heightLeft -= displayHeight;
+            const canvas = await html2canvas(page, {
+                scale: 2,
+                useCORS: true,
+                backgroundColor: "#ffffff",
+                logging: false
+            });
 
-        // 👇 Agar content ek page se jyada hai to next page banate jao
-        while (heightLeft > 0) {
-            // position = heightLeft - imgHeight;
-            // pdf.addPage();
-            // pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeight);
-            // heightLeft -= displayHeight;
-             position -= displayHeight;
-            pdf.addPage();
-            pdf.addImage(imgData, "JPEG", 0, position, pdfWidth, displayHeight);
-            heightLeft -= displayHeight;
-           
+            const imgData = canvas.toDataURL('image/jpeg', 0.95);
+
+            if (i > 0) {
+                pdf.addPage();
+            }
+
+            pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
         }
-       
 
         return pdf;
     };
@@ -97,7 +121,7 @@ const InvoicePreview = ({ invoiceData }) => {
         setIsProcessing(true);
         try {
             const pdf = await generateInvoicePDF();
-            pdf.save(`Invoice-${invoiceData.invoiceNo}.pdf`);
+            pdf.save(⁠ Invoice-${invoiceData.invoiceNo}.pdf ⁠);
         } catch (error) {
             console.error("Failed to generate PDF for download:", error);
         } finally {
@@ -123,9 +147,307 @@ const InvoicePreview = ({ invoiceData }) => {
 
     const totalTax = (invoiceData.totalSgst || 0) + (invoiceData.totalCgst || 0) + (invoiceData.totalIgst || 0);
 
+    // Header Component
+    const InvoiceHeader = () => (
+        <>
+            <div className="flex items-center border-b border-black">
+                <div className="p-2">
+                    <img src={logo} alt="Vaidehi Logo" className="h-16 w-auto" />
+                </div>
+                <div className="flex-1">
+                    <h1 className="text-center text-xl font-bold p-2">Tax Invoice</h1>
+                </div>
+            </div>
+            <div className="flex border-b border-black">
+                <div className="w-1/2 p-2 border-r border-black text-xs">
+                    <p className="font-bold">{invoiceData.sellerName}</p>
+                    <p className="whitespace-pre-wrap">{invoiceData.sellerAddress}</p>
+                    {invoiceData.sellerPan && <p><span className="font-bold">PAN:</span> {invoiceData.sellerPan}</p>}
+                    <p><span className="font-bold">GSTIN/UIN:</span> {invoiceData.sellerGstin}</p>
+                    <p><span className="font-bold">State Name:</span> {invoiceData.sellerState}, <span className="font-bold">Code:</span> {invoiceData.sellerStateCode}</p>
+                    <p><span className="font-bold">Email:</span> {invoiceData.sellerEmail}</p>
+                </div>
+                <div className="w-1/2 text-xs">
+                    <div className="flex border-b border-black">
+                        <div className="w-1/2 p-2 border-r border-black">
+                            <span className="font-bold">Invoice No.</span><br />{invoiceData.invoiceNo}
+                        </div>
+                        <div className="w-1/2 p-2">
+                            <span className="font-bold">Dated</span><br />{formatDate(invoiceData.invoiceDate)}
+                        </div>
+                    </div>
+                    <div className="flex border-b border-black">
+                        <div className="w-1/2 p-2 border-r border-black">
+                            <span className="font-bold">Bank Payment Details</span>
+                        </div>
+                        <div className="w-1/2 p-2">
+                            <span>{invoiceData.bankName}</span><br />
+                            <span>A/c No. {invoiceData.bankAcNo}</span>
+                            <p><span className="font-bold">IFSC:</span> {invoiceData.bankIfsc}</p>
+                        </div>
+                    </div>
+                    <div className="flex">
+                        <div className="w-1/2 p-2 border-r border-black">
+                            <span className="font-bold">Period</span>
+                        </div>
+                        <div className="w-1/2 p-2">
+                            {invoiceData.periodFrom && invoiceData.periodTo &&
+                                <p className="font-bold">{formatDate(invoiceData.periodFrom)} to {formatDate(invoiceData.periodTo)}</p>}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div className="flex border-b border-black">
+                <div className="w-1/2 p-2 border-r border-black text-xs">
+                    <p className="font-bold">Buyer</p>
+                    <p>{invoiceData.buyerName}</p>
+                    <p className="whitespace-pre-wrap">{invoiceData.buyerAddress}</p>
+                    <p><span className="font-bold">GSTIN/UIN:</span> {invoiceData.buyerGstin}</p>
+                    <p><span className="font-bold">State Name:</span> {invoiceData.buyerState}, <span className="font-bold">Code:</span> {invoiceData.buyerStateCode}</p>
+                </div>
+                <div className="w-1/2 text-xs">
+                    <div className="p-2 h-full">
+                        <span className="font-bold">Terms of Delivery</span><br />{invoiceData.termsOfDelivery}
+                    </div>
+                </div>
+            </div>
+        </>
+    );
+
+    // Compact Header for continuation pages
+    const ContinuationHeader = ({ pageNum, totalPages }) => (
+        <div className="flex items-center justify-between border-b border-black p-2 bg-gray-50">
+            <div className="flex items-center gap-2">
+                <img src={logo} alt="Vaidehi Logo" className="h-10 w-auto" />
+                <span className="font-bold text-sm">Tax Invoice (Continued)</span>
+            </div>
+            <div className="text-xs">
+                <p><span className="font-bold">Invoice No:</span> {invoiceData.invoiceNo}</p>
+                <p><span className="font-bold">Page:</span> {pageNum} of {totalPages}</p>
+            </div>
+        </div>
+    );
+
+    // Table Header
+    const TableHeader = () => (
+        <thead className="font-bold bg-gray-50 text-[9px]">
+            <tr>
+                <td className="w-8 p-1 border-r border-black">Sl<br />No.</td>
+                <td className="p-1 border-r border-black">ITEM DESCRIPTION</td>
+                <td className="w-16 p-1 border-r border-black">HSN/SAC</td>
+                <td className="w-16 p-1 border-r border-black">Amount</td>
+                <td colSpan="3" className="p-1 border-r border-black">GST Rates</td>
+                <td colSpan="3" className="p-1 border-r border-black">GST Amount</td>
+                <td className="w-16 p-1">Total</td>
+            </tr>
+            <tr>
+                <td className="border-t border-r border-black p-1"></td>
+                <td className="border-t border-r border-black p-1"></td>
+                <td className="border-t border-r border-black p-1"></td>
+                <td className="border-t border-r border-black p-1"></td>
+                <td className="w-10 border-t border-r border-black p-1">SGST</td>
+                <td className="w-10 border-t border-r border-black p-1">CGST</td>
+                <td className="w-10 border-t border-r border-black p-1">IGST</td>
+                <td className="w-14 border-t border-r border-black p-1">SGST</td>
+                <td className="w-14 border-t border-r border-black p-1">CGST</td>
+                <td className="w-14 border-t border-r border-black p-1">IGST</td>
+                <td className="border-t border-black p-1"></td>
+            </tr>
+        </thead>
+    );
+
+    // Item Row
+    const ItemRow = ({ item, index, startIndex }) => (
+        <tr className="border-t border-black align-top">
+            <td className="p-1 border-r border-black text-center">{startIndex + index + 1}</td>
+            <td className="p-1 border-r border-black text-left whitespace-pre-wrap text-[9px]">{item.description}</td>
+            <td className="p-1 border-r border-black text-center">{item.hsn}</td>
+            <td className="p-1 border-r border-black text-right">{item.amount.toFixed(2)}</td>
+            <td className="p-1 border-r border-black text-center">{item.sgstRate}%</td>
+            <td className="p-1 border-r border-black text-center">{item.cgstRate}%</td>
+            <td className="p-1 border-r border-black text-center">{item.igstRate}%</td>
+            <td className="p-1 border-r border-black text-right">{item.sgstAmount.toFixed(2)}</td>
+            <td className="p-1 border-r border-black text-right">{item.cgstAmount.toFixed(2)}</td>
+            <td className="p-1 border-r border-black text-right">{item.igstAmount.toFixed(2)}</td>
+            <td className="p-1 text-right">{item.total.toFixed(2)}</td>
+        </tr>
+    );
+
+    // Empty rows to fill space
+    const EmptyRows = ({ count }) => (
+        <>
+            {Array.from({ length: count }).map((_, i) => (
+                <tr key={⁠ empty-${i} ⁠} className="border-t border-black" style={{ height: '28px' }}>
+                    <td className="p-1 border-r border-black"></td>
+                    <td className="p-1 border-r border-black"></td>
+                    <td className="p-1 border-r border-black"></td>
+                    <td className="p-1 border-r border-black"></td>
+                    <td className="p-1 border-r border-black"></td>
+                    <td className="p-1 border-r border-black"></td>
+                    <td className="p-1 border-r border-black"></td>
+                    <td className="p-1 border-r border-black"></td>
+                    <td className="p-1 border-r border-black"></td>
+                    <td className="p-1 border-r border-black"></td>
+                    <td className="p-1"></td>
+                </tr>
+            ))}
+        </>
+    );
+
+    // Totals Row
+    const TotalsRow = () => (
+        <tr className="border-t-2 border-black font-bold bg-gray-50">
+            <td colSpan="3" className="p-1 text-right border-r border-black">Total</td>
+            <td className="p-1 text-right border-r border-black">{invoiceData.totalAmount.toFixed(2)}</td>
+            <td colSpan="3" className="border-r border-black"></td>
+            <td className="p-1 text-right border-r border-black">{invoiceData.totalSgst.toFixed(2)}</td>
+            <td className="p-1 text-right border-r border-black">{invoiceData.totalCgst.toFixed(2)}</td>
+            <td className="p-1 text-right border-r border-black">{invoiceData.totalIgst.toFixed(2)}</td>
+            <td className="p-1 text-right">{invoiceData.grandTotal.toFixed(2)}</td>
+        </tr>
+    );
+
+    // Footer Section
+    const InvoiceFooter = () => (
+        <>
+            <div className="flex justify-between border-t border-black p-2 text-xs">
+                <div>
+                    <span className="font-bold">Amount Chargeable (in words):</span><br />
+                    {convertAmountToWords(invoiceData.grandTotal)}
+                </div>
+                <div className="font-bold">E. & O.E</div>
+            </div>
+
+            {/* Tax Summary Table */}
+            <table className="w-full border-t border-black text-center text-[9px]">
+                <thead className="font-bold">
+                    <tr>
+                        <td rowSpan="2" className="p-1 border-r border-black">HSN/SAC</td>
+                        <td rowSpan="2" className="p-1 border-r border-black">Taxable Value</td>
+                        <td colSpan="2" className="p-1 border-r border-black">CGST</td>
+                        <td colSpan="2" className="p-1 border-r border-black">SGST</td>
+                        <td colSpan="2" className="p-1 border-r border-black">IGST</td>
+                        <td rowSpan="2" className="p-1">Total Tax</td>
+                    </tr>
+                    <tr>
+                        <td className="p-1 border-t border-r border-black">Rate</td>
+                        <td className="p-1 border-t border-r border-black">Amount</td>
+                        <td className="p-1 border-t border-r border-black">Rate</td>
+                        <td className="p-1 border-t border-r border-black">Amount</td>
+                        <td className="p-1 border-t border-r border-black">Rate</td>
+                        <td className="p-1 border-t border-r border-black">Amount</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    {Object.entries(invoiceData.taxSummary).map(([hsn, data]) => (
+                        <tr key={hsn} className="border-t border-black">
+                            <td className="p-1 border-r border-black">{hsn}</td>
+                            <td className="p-1 border-r border-black">{data.taxableValue.toFixed(2)}</td>
+                            <td className="p-1 border-r border-black">{data.cgstRate}%</td>
+                            <td className="p-1 border-r border-black">{data.cgstAmount.toFixed(2)}</td>
+                            <td className="p-1 border-r border-black">{data.sgstRate}%</td>
+                            <td className="p-1 border-r border-black">{data.sgstAmount.toFixed(2)}</td>
+                            <td className="p-1 border-r border-black">{data.igstRate}%</td>
+                            <td className="p-1 border-r border-black">{data.igstAmount.toFixed(2)}</td>
+                            <td className="p-1">{(data.cgstAmount + data.sgstAmount + data.igstAmount).toFixed(2)}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+
+            <div className="border-t border-black p-2 text-xs">
+                <span className="font-bold">Tax Amount (in words): </span>
+                {convertAmountToWords(totalTax)}
+            </div>
+
+            <div className="flex border-t border-black">
+                <div className="w-1/2 p-2 border-r border-black">
+                    <p className="font-bold text-xs">Declaration</p>
+                    <p className="text-[9px]">{invoiceData.declaration}</p>
+                </div>
+                <div className="w-1/2 p-2 text-center flex flex-col justify-between items-center">
+                    <p className="font-bold text-xs">for {invoiceData.sellerName}</p>
+                    <img src={sign} alt="Signature" className="h-12 w-auto my-2" />
+                    <p className="text-xs">Authorised Signatory</p>
+                </div>
+            </div>
+        </>
+    );
+
+    // Calculate how many empty rows needed to fill the page
+    const calculateEmptyRows = (itemCount, isFirstPage, isLastPage) => {
+        const maxItems = isFirstPage ? ITEMS_PER_FIRST_PAGE : ITEMS_PER_PAGE;
+        if (isLastPage) {
+            // For last page, we need to fill remaining space
+            return Math.max(0, maxItems - itemCount);
+        }
+        return 0;
+    };
+
+    // Single Page Component
+    const InvoicePage = ({ pageData, pageIndex, totalPages }) => {
+        const { items: pageItems, isFirstPage, isLastPage } = pageData;
+        const startIndex = isFirstPage ? 0 : ITEMS_PER_FIRST_PAGE + (pageIndex - 1) * ITEMS_PER_PAGE;
+        const emptyRowCount = calculateEmptyRows(pageItems.length, isFirstPage, isLastPage);
+
+        return (
+            <div
+                data-invoice-page={invoiceData.id}
+                className="bg-white border border-black flex flex-col"
+                style={{
+                    width: '210mm',
+                    height: '297mm',
+                    padding: '5mm',
+                    boxSizing: 'border-box',
+                    pageBreakAfter: 'always',
+                    pageBreakInside: 'avoid'
+                }}
+            >
+                <div className="border border-black flex flex-col h-full">
+                    {/* Header */}
+                    {isFirstPage ? <InvoiceHeader /> : <ContinuationHeader pageNum={pageIndex + 1} totalPages={totalPages} />}
+
+                    {/* Items Table - Flex grow to fill available space */}
+                    <div className="flex-1 flex flex-col">
+                        <table className="w-full text-center text-[9px] border-collapse">
+                            <TableHeader />
+                            <tbody>
+                                {pageItems.map((item, index) => (
+                                    <ItemRow
+                                        key={index}
+                                        item={item}
+                                        index={index}
+                                        startIndex={startIndex}
+                                    />
+                                ))}
+                                <EmptyRows count={emptyRowCount} />
+                                {isLastPage && <TotalsRow />}
+                            </tbody>
+                        </table>
+
+                        {/* Spacer to push footer to bottom when not last page */}
+                        {!isLastPage && <div className="flex-1"></div>}
+
+                        {/* Continuation note for non-last pages */}
+                        {!isLastPage && (
+                            <div className="border-t border-black p-2 text-center text-xs bg-gray-50">
+                                <span className="font-bold">Continued on next page...</span>
+                                <span className="ml-4">Page {pageIndex + 1} of {totalPages}</span>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Footer - Only on last page */}
+                    {isLastPage && <InvoiceFooter />}
+                </div>
+            </div>
+        );
+    };
+
     return (
         <div>
-            <div className="p-4 flex justify-end gap-4">
+            {/* Action Buttons */}
+            <div className="p-4 flex justify-end gap-4 bg-gray-100 sticky top-0 z-10">
                 <button
                     onClick={handleDownloadPDF}
                     disabled={isProcessing}
@@ -144,87 +466,41 @@ const InvoicePreview = ({ invoiceData }) => {
                 </button>
             </div>
 
-            <div id={`invoice-print-area-${invoiceData.id}`} className="bg-white p-4 sm:p-6 text-sm">
-                 <div className="border border-black">
-                    <div className="flex  items-center">
-                        <div className=' bg-red-500'><img src={logo} alt="Vaidehi Logo" className=" h-20 " /></div>
-                        <div className=' w-1/2  '><h1 className=" text-center text-xl font-bold p-2">Tax Invoice</h1></div>
-                    </div>
-                    <div className="flex border-t border-black">
-                        <div className="w-1/2 p-2 border-r border-black">
-                            <p className="font-bold">{invoiceData.sellerName}</p>
-                            <p className="whitespace-pre-wrap">{invoiceData.sellerAddress}</p>
-                            {invoiceData.sellerPan && <p><span className="font-bold">PAN:</span> {invoiceData.sellerPan}</p>}
-                            <p><span className="font-bold">GSTIN/UIN:</span> {invoiceData.sellerGstin}</p>
-                            <p><span className="font-bold">State Name:</span> {invoiceData.sellerState}, <span className="font-bold">State Code:</span> {invoiceData.sellerStateCode}</p>
-                            <p><span className="font-bold">Email:</span> {invoiceData.sellerEmail}</p>
-                        </div>
-                        <div className="w-1/2 text-xs">
-                            <div className="flex border-b border-black"><div className="w-1/2 p-2 border-r border-black"><span className="font-bold">Invoice No.</span><br />{invoiceData.invoiceNo}</div><div className="w-1/2 p-2">
-                            <span className="font-bold">Dated</span><br />{formatDate(invoiceData.invoiceDate)}</div></div>
-                            <div className="flex border-b border-black"><div className="w-1/2 p-2 border-r border-black">
-                            <span className="font-bold">Bank Payment Details</span><br/></div>
-                            <div className='w-1/2 p-2'> 
-                            <span><span className="font-bold"></span> {invoiceData.bankName}</span><br/>
-                            <span className="">A/c No. </span> {invoiceData.bankAcNo}
-                            <p><span className="font-bold">IFSC:</span> {invoiceData.bankIfsc}</p></div>
-                            </div>
-                            <div className="flex ">
-                            <div className="w-1/2 p-2 border-r border-black">
-                            <span className="font-bold  ">Period  </span>
-                            </div>
-                            <div className='w-1/2 p-2 '> 
-                             {invoiceData.periodFrom && invoiceData.periodTo && 
-                             <p className="font-bold">  {formatDate(invoiceData.periodFrom)} to {formatDate(invoiceData.periodTo)}</p>}</div>
-                            </div>
-                           
-                        </div>
-                    </div>
-                    <div className="flex border-t border-black">
-                        <div className="w-1/2 p-2 border-r border-black">
-                            <p className="font-bold">Buyer</p>
-                            <p>{invoiceData.buyerName}</p>
-                            <p className="whitespace-pre-wrap">{invoiceData.buyerAddress}</p>
-                            <p><span className="font-bold">GSTIN/UIN:</span> {invoiceData.buyerGstin}</p>
-                            <p><span className="font-bold">State Name:</span> {invoiceData.buyerState}, <span className="font-bold">State Code:</span> {invoiceData.buyerStateCode}</p>
-                        </div>
-                        <div className="w-1/2 text-xs"><div className="p-2 h-full"><span className="font-bold">Terms of Delivery</span><br />{invoiceData.termsOfDelivery}</div></div>
-                    </div>
-                    <table className="w-full border-t border-black text-center text-[10px] sm:text-sm">
-                        <thead className="font-bold bg-gray-50">
-                            <tr><td className="w-10 p-1 border-r border-black">Sl<br/>No.</td><td className="w-2/5 p-1 border-r border-black">ITEM DESCRIPTION</td><td className="p-1 border-r border-black">HSN/SAC</td><td className="p-1 border-r border-black">Amount</td><td colSpan="3" className="p-1 border-r border-black">GST Rates</td><td colSpan="3" className="p-1 border-r border-black">GST Amount</td><td className="p-1">Total<br/>Amount</td></tr>
-                            <tr><td className="border-t border-r border-black p-1"></td><td className="border-t border-r border-black p-1"></td><td className="border-t border-r border-black p-1"></td><td className="border-t border-r border-black p-1"></td><td className="w-12 border-t border-r border-black p-1">SGST</td><td className="w-12 border-t border-r border-black p-1">CGST</td><td className="w-12 border-t border-r border-black p-1">IGST</td><td className="w-20 border-t border-r border-black p-1">SGST</td><td className="w-20 border-t border-r border-black p-1">CGST</td><td className="w-20 border-t border-r border-black p-1">IGST</td><td className="border-t border-black p-1"></td></tr>
-                        </thead>
-                        <tbody>
-                            {invoiceData.items.map((item, index) => (
-                                <tr key={index} className="border-t border-black align-top"><td className="p-1 border-r border-black">{index + 1}</td><td className="p-1 border-r border-black text-left whitespace-pre-wrap">{item.description}</td><td className="p-1 border-r border-black">{item.hsn}</td><td className="p-1 border-r border-black text-right">{item.amount.toFixed(2)}</td><td className="p-1 border-r border-black">{item.sgstRate}%</td><td className="p-1 border-r border-black">{item.cgstRate}%</td><td className="p-1 border-r border-black">{item.igstRate}%</td><td className="p-1 border-r border-black text-right">{item.sgstAmount.toFixed(2)}</td><td className="p-1 border-r border-black text-right">{item.cgstAmount.toFixed(2)}</td><td className="p-1 border-r border-black text-right">{item.igstAmount.toFixed(2)}</td><td className="p-1 text-right">{item.total.toFixed(2)}</td></tr>
-                            ))}
-                            <tr className="border-t-2 border-black font-bold"><td colSpan="3" className="p-1 text-right border-r border-black">Total</td><td className="p-1 text-right border-r border-black">{invoiceData.totalAmount.toFixed(2)}</td><td colSpan="3" className="border-r border-black"></td><td className="p-1 text-right border-r border-black">{invoiceData.totalSgst.toFixed(2)}</td><td className="p-1 text-right border-r border-black">{invoiceData.totalCgst.toFixed(2)}</td><td className="p-1 text-right border-r border-black">{invoiceData.totalIgst.toFixed(2)}</td><td className="p-1 text-right">{invoiceData.grandTotal.toFixed(2)}</td></tr>
-                        </tbody>
-                    </table>
-                    <div className="flex justify-between border-t border-black p-2">
-                        <div><span className="font-bold">Amount Chargeable (in words):</span><br/>{convertAmountToWords(invoiceData.grandTotal)}</div>
-                        <div className="font-bold">E. & O.E</div>
-                    </div>
-                    <table className="w-full border-t border-black text-center text-[10px] sm:text-sm">
-                        <thead className="font-bold"><tr><td rowSpan="2" className="p-1 border-r border-black">HSN/SAC</td><td rowSpan="2" className="p-1 border-r border-black">Taxable Value</td><td colSpan="2" className="p-1 border-r border-black">CGST</td><td colSpan="2" className="p-1 border-r border-black">SGST</td><td colSpan="2" className="p-1 border-r border-black">IGST</td><td rowSpan="2" className="p-1">Total Tax Amount</td></tr><tr><td className="p-1 border-t border-r border-black">Rate</td><td className="p-1 border-t border-r border-black">Amount</td><td className="p-1 border-t border-r border-black">Rate</td><td className="p-1 border-t border-r border-black">Amount</td><td className="p-1 border-t border-r border-black">Rate</td><td className="p-1 border-t border-r border-black">Amount</td></tr></thead>
-                        <tbody>
-                            {Object.entries(invoiceData.taxSummary).map(([hsn, data]) => (
-                                <tr key={hsn} className="border-t border-black"><td className="p-1 border-r border-black">{hsn}</td><td className="p-1 border-r border-black">{data.taxableValue.toFixed(2)}</td><td className="p-1 border-r border-black">{data.cgstRate}%</td><td className="p-1 border-r border-black">{data.cgstAmount.toFixed(2)}</td><td className="p-1 border-r border-black">{data.sgstRate}%</td><td className="p-1 border-r border-black">{data.sgstAmount.toFixed(2)}</td><td className="p-1 border-r border-black">{data.igstRate}%</td><td className="p-1 border-r border-black">{data.igstAmount.toFixed(2)}</td><td className="p-1">{(data.cgstAmount + data.sgstAmount + data.igstAmount).toFixed(2)}</td></tr>
-                            ))}
-                        </tbody>
-                    </table>
-                    <div className="border-t border-black p-2"><span className="font-bold">Tax Amount (in words) : </span> {convertAmountToWords(totalTax)}</div>
-                    <div className="flex border-t border-black">
-                        <div className="w-1/2 p-2 border-r border-black"><p className="font-bold">Declaration</p><p className="text-xs">{invoiceData.declaration}</p></div>
-                        <div className="w-1/2 p-2 text-center flex flex-col justify-between items-center">
-                        <p className="font-bold mb-2">for {invoiceData.sellerName}</p>
-                        <img 
-                        src={sign} alt="new" width={200}/>
-                        <p className="mt-2">Authorised Signatory</p></div>
-                    </div>
-                </div>
+            {/* Invoice Pages Container */}
+            <div
+                id={⁠ invoice-print-area-${invoiceData.id} ⁠}
+                className="flex flex-col items-center gap-4 p-4 bg-gray-200"
+            >
+                {paginatedItems.map((pageData, pageIndex) => (
+                    <InvoicePage
+                        key={pageIndex}
+                        pageData={pageData}
+                        pageIndex={pageIndex}
+                        totalPages={paginatedItems.length}
+                    />
+                ))}
             </div>
+
+            {/* Print Styles */}
+            <style>{`
+                @media print {
+                    @page {
+                        size: A4;
+                        margin: 0;
+                    }
+                    body {
+                        margin: 0;
+                        padding: 0;
+                    }
+                    [data-invoice-page] {
+                        page-break-after: always;
+                        page-break-inside: avoid;
+                    }
+                    [data-invoice-page]:last-child {
+                        page-break-after: auto;
+                    }
+                }
+            `}</style>
         </div>
     );
 };
