@@ -92,9 +92,7 @@ const InvoicePreview = ({ invoiceData }) => {
 
         const pdfWidth = pdf.internal.pageSize.getWidth();
         const pdfHeight = pdf.internal.pageSize.getHeight();
-
-        const pages = document.querySelectorAll(⁠[data-invoice-page="${invoiceData.id}"]);
-
+        const pages = document.querySelectorAll(`[data-invoice-page="${invoiceData.id}"]`);
         for (let i = 0; i < pages.length; i++) {
             const page = pages[i];
 
