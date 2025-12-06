@@ -8,9 +8,8 @@ import sign from "../../../../public/vaidehi sign.jpg";
 const InvoicePreview = ({ invoiceData }) => {
     const [isProcessing, setIsProcessing] = useState(false);
 
-    // Configuration for pagination
-    const ITEMS_PER_FIRST_PAGE = 5;  // Items on first page (less due to header)
-    const ITEMS_PER_PAGE = 8;        // Items on subsequent pages
+    const ITEMS_PER_FIRST_PAGE = 5;
+    const ITEMS_PER_PAGE = 8;
 
     const formatDate = (dateString) => {
         if (!dateString) return '';
@@ -47,7 +46,6 @@ const InvoicePreview = ({ invoiceData }) => {
         return words + " Only";
     };
 
-    // Paginate items
     const paginatedItems = useMemo(() => {
         if (!invoiceData?.items) return [];
 
@@ -55,17 +53,14 @@ const InvoicePreview = ({ invoiceData }) => {
         const pages = [];
 
         if (items.length <= ITEMS_PER_FIRST_PAGE) {
-            // All items fit on first page
             pages.push({ items, isFirstPage: true, isLastPage: true });
         } else {
-            // First page
             pages.push({
                 items: items.slice(0, ITEMS_PER_FIRST_PAGE),
                 isFirstPage: true,
                 isLastPage: false
             });
 
-            // Remaining items
             let remainingItems = items.slice(ITEMS_PER_FIRST_PAGE);
             while (remainingItems.length > 0) {
                 const pageItems = remainingItems.slice(0, ITEMS_PER_PAGE);
@@ -81,7 +76,6 @@ const InvoicePreview = ({ invoiceData }) => {
         return pages;
     }, [invoiceData?.items]);
 
-    // Generate PDF with proper pagination
     const generateInvoicePDF = async () => {
         const pdf = new jsPDF({
             orientation: 'p',
@@ -93,6 +87,7 @@ const InvoicePreview = ({ invoiceData }) => {
         const pdfWidth = pdf.internal.pageSize.getWidth();
         const pdfHeight = pdf.internal.pageSize.getHeight();
         const pages = document.querySelectorAll(`[data-invoice-page="${invoiceData.id}"]`);
+
         for (let i = 0; i < pages.length; i++) {
             const page = pages[i];
 
@@ -119,7 +114,7 @@ const InvoicePreview = ({ invoiceData }) => {
         setIsProcessing(true);
         try {
             const pdf = await generateInvoicePDF();
-            pdf.save(⁠ Invoice-${invoiceData.invoiceNo}.pdf ⁠);
+            pdf.save(`Invoice-${invoiceData.invoiceNo}.pdf`);
         } catch (error) {
             console.error("Failed to generate PDF for download:", error);
         } finally {
@@ -145,7 +140,6 @@ const InvoicePreview = ({ invoiceData }) => {
 
     const totalTax = (invoiceData.totalSgst || 0) + (invoiceData.totalCgst || 0) + (invoiceData.totalIgst || 0);
 
-    // Header Component
     const InvoiceHeader = () => (
         <>
             <div className="flex items-center border-b border-black">
@@ -212,7 +206,6 @@ const InvoicePreview = ({ invoiceData }) => {
         </>
     );
 
-    // Compact Header for continuation pages
     const ContinuationHeader = ({ pageNum, totalPages }) => (
         <div className="flex items-center justify-between border-b border-black p-2 bg-gray-50">
             <div className="flex items-center gap-2">
@@ -226,7 +219,6 @@ const InvoicePreview = ({ invoiceData }) => {
         </div>
     );
 
-    // Table Header
     const TableHeader = () => (
         <thead className="font-bold bg-gray-50 text-[9px]">
             <tr>
@@ -254,7 +246,6 @@ const InvoicePreview = ({ invoiceData }) => {
         </thead>
     );
 
-    // Item Row
     const ItemRow = ({ item, index, startIndex }) => (
         <tr className="border-t border-black align-top">
             <td className="p-1 border-r border-black text-center">{startIndex + index + 1}</td>
@@ -271,11 +262,10 @@ const InvoicePreview = ({ invoiceData }) => {
         </tr>
     );
 
-    // Empty rows to fill space
     const EmptyRows = ({ count }) => (
         <>
             {Array.from({ length: count }).map((_, i) => (
-                <tr key={⁠ empty-${i} ⁠} className="border-t border-black" style={{ height: '28px' }}>
+                <tr key={`empty-${i}`} className="border-t border-black" style={{ height: '28px' }}>
                     <td className="p-1 border-r border-black"></td>
                     <td className="p-1 border-r border-black"></td>
                     <td className="p-1 border-r border-black"></td>
@@ -292,7 +282,6 @@ const InvoicePreview = ({ invoiceData }) => {
         </>
     );
 
-    // Totals Row
     const TotalsRow = () => (
         <tr className="border-t-2 border-black font-bold bg-gray-50">
             <td colSpan="3" className="p-1 text-right border-r border-black">Total</td>
@@ -305,7 +294,6 @@ const InvoicePreview = ({ invoiceData }) => {
         </tr>
     );
 
-    // Footer Section
     const InvoiceFooter = () => (
         <>
             <div className="flex justify-between border-t border-black p-2 text-xs">
@@ -316,7 +304,6 @@ const InvoicePreview = ({ invoiceData }) => {
                 <div className="font-bold">E. & O.E</div>
             </div>
 
-            {/* Tax Summary Table */}
             <table className="w-full border-t border-black text-center text-[9px]">
                 <thead className="font-bold">
                     <tr>
@@ -372,17 +359,14 @@ const InvoicePreview = ({ invoiceData }) => {
         </>
     );
 
-    // Calculate how many empty rows needed to fill the page
     const calculateEmptyRows = (itemCount, isFirstPage, isLastPage) => {
         const maxItems = isFirstPage ? ITEMS_PER_FIRST_PAGE : ITEMS_PER_PAGE;
         if (isLastPage) {
-            // For last page, we need to fill remaining space
             return Math.max(0, maxItems - itemCount);
         }
         return 0;
     };
 
-    // Single Page Component
     const InvoicePage = ({ pageData, pageIndex, totalPages }) => {
         const { items: pageItems, isFirstPage, isLastPage } = pageData;
         const startIndex = isFirstPage ? 0 : ITEMS_PER_FIRST_PAGE + (pageIndex - 1) * ITEMS_PER_PAGE;
@@ -402,10 +386,8 @@ const InvoicePreview = ({ invoiceData }) => {
                 }}
             >
                 <div className="border border-black flex flex-col h-full">
-                    {/* Header */}
                     {isFirstPage ? <InvoiceHeader /> : <ContinuationHeader pageNum={pageIndex + 1} totalPages={totalPages} />}
 
-                    {/* Items Table - Flex grow to fill available space */}
                     <div className="flex-1 flex flex-col">
                         <table className="w-full text-center text-[9px] border-collapse">
                             <TableHeader />
@@ -423,10 +405,8 @@ const InvoicePreview = ({ invoiceData }) => {
                             </tbody>
                         </table>
 
-                        {/* Spacer to push footer to bottom when not last page */}
                         {!isLastPage && <div className="flex-1"></div>}
 
-                        {/* Continuation note for non-last pages */}
                         {!isLastPage && (
                             <div className="border-t border-black p-2 text-center text-xs bg-gray-50">
                                 <span className="font-bold">Continued on next page...</span>
@@ -435,7 +415,6 @@ const InvoicePreview = ({ invoiceData }) => {
                         )}
                     </div>
 
-                    {/* Footer - Only on last page */}
                     {isLastPage && <InvoiceFooter />}
                 </div>
             </div>
@@ -444,7 +423,6 @@ const InvoicePreview = ({ invoiceData }) => {
 
     return (
         <div>
-            {/* Action Buttons */}
             <div className="p-4 flex justify-end gap-4 bg-gray-100 sticky top-0 z-10">
                 <button
                     onClick={handleDownloadPDF}
@@ -464,9 +442,8 @@ const InvoicePreview = ({ invoiceData }) => {
                 </button>
             </div>
 
-            {/* Invoice Pages Container */}
             <div
-                id={⁠ invoice-print-area-${invoiceData.id} ⁠}
+                id={`invoice-print-area-${invoiceData.id}`}
                 className="flex flex-col items-center gap-4 p-4 bg-gray-200"
             >
                 {paginatedItems.map((pageData, pageIndex) => (
@@ -479,7 +456,6 @@ const InvoicePreview = ({ invoiceData }) => {
                 ))}
             </div>
 
-            {/* Print Styles */}
             <style>{`
                 @media print {
                     @page {
