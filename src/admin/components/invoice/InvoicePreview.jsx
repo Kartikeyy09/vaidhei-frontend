@@ -8,8 +8,9 @@ import sign from "../../../../public/vaidehi sign.jpg";
 const InvoicePreview = ({ invoiceData }) => {
     const [isProcessing, setIsProcessing] = useState(false);
 
-    const ITEMS_PER_FIRST_PAGE = 5;
-    const ITEMS_PER_PAGE = 8;
+    // Configuration for pagination
+    const ITEMS_PER_FIRST_PAGE = 5;  // Items on first page (less due to header)
+    const ITEMS_PER_PAGE = 8;        // Items on subsequent pages
 
     const formatDate = (dateString) => {
         if (!dateString) return '';
@@ -46,6 +47,7 @@ const InvoicePreview = ({ invoiceData }) => {
         return words + " Only";
     };
 
+    // Paginate items
     const paginatedItems = useMemo(() => {
         if (!invoiceData?.items) return [];
 
@@ -53,14 +55,17 @@ const InvoicePreview = ({ invoiceData }) => {
         const pages = [];
 
         if (items.length <= ITEMS_PER_FIRST_PAGE) {
+            // All items fit on first page
             pages.push({ items, isFirstPage: true, isLastPage: true });
         } else {
+            // First page
             pages.push({
                 items: items.slice(0, ITEMS_PER_FIRST_PAGE),
                 isFirstPage: true,
                 isLastPage: false
             });
 
+            // Remaining items
             let remainingItems = items.slice(ITEMS_PER_FIRST_PAGE);
             while (remainingItems.length > 0) {
                 const pageItems = remainingItems.slice(0, ITEMS_PER_PAGE);
@@ -76,6 +81,7 @@ const InvoicePreview = ({ invoiceData }) => {
         return pages;
     }, [invoiceData?.items]);
 
+    // Generate PDF with proper pagination
     const generateInvoicePDF = async () => {
         const pdf = new jsPDF({
             orientation: 'p',
@@ -86,6 +92,7 @@ const InvoicePreview = ({ invoiceData }) => {
 
         const pdfWidth = pdf.internal.pageSize.getWidth();
         const pdfHeight = pdf.internal.pageSize.getHeight();
+
         const pages = document.querySelectorAll(`[data-invoice-page="${invoiceData.id}"]`);
 
         for (let i = 0; i < pages.length; i++) {
@@ -140,6 +147,7 @@ const InvoicePreview = ({ invoiceData }) => {
 
     const totalTax = (invoiceData.totalSgst || 0) + (invoiceData.totalCgst || 0) + (invoiceData.totalIgst || 0);
 
+    // Header Component
     const InvoiceHeader = () => (
         <>
             <div className="flex items-center border-b border-black">
@@ -206,6 +214,7 @@ const InvoicePreview = ({ invoiceData }) => {
         </>
     );
 
+    // Compact Header for continuation pages
     const ContinuationHeader = ({ pageNum, totalPages }) => (
         <div className="flex items-center justify-between border-b border-black p-2 bg-gray-50">
             <div className="flex items-center gap-2">
@@ -219,6 +228,7 @@ const InvoicePreview = ({ invoiceData }) => {
         </div>
     );
 
+    // Table Header
     const TableHeader = () => (
         <thead className="font-bold bg-gray-50 text-[9px]">
             <tr>
@@ -246,8 +256,9 @@ const InvoicePreview = ({ invoiceData }) => {
         </thead>
     );
 
+    // Item Row
     const ItemRow = ({ item, index, startIndex }) => (
-        <tr className="border-t border-black align-top">
+        <tr className="align-top">
             <td className="p-1 border-r border-black text-center">{startIndex + index + 1}</td>
             <td className="p-1 border-r border-black text-left whitespace-pre-wrap text-[9px]">{item.description}</td>
             <td className="p-1 border-r border-black text-center">{item.hsn}</td>
@@ -258,44 +269,30 @@ const InvoicePreview = ({ invoiceData }) => {
             <td className="p-1 border-r border-black text-right">{item.sgstAmount.toFixed(2)}</td>
             <td className="p-1 border-r border-black text-right">{item.cgstAmount.toFixed(2)}</td>
             <td className="p-1 border-r border-black text-right">{item.igstAmount.toFixed(2)}</td>
-            <td className="p-1 text-right">{item.total.toFixed(2)}</td>
+            <td className="p-1 text-right border-r border-black">{item.total.toFixed(2)}</td>
         </tr>
     );
 
-    const EmptyRows = ({ count }) => (
-        <>
-            {Array.from({ length: count }).map((_, i) => (
-                <tr key={`empty-${i}`} className="border-t border-black" style={{ height: '28px' }}>
-                    <td className="p-1 border-r border-black"></td>
-                    <td className="p-1 border-r border-black"></td>
-                    <td className="p-1 border-r border-black"></td>
-                    <td className="p-1 border-r border-black"></td>
-                    <td className="p-1 border-r border-black"></td>
-                    <td className="p-1 border-r border-black"></td>
-                    <td className="p-1 border-r border-black"></td>
-                    <td className="p-1 border-r border-black"></td>
-                    <td className="p-1 border-r border-black"></td>
-                    <td className="p-1 border-r border-black"></td>
-                    <td className="p-1"></td>
-                </tr>
-            ))}
-        </>
-    );
-
-    const TotalsRow = () => (
-        <tr className="border-t-2 border-black font-bold bg-gray-50">
-            <td colSpan="3" className="p-1 text-right border-r border-black">Total</td>
-            <td className="p-1 text-right border-r border-black">{invoiceData.totalAmount.toFixed(2)}</td>
-            <td colSpan="3" className="border-r border-black"></td>
-            <td className="p-1 text-right border-r border-black">{invoiceData.totalSgst.toFixed(2)}</td>
-            <td className="p-1 text-right border-r border-black">{invoiceData.totalCgst.toFixed(2)}</td>
-            <td className="p-1 text-right border-r border-black">{invoiceData.totalIgst.toFixed(2)}</td>
-            <td className="p-1 text-right">{invoiceData.grandTotal.toFixed(2)}</td>
-        </tr>
-    );
-
+    // Footer Section with Totals
     const InvoiceFooter = () => (
         <>
+            {/* Totals Row - Full width at top of footer */}
+            <div className="border-t-2 border-black bg-gray-50">
+                <table className="w-full text-center text-[9px] font-bold">
+                    <tbody>
+                        <tr>
+                            <td colSpan="3" className="p-1 text-right border-r border-black w-[20%]">Total</td>
+                            <td className="p-1 text-right border-r border-black w-[8%]">{invoiceData.totalAmount.toFixed(2)}</td>
+                            <td colSpan="3" className="border-r border-black w-[15%]"></td>
+                            <td className="p-1 text-right border-r border-black w-[10%]">{invoiceData.totalSgst.toFixed(2)}</td>
+                            <td className="p-1 text-right border-r border-black w-[10%]">{invoiceData.totalCgst.toFixed(2)}</td>
+                            <td className="p-1 text-right border-r border-black w-[10%]">{invoiceData.totalIgst.toFixed(2)}</td>
+                            <td className="p-1 text-right border-r border-black w-[8%]">{invoiceData.grandTotal.toFixed(2)}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
             <div className="flex justify-between border-t border-black p-2 text-xs">
                 <div>
                     <span className="font-bold">Amount Chargeable (in words):</span><br />
@@ -304,6 +301,7 @@ const InvoicePreview = ({ invoiceData }) => {
                 <div className="font-bold">E. & O.E</div>
             </div>
 
+            {/* Tax Summary Table */}
             <table className="w-full border-t border-black text-center text-[9px]">
                 <thead className="font-bold">
                     <tr>
@@ -312,7 +310,7 @@ const InvoicePreview = ({ invoiceData }) => {
                         <td colSpan="2" className="p-1 border-r border-black">CGST</td>
                         <td colSpan="2" className="p-1 border-r border-black">SGST</td>
                         <td colSpan="2" className="p-1 border-r border-black">IGST</td>
-                        <td rowSpan="2" className="p-1">Total Tax</td>
+                        <td rowSpan="2" className="p-1 border-r border-black">Total Tax</td>
                     </tr>
                     <tr>
                         <td className="p-1 border-t border-r border-black">Rate</td>
@@ -334,7 +332,7 @@ const InvoicePreview = ({ invoiceData }) => {
                             <td className="p-1 border-r border-black">{data.sgstAmount.toFixed(2)}</td>
                             <td className="p-1 border-r border-black">{data.igstRate}%</td>
                             <td className="p-1 border-r border-black">{data.igstAmount.toFixed(2)}</td>
-                            <td className="p-1">{(data.cgstAmount + data.sgstAmount + data.igstAmount).toFixed(2)}</td>
+                            <td className="p-1 border-r border-black">{(data.cgstAmount + data.sgstAmount + data.igstAmount).toFixed(2)}</td>
                         </tr>
                     ))}
                 </tbody>
@@ -359,54 +357,145 @@ const InvoicePreview = ({ invoiceData }) => {
         </>
     );
 
-    const calculateEmptyRows = (itemCount, isFirstPage, isLastPage) => {
-        const maxItems = isFirstPage ? ITEMS_PER_FIRST_PAGE : ITEMS_PER_PAGE;
-        if (isLastPage) {
-            return Math.max(0, maxItems - itemCount);
-        }
-        return 0;
-    };
-
+    // Single Page Component
     const InvoicePage = ({ pageData, pageIndex, totalPages }) => {
         const { items: pageItems, isFirstPage, isLastPage } = pageData;
         const startIndex = isFirstPage ? 0 : ITEMS_PER_FIRST_PAGE + (pageIndex - 1) * ITEMS_PER_PAGE;
-        const emptyRowCount = calculateEmptyRows(pageItems.length, isFirstPage, isLastPage);
 
         return (
             <div
                 data-invoice-page={invoiceData.id}
-                className="bg-white border border-black flex flex-col"
+                className="bg-white  border-black flex flex-col"
                 style={{
                     width: '210mm',
                     height: '297mm',
-                    padding: '5mm',
+                    padding: '3mm',
                     boxSizing: 'border-box',
                     pageBreakAfter: 'always',
                     pageBreakInside: 'avoid'
                 }}
             >
                 <div className="border border-black flex flex-col h-full">
+                    {/* Header */}
                     {isFirstPage ? <InvoiceHeader /> : <ContinuationHeader pageNum={pageIndex + 1} totalPages={totalPages} />}
 
-                    <div className="flex-1 flex flex-col">
-                        <table className="w-full text-center text-[9px] border-collapse">
-                            <TableHeader />
-                            <tbody>
-                                {pageItems.map((item, index) => (
-                                    <ItemRow
-                                        key={index}
-                                        item={item}
-                                        index={index}
-                                        startIndex={startIndex}
-                                    />
-                                ))}
-                                <EmptyRows count={emptyRowCount} />
-                                {isLastPage && <TotalsRow />}
-                            </tbody>
-                        </table>
+                    {/* Items Table Container - Flex grow to fill available space */}
+                    <div className="flex-1 flex flex-col relative">
+                        {/* Table with full height to extend borders */}
+                        <div className="flex-1 flex flex-col">
+                            <table className="w-full text-center text-[9px] border-collapse h-full">
+                                <TableHeader />
+                                <tbody className="h-full">
+                                    {/* This is the key part - we create a full height table structure */}
+                                    <tr className="h-full">
+                                        <td className="border-r border-black p-0 align-top">
+                                            <div className="min-h-full">
+                                                {pageItems.map((item, index) => (
+                                                    <div key={index} className="border-t border-black">
+                                                        <div className="p-1 text-center">{startIndex + index + 1}</div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </td>
+                                        <td className="border-r border-black p-0 align-top">
+                                            <div className="min-h-full">
+                                                {pageItems.map((item, index) => (
+                                                    <div key={index} className="border-t border-black">
+                                                        <div className="p-1 text-left whitespace-pre-wrap">{item.description}</div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </td>
+                                        <td className="border-r border-black p-0 align-top">
+                                            <div className="min-h-full">
+                                                {pageItems.map((item, index) => (
+                                                    <div key={index} className="border-t border-black">
+                                                        <div className="p-1 text-center">{item.hsn}</div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </td>
+                                        <td className="border-r border-black p-0 align-top">
+                                            <div className="min-h-full">
+                                                {pageItems.map((item, index) => (
+                                                    <div key={index} className="border-t border-black">
+                                                        <div className="p-1 text-right">{item.amount.toFixed(2)}</div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </td>
+                                        <td className="border-r border-black p-0 align-top">
+                                            <div className="min-h-full">
+                                                {pageItems.map((item, index) => (
+                                                    <div key={index} className="border-t border-black">
+                                                        <div className="p-1 text-center">{item.sgstRate}%</div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </td>
+                                        <td className="border-r border-black p-0 align-top">
+                                            <div className="min-h-full">
+                                                {pageItems.map((item, index) => (
+                                                    <div key={index} className="border-t border-black">
+                                                        <div className="p-1 text-center">{item.cgstRate}%</div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </td>
+                                        <td className="border-r border-black p-0 align-top">
+                                            <div className="min-h-full">
+                                                {pageItems.map((item, index) => (
+                                                    <div key={index} className="border-t border-black">
+                                                        <div className="p-1 text-center">{item.igstRate}%</div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </td>
+                                        <td className="border-r border-black p-0 align-top">
+                                            <div className="min-h-full">
+                                                {pageItems.map((item, index) => (
+                                                    <div key={index} className="border-t border-black">
+                                                        <div className="p-1 text-right">{item.sgstAmount.toFixed(2)}</div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </td>
+                                        <td className="border-r border-black p-0 align-top">
+                                            <div className="min-h-full">
+                                                {pageItems.map((item, index) => (
+                                                    <div key={index} className="border-t border-black">
+                                                        <div className="p-1 text-right">{item.cgstAmount.toFixed(2)}</div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </td>
+                                        <td className="border-r border-black p-0 align-top">
+                                            <div className="min-h-full">
+                                                {pageItems.map((item, index) => (
+                                                    <div key={index} className="border-t border-black">
+                                                        <div className="p-1 text-right">{item.igstAmount.toFixed(2)}</div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </td>
+                                        <td className="border-r border-black p-0 align-top">
+                                            <div className="min-h-full">
+                                                {pageItems.map((item, index) => (
+                                                    <div key={index} className="border-t border-black">
+                                                        <div className="p-1 text-right">{item.total.toFixed(2)}</div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
 
+                        {/* Spacer to push footer to bottom when not last page */}
                         {!isLastPage && <div className="flex-1"></div>}
 
+                        {/* Continuation note for non-last pages */}
                         {!isLastPage && (
                             <div className="border-t border-black p-2 text-center text-xs bg-gray-50">
                                 <span className="font-bold">Continued on next page...</span>
@@ -415,6 +504,7 @@ const InvoicePreview = ({ invoiceData }) => {
                         )}
                     </div>
 
+                    {/* Footer - Only on last page */}
                     {isLastPage && <InvoiceFooter />}
                 </div>
             </div>
@@ -423,6 +513,7 @@ const InvoicePreview = ({ invoiceData }) => {
 
     return (
         <div>
+            {/* Action Buttons */}
             <div className="p-4 flex justify-end gap-4 bg-gray-100 sticky top-0 z-10">
                 <button
                     onClick={handleDownloadPDF}
@@ -442,6 +533,7 @@ const InvoicePreview = ({ invoiceData }) => {
                 </button>
             </div>
 
+            {/* Invoice Pages Container */}
             <div
                 id={`invoice-print-area-${invoiceData.id}`}
                 className="flex flex-col items-center gap-4 p-4 bg-gray-200"
@@ -456,6 +548,7 @@ const InvoicePreview = ({ invoiceData }) => {
                 ))}
             </div>
 
+            {/* Print Styles */}
             <style>{`
                 @media print {
                     @page {
